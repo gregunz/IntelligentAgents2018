@@ -7,40 +7,40 @@ import uchicago.src.sim.engine.SimModelImpl;
  * order to run Repast simulation. It manages the entire RePast
  * environment and the simulation.
  *
- * @author 
+ * @author
  */
 
 
-public class RabbitsGrassSimulationModel extends SimModelImpl {		
+public class RabbitsGrassSimulationModel extends SimModelImpl {
 
-		public static void main(String[] args) {
-			
-			System.out.println("Rabbit skeleton");
-			
-		}
+    public static void main(String[] args) {
 
-		public void begin() {
-			// TODO Auto-generated method stub
-			
-		}
+        System.out.println("Rabbit skeleton");
 
-		public String[] getInitParam() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+    }
 
-		public String getName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+    public void begin() {
+        // TODO Auto-generated method stub
 
-		public Schedule getSchedule() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+    }
 
-		public void setup() {
-			// TODO Auto-generated method stub
-			
-		}
+    public String[] getInitParam() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Schedule getSchedule() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void setup() {
+        // TODO Auto-generated method stub
+
+    }
 }
