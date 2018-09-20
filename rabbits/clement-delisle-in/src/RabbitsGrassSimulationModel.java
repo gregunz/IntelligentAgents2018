@@ -1,5 +1,11 @@
 import uchicago.src.sim.engine.Schedule;
+import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
+import uchicago.src.sim.gui.ColorMap;
+import uchicago.src.sim.gui.DisplaySurface;
+import uchicago.src.sim.gui.Value2DDisplay;
+
+import java.awt.*;
 
 /**
  * Class that implements the simulation model for the rabbits grass
@@ -13,13 +19,17 @@ import uchicago.src.sim.engine.SimModelImpl;
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 
-    private Schedule schedule;
+    private static final int GRIDWIDTH = 20;
+    private static final int GRIDHEIGHT = 20;
+    private static final int NUMRABBITS = 5;
+    private static final int BIRTHTHRESHOLD = 10;
+    private static final int GRASSGROWTHRATE = 4;
 
-    private int gridWidth;
-    private int gridHeight;
-    private int numRabbits;
-    private int birthThreshold;
-    private int grassGrowthRate;
+    private int gridWidth = GRIDWIDTH;
+    private int gridHeight = GRIDHEIGHT;
+    private int numRabbits = NUMRABBITS;
+    private int birthThreshold = BIRTHTHRESHOLD;
+    private int grassGrowthRate = GRASSGROWTHRATE;
 
     private String[] initParams = {
             "GridWidth",
@@ -29,9 +39,18 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
             "GrassGrowthRate"
     };
 
-    public static void main(String[] args) {
+    private Schedule schedule;
 
+    private RabbitsGrassSimulationSpace space;
+
+    private DisplaySurface displaySurface;
+
+    public static void main(String[] args) {
         System.out.println("Rabbit skeleton");
+
+        SimInit init = new SimInit();
+        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
+        init.loadModel(model, "", false);
 
     }
 
@@ -43,8 +62,17 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
      * This function is called when the button with the two curved arrows is pressed.
      */
     public void setup() {
-        // TODO Auto-generated method stub
+        System.out.println("Running setup");
+        space = null;
 
+        if (displaySurface != null){
+            displaySurface.dispose();
+        }
+        displaySurface = null;
+
+        displaySurface = new DisplaySurface(this, "Carry Drop Model Window 1");
+
+        registerDisplaySurface("Carry Drop Model Window 1", displaySurface);
     }
 
     /**
@@ -55,15 +83,34 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         buildModel();
         buildSchedule();
         buildDisplay();
+
+
+        displaySurface.display();
     }
 
     public void buildModel() {
+        System.out.println("Running BuildModel");
+        space = new RabbitsGrassSimulationSpace(gridWidth, gridHeight);
     }
 
     public void buildSchedule() {
+        System.out.println("Running BuildSchedule");
     }
 
     public void buildDisplay() {
+        System.out.println("Running BuildDisplay");
+
+        ColorMap map = new ColorMap();
+
+        for(int i = 1; i<16; i++){
+            map.mapColor(i, new Color((int)(i * 8 + 127), 0, 0));
+        }
+        map.mapColor(0, Color.white);
+
+        Value2DDisplay displayMoney = //TODO: CHANGE NAME (it's from tutorial which is about another application)
+                new Value2DDisplay(space.getGrid(), map);
+
+        displaySurface.addDisplayable(displayMoney, "Money"); //TODO: change here too (the string)
     }
 
     public Schedule getSchedule() {
