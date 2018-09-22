@@ -1,11 +1,10 @@
+import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
-import uchicago.src.sim.gui.ColorMap;
 import uchicago.src.sim.gui.DisplaySurface;
-import uchicago.src.sim.gui.Value2DDisplay;
 
-import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Class that implements the simulation model for the rabbits grass
@@ -19,152 +18,220 @@ import java.awt.*;
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 
-    private static final int GRIDWIDTH = 20;
-    private static final int GRIDHEIGHT = 20;
-    private static final int NUMRABBITS = 5;
-    private static final int BIRTHTHRESHOLD = 10;
-    private static final int GRASSGROWTHRATE = 4;
+    private static final int GRID_WIDTH = 50;
+    private static final int GRID_HEIGHT = 50;
+    private static final int NUM_RABBITS = 5;
+    private static final int BIRTH_THRESHOLD = 200;
+    private static final int GRASS_GROWTH_RATE = 50;
+    private static final int STEP_COST = 1;
+    private static final int INITIAL_ENERGY = 100;
+    private static final int INITIAL_GRASS = 100;
+    private static final int BIRTH_COST = 100;
 
-    private int gridWidth = GRIDWIDTH;
-    private int gridHeight = GRIDHEIGHT;
-    private int numRabbits = NUMRABBITS;
-    private int birthThreshold = BIRTHTHRESHOLD;
-    private int grassGrowthRate = GRASSGROWTHRATE;
+    private int gridWidth = GRID_WIDTH;
+    private int gridHeight = GRID_HEIGHT;
+    private int numRabbits = NUM_RABBITS;
+    private int birthThreshold = BIRTH_THRESHOLD;
+    private int grassGrowthRate = GRASS_GROWTH_RATE;
+    private int stepCost = STEP_COST;
+    private int initialEnergy = INITIAL_ENERGY;
+    private int initialGrass = INITIAL_GRASS;
+    private int birthCost = BIRTH_COST;
 
     private String[] initParams = {
             "GridWidth",
             "GridHeight",
             "NumRabbits",
             "BirthThreshold",
-            "GrassGrowthRate"
+            "GrassGrowthRate",
+            "StepCost",
+            "InitialEnergy",
+            "BirthCost"
     };
 
     private Schedule schedule;
 
-    private RabbitsGrassSimulationSpace space;
+    private RabbitsGrassSimulationSpace rgsSpace;
 
-    private DisplaySurface displaySurface;
+    private ArrayList<RabbitsGrassSimulationAgent> rabbits;
 
-    public static void main(String[] args) {
-        System.out.println("Rabbit skeleton");
+    private DisplaySurface displaySurf;
 
-        SimInit init = new SimInit();
-        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
-        init.loadModel(model, "", false);
-
-    }
-
-    public String getName() {
-        return "Rabbits Grass Simulation";
-    }
-
-    /**
-     * This function is called when the button with the two curved arrows is pressed.
-     */
-    public void setup() {
+    public void setup(){
         System.out.println("Running setup");
-        space = null;
+        rgsSpace = null;
+        rabbits = null;
+        schedule = null;
 
-        if (displaySurface != null){
-            displaySurface.dispose();
-        }
-        displaySurface = null;
+        displaySurf = null;
 
-        displaySurface = new DisplaySurface(this, "Carry Drop Model Window 1");
-
-        registerDisplaySurface("Carry Drop Model Window 1", displaySurface);
     }
 
-    /**
-     * This function is responsible for initializing the simulation when the ‘Initialize’ button
-     * is clicked on the toolbar.
-     */
-    public void begin() {
+    public void begin(){
+        System.out.println("Building model");
         buildModel();
+        System.out.println("Building schedule");
         buildSchedule();
+        System.out.println("Building display");
         buildDisplay();
 
-
-        displaySurface.display();
+        displaySurf.display();
     }
 
-    public void buildModel() {
-        System.out.println("Running BuildModel");
-        space = new RabbitsGrassSimulationSpace(gridWidth, gridHeight);
+    public String getName(){
+        return "Rabbit simulation for IA course";
     }
 
-    public void buildSchedule() {
-        System.out.println("Running BuildSchedule");
-    }
-
-    public void buildDisplay() {
-        System.out.println("Running BuildDisplay");
-
-        ColorMap map = new ColorMap();
-
-        for(int i = 1; i<16; i++){
-            map.mapColor(i, new Color((int)(i * 8 + 127), 0, 0));
-        }
-        map.mapColor(0, Color.white);
-
-        Value2DDisplay displayMoney = //TODO: CHANGE NAME (it's from tutorial which is about another application)
-                new Value2DDisplay(space.getGrid(), map);
-
-        displaySurface.addDisplayable(displayMoney, "Money"); //TODO: change here too (the string)
-    }
-
-    public Schedule getSchedule() {
+    public Schedule getSchedule(){
         return schedule;
     }
 
-    /**
-     * This function returns an array of String variables, each one listing the name of a particular
-     * parameter that you want to be available to vary using the RePast control panel.
-     *
-     * @return Array of String variables for control panel
-     */
-    public String[] getInitParam() {
+    public String[] getInitParam(){
         return initParams;
     }
 
-
-    public int getGridWidth() {
-        return gridWidth;
-    }
-
-    public void setGridWidth(int gridWidth) {
-        this.gridWidth = gridWidth;
-    }
-
-    public int getGridHeight() {
-        return gridHeight;
-    }
-
-    public void setGridHeight(int gridHeight) {
-        this.gridHeight = gridHeight;
-    }
-
-    public int getNumRabbits() {
+    public int getNumRabbits(){
         return numRabbits;
     }
 
-    public void setNumRabbits(int numRabbits) {
-        this.numRabbits = numRabbits;
+    public void setNumRabbits(int na){
+        numRabbits = na;
+    }
+
+    public int getGridWidth(){
+        return gridWidth;
+    }
+
+    public void setGridWidth(int wxs){
+        gridWidth = wxs;
+    }
+
+    public int getGridHeight(){
+        return gridHeight;
+    }
+
+    public void setGridHeight(int wys){
+        gridHeight = wys;
     }
 
     public int getBirthThreshold() {
         return birthThreshold;
     }
 
-    public void setBirthThreshold(int birthThreshold) {
-        this.birthThreshold = birthThreshold;
-    }
-
     public int getGrassGrowthRate() {
         return grassGrowthRate;
     }
 
-    public void setGrassGrowthRate(int grassGrowthRate) {
-        this.grassGrowthRate = grassGrowthRate;
+    public void setBirthThreshold(int i) {
+        birthThreshold = i;
     }
+
+    public void setGrassGrowthRate(int i) {
+        grassGrowthRate = i;
+    }
+
+    public int getStepCost() {
+        return stepCost;
+    }
+
+    public void setStepCost(int stepCost) {
+        this.stepCost = stepCost;
+    }
+
+    public int getInitialEnergy() {
+        return initialEnergy;
+    }
+
+    public void setInitialEnergy(int initialEnergy) {
+        this.initialEnergy = initialEnergy;
+    }
+
+    public int getInitialGrass() {
+        return initialGrass;
+    }
+
+    public void setInitialGrass(int initialGrass) {
+        this.initialGrass = initialGrass;
+    }
+
+    public int getBirthCost() {
+        return birthCost;
+    }
+
+    public void setBirthCost(int birthCost) {
+        this.birthCost = birthCost;
+    }
+
+    public void buildModel() {
+
+        rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight());
+        int initialGrass = 10;
+        rgsSpace.growGrass(initialGrass);
+
+        rabbits = new ArrayList<>();
+        int rabbitsToAdd = getNumRabbits();
+        rabbitsToAdd = Math.min(rabbitsToAdd, getGridWidth() * getGridHeight());
+        while (rabbitsToAdd > 0) {
+            int x = (int)Math.floor(Math.random() * getGridWidth());
+            int y = (int)Math.floor(Math.random() * getGridHeight());
+            if (!rgsSpace.isCellOccupied(x, y)) {
+                RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(
+                        x, y, getInitialEnergy(), rgsSpace);
+                rabbits.add(agent);
+                rabbitsToAdd--;
+            }
+        }
+    }
+
+    private void buildSchedule() {
+        schedule = new Schedule();
+
+        schedule.scheduleActionAtInterval(1, new BasicAction() {
+            @Override
+            public void execute() {
+                rgsSpace.growGrass(getGrassGrowthRate());
+                nextStep();
+                displaySurf.updateDisplay();
+            }
+        });
+    }
+
+    private void buildDisplay() {
+        displaySurf = new DisplaySurface(rgsSpace.getCurrentGrassSpace().getSize(), this, "Display");
+        displaySurf.addDisplayable(rgsSpace.getGrassDisplayable(), "Grass");
+        displaySurf.addDisplayable(rgsSpace.getRabbitsDisplayable(), "Rabbits");
+
+        registerDisplaySurface("World", displaySurf);
+    }
+
+
+    private void nextStep() {
+
+        ArrayList<RabbitsGrassSimulationAgent> newRabbits = new ArrayList<>();
+        ArrayList<RabbitsGrassSimulationAgent> deadRabbits = new ArrayList<>();
+
+        for (RabbitsGrassSimulationAgent rabbit : rabbits) {
+
+            RabbitsGrassSimulationAgent newRabbit = rabbit.step(getStepCost(), getBirthThreshold(), getInitialEnergy(), getBirthCost());
+
+            if (newRabbit != null) {
+                newRabbits.add(newRabbit);
+            }
+
+            if (rabbit.hasDied()) {
+                deadRabbits.add(rabbit);
+            }
+        }
+
+        rabbits.addAll(newRabbits);
+        rabbits.removeAll(deadRabbits);
+
+    }
+
+    public static void main(String[] args) {
+        SimInit init = new SimInit();
+        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
+        init.loadModel(model, "", false);
+    }
+
 }
