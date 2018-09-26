@@ -1,3 +1,6 @@
+import uchicago.src.sim.analysis.DataSource;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -67,6 +70,30 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     private DisplaySurface surface;
 
+    private OpenSequenceGraph amountOfEachPopInSpace;
+
+    class GrassInSpace implements DataSource, Sequence {
+
+        public Object execute() {
+            return getSValue();
+        }
+
+        public double getSValue() {
+            return (double) space.getTotalGrass();
+        }
+    }
+
+    class RabbitsInSpace implements DataSource, Sequence {
+
+        public Object execute() {
+            return getSValue();
+        }
+
+        public double getSValue() {
+            return (double) rabbits.size();
+        }
+    }
+
     public static void main(String[] args) {
         SimInit init = new SimInit();
         RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
@@ -80,6 +107,17 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         schedule = null;
         surface = null;
 
+        if (amountOfEachPopInSpace != null) {
+            amountOfEachPopInSpace.dispose();
+        }
+        amountOfEachPopInSpace = null;
+
+        amountOfEachPopInSpace = new OpenSequenceGraph("Amount Of Grass In Space", this);
+
+        // Register Displays
+        registerDisplaySurface("Carry Drop Model Window 1", surface);
+        this.registerMediaProducer("Plot", amountOfEachPopInSpace);
+
     }
 
     public void begin() {
@@ -91,6 +129,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         buildDisplay();
 
         surface.display();
+        amountOfEachPopInSpace.display();
     }
 
     public String getName() {
@@ -195,6 +234,14 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 surface.updateDisplay();
             }
         });
+
+        class UpdatePopInSpace extends BasicAction {
+            public void execute() {
+                amountOfEachPopInSpace.step();
+            }
+        }
+
+        schedule.scheduleActionAtInterval(10, new UpdatePopInSpace());
     }
 
     private void buildDisplay() {
@@ -203,9 +250,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         surface.addDisplayable(space.getRabbitsDisplayable(), "Rabbits");
 
         registerDisplaySurface("World", surface);
+
+        amountOfEachPopInSpace.addSequence("Grass In Space", new GrassInSpace());
+        amountOfEachPopInSpace.addSequence("Rabbits In Space", new RabbitsInSpace());
+
     }
 
-    private List<RabbitsGrassSimulationAgent> generateRabbits(int numRabbits) {
+        private List<RabbitsGrassSimulationAgent> generateRabbits(int numRabbits) {
         List<RabbitsGrassSimulationAgent> rabbits = new ArrayList<>();
         int rabbitsToAdd = Math.min(numRabbits, getGridWidth() * getGridHeight() - rabbits.size());
         while (rabbitsToAdd > 0) {
