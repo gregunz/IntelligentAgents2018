@@ -3,6 +3,7 @@ import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.DisplaySurface;
+import utils.Position2D;
 
 import java.util.ArrayList;
 
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * order to run Repast simulation. It manages the entire RePast
  * environment and the simulation.
  *
- * @author
+ * @authors Maxime Delisle & Grégoire Clément
  */
 
 
@@ -57,7 +58,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     private DisplaySurface displaySurf;
 
-    public void setup(){
+    public static void main(String[] args) {
+        SimInit init = new SimInit();
+        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
+        init.loadModel(model, "", false);
+    }
+
+    public void setup() {
         System.out.println("Running setup");
         rgsSpace = null;
         rabbits = null;
@@ -67,7 +74,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     }
 
-    public void begin(){
+    public void begin() {
         System.out.println("Building model");
         buildModel();
         System.out.println("Building schedule");
@@ -78,39 +85,39 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         displaySurf.display();
     }
 
-    public String getName(){
+    public String getName() {
         return "Rabbit simulation for IA course";
     }
 
-    public Schedule getSchedule(){
+    public Schedule getSchedule() {
         return schedule;
     }
 
-    public String[] getInitParam(){
+    public String[] getInitParam() {
         return initParams;
     }
 
-    public int getNumRabbits(){
+    public int getNumRabbits() {
         return numRabbits;
     }
 
-    public void setNumRabbits(int na){
+    public void setNumRabbits(int na) {
         numRabbits = na;
     }
 
-    public int getGridWidth(){
+    public int getGridWidth() {
         return gridWidth;
     }
 
-    public void setGridWidth(int wxs){
+    public void setGridWidth(int wxs) {
         gridWidth = wxs;
     }
 
-    public int getGridHeight(){
+    public int getGridHeight() {
         return gridHeight;
     }
 
-    public void setGridHeight(int wys){
+    public void setGridHeight(int wys) {
         gridHeight = wys;
     }
 
@@ -118,12 +125,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         return birthThreshold;
     }
 
-    public int getGrassGrowthRate() {
-        return grassGrowthRate;
-    }
-
     public void setBirthThreshold(int i) {
         birthThreshold = i;
+    }
+
+    public int getGrassGrowthRate() {
+        return grassGrowthRate;
     }
 
     public void setGrassGrowthRate(int i) {
@@ -164,19 +171,20 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-        rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight());
         int initialGrass = 10;
-        rgsSpace.growGrass(initialGrass);
+        rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), initialGrass);
 
         rabbits = new ArrayList<>();
         int rabbitsToAdd = getNumRabbits();
         rabbitsToAdd = Math.min(rabbitsToAdd, getGridWidth() * getGridHeight());
         while (rabbitsToAdd > 0) {
-            int x = (int)Math.floor(Math.random() * getGridWidth());
-            int y = (int)Math.floor(Math.random() * getGridHeight());
-            if (!rgsSpace.isCellOccupied(x, y)) {
+            Position2D pos = new Position2D(
+                    (int) Math.floor(Math.random() * getGridWidth()),
+                    (int) Math.floor(Math.random() * getGridHeight())
+            );
+            if (rgsSpace.isCellFree(pos)) {
                 RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(
-                        x, y, getInitialEnergy(), rgsSpace);
+                        pos, getInitialEnergy(), rgsSpace);
                 rabbits.add(agent);
                 rabbitsToAdd--;
             }
@@ -204,7 +212,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         registerDisplaySurface("World", displaySurf);
     }
 
-
     private void nextStep() {
 
         ArrayList<RabbitsGrassSimulationAgent> newRabbits = new ArrayList<>();
@@ -226,12 +233,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         rabbits.addAll(newRabbits);
         rabbits.removeAll(deadRabbits);
 
-    }
-
-    public static void main(String[] args) {
-        SimInit init = new SimInit();
-        RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
-        init.loadModel(model, "", false);
     }
 
 }
