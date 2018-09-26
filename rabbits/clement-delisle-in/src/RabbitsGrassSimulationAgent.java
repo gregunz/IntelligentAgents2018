@@ -5,6 +5,7 @@ import utils.Position2D;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 
@@ -18,15 +19,14 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 
     private Position2D pos;
     private int energy;
-    private boolean isDead = false;
-    private RabbitsGrassSimulationSpace rgsSpace;
+    private RabbitsGrassSimulationSpace space;
 
     public RabbitsGrassSimulationAgent(Position2D pos, int energy, RabbitsGrassSimulationSpace space) {
         this.pos = pos;
         this.energy = energy;
 
-        space.addRabbit(pos, this);
-        setRabbitsGrassSimulationSpace(space);
+        space.addRabbitAt(pos, this);
+        this.space = space;
     }
 
     public Position2D getPos() {
@@ -45,44 +45,45 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         return this.pos.getY();
     }
 
-    public void setRabbitsGrassSimulationSpace(RabbitsGrassSimulationSpace rgs) {
-        rgsSpace = rgs;
-    }
 
-    public boolean hasDied() {
-        return isDead;
+    public boolean isDead() {
+        return this.energy <= 0;
     }
 
     public void draw(SimGraphics G) {
         G.drawRect(Color.red);
     }
 
-    public RabbitsGrassSimulationAgent step(int moveCost, int birthThreshold, int initialEnergy, int birthCost) {
-
-        if (this.energy <= 0) {
-            this.rgsSpace.removeRabbitAt(this.pos);
-            this.isDead = true;
-            return null;
-        }
-
+    public void moveThenEat(int moveCost) {
         Position2D nextMove = getRandomNeighborCell(this.pos);
-        tryMove(nextMove);
+        move(nextMove);
         energy -= moveCost;
         eatGrass();
-
-        return tryToReproduce(birthThreshold, initialEnergy, birthCost);
     }
 
-    private boolean tryMove(Position2D nextMove) {
+    public Optional<RabbitsGrassSimulationAgent> tryToReproduce(int birthThreshold, int initialEnergy, int birthCost) {
+        if (energy >= birthThreshold) {
+            Position2D newPos = getRandomNeighborCell(this.pos);
+            if (this.pos.isDifferent(newPos)) {
+                energy -= birthCost;
+                return Optional.of(new RabbitsGrassSimulationAgent(newPos, initialEnergy, space));
+
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean move(Position2D nextMove) {
         if (this.pos.isDifferent(nextMove)) {
-            rgsSpace.moveRabbitAt(this.pos, nextMove);
+            space.moveRabbitAt(this.pos, nextMove);
             return true;
         }
         return false;
     }
 
     private void eatGrass() {
-        energy += rgsSpace.getEnergy(this.pos);
+        energy += space.eatGrassAt(this.pos);
     }
 
     private Position2D getRandomNeighborCell(Position2D pos) {
@@ -91,16 +92,16 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         int posX = pos.getX();
         int posY = pos.getY();
 
-        if (rgsSpace.isCellFree(posX + 1, posY)) {
+        if (space.isCellFree(posX + 1, posY)) {
             availableCells.add(new Position2D(posX + 1, posY));
         }
-        if (rgsSpace.isCellFree(posX - 1, posY)) {
+        if (space.isCellFree(posX - 1, posY)) {
             availableCells.add(new Position2D(posX - 1, posY));
         }
-        if (rgsSpace.isCellFree(posX, posY + 1)) {
+        if (space.isCellFree(posX, posY + 1)) {
             availableCells.add(new Position2D(posX, posY + 1));
         }
-        if (rgsSpace.isCellFree(posX, posY - 1)) {
+        if (space.isCellFree(posX, posY - 1)) {
             availableCells.add(new Position2D(posX, posY - 1));
         }
 
@@ -109,18 +110,5 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         } else {
             return availableCells.get(new Random().nextInt(availableCells.size()));
         }
-    }
-
-    private RabbitsGrassSimulationAgent tryToReproduce(int birthThreshold, int initialEnergy, int birthCost) {
-        if (energy >= birthThreshold) {
-            Position2D newPos = getRandomNeighborCell(this.pos);
-            if (this.pos.isDifferent(newPos)) {
-                energy -= birthCost;
-                return new RabbitsGrassSimulationAgent(newPos, initialEnergy, rgsSpace);
-
-            }
-        }
-
-        return null;
     }
 }

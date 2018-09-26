@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Random;
+
 public class Position2D {
     private int x;
     private int y;
@@ -7,6 +9,20 @@ public class Position2D {
     public Position2D(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public static Position2D random(int limitX, int limitY) {
+        return random(0, 0, limitX, limitY);
+    }
+
+    public static Position2D random(int fromX, int fromY, int toX, int toY) {
+        int difX = toX - fromX;
+        int difY = toY - fromY;
+
+        return new Position2D(
+                new Random().nextInt(difX) + fromX,
+                new Random().nextInt(difY) + fromY
+        );
     }
 
     public int getX() {

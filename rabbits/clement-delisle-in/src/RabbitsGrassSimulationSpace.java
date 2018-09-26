@@ -16,42 +16,42 @@ import java.awt.*;
 
 public class RabbitsGrassSimulationSpace {
 
-    private final int MAX_GRASS_VALUE = 1;
 
     private Discrete2DSpace grassSpace;
     private Discrete2DSpace rabbitsSpace;
+    private int grassStep;
+    private int grassMaxValue;
 
-    public RabbitsGrassSimulationSpace(int xSize, int ySize, int initGrass) {
-        grassSpace = new Object2DTorus(xSize, ySize);
-        rabbitsSpace = new Object2DTorus(xSize, ySize);
+    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep, int grassMaxValue, int initGrassQuantity) {
+        this.rabbitsSpace = new Object2DTorus(gridWidth, gridHeight);
+        this.grassSpace = createGrassSpace(gridWidth, gridHeight);
+        this.grassStep = grassStep;
+        this.grassMaxValue = grassMaxValue;
 
-        for (int i = 0; i < xSize; i++) {
-            for (int j = 0; j < ySize; j++) {
+        growGrass(initGrassQuantity);
+    }
+
+    public Discrete2DSpace createGrassSpace(int width, int height) {
+        Discrete2DSpace grassSpace = new Object2DTorus(width, height);
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 grassSpace.putObjectAt(i, j, 0);
             }
         }
-
-        growGrass(initGrass);
+        return grassSpace;
     }
 
-    public void growGrass(int grass) {
-        // Randomly place grass in grassSpace
-        for (int i = 0; i < grass; i++) {
-
-            // Choose coordinates
-            int x = (int) (Math.random() * (grassSpace.getSizeX()));
-            int y = (int) (Math.random() * (grassSpace.getSizeY()));
-
-            // Get the value of the object at those coordinates
-            int currentValue = getGrassAt(x, y);
-            // Replace the Integer object with another one with the new value
-            grassSpace.putObjectAt(x, y, Math.min(MAX_GRASS_VALUE, currentValue + 1));
+    public void growGrass(int grassQuantity) {
+        for (int i = 0; i < grassQuantity; i++) {
+            Position2D pos = Position2D.random(grassSpace.getSizeX(), grassSpace.getSizeY());
+            grassSpace.putObjectAt(pos.getX(), pos.getY(), Math.min(grassMaxValue, getGrassAt(pos) + grassStep));
         }
     }
 
-    public int getGrassAt(int x, int y) {
-        if (grassSpace.getObjectAt(x, y) != null) {
-            return (int) grassSpace.getObjectAt(x, y);
+    public int getGrassAt(Position2D pos) {
+        Object grassObject = grassSpace.getObjectAt(pos.getX(), pos.getY());
+        if (grassObject != null) {
+            return (int) grassObject;
         }
         return 0;
     }
@@ -68,7 +68,13 @@ public class RabbitsGrassSimulationSpace {
         return rabbitsSpace.getObjectAt(x, y) == null;
     }
 
-    public void addRabbit(Position2D pos, RabbitsGrassSimulationAgent rabbit) {
+    public int eatGrassAt(Position2D pos) {
+        Integer value = (Integer) grassSpace.getObjectAt(pos.getX(), pos.getY());
+        grassSpace.putObjectAt(pos.getX(), pos.getY(), 0);
+        return value;
+    }
+
+    public void addRabbitAt(Position2D pos, RabbitsGrassSimulationAgent rabbit) {
         rabbitsSpace.putObjectAt(pos.getX(), pos.getY(), rabbit);
     }
 
@@ -84,18 +90,13 @@ public class RabbitsGrassSimulationSpace {
         rabbitsSpace.putObjectAt(newPos.getX(), newPos.getY(), cda);
     }
 
-    public int getEnergy(Position2D pos) {
-        Integer value = (Integer) grassSpace.getObjectAt(pos.getX(), pos.getY());
-        grassSpace.putObjectAt(pos.getX(), pos.getY(), 0);
-        return value;
-    }
 
     public Displayable getGrassDisplayable() {
 
         ColorMap map = new ColorMap();
 
-        for (int i = 0; i < MAX_GRASS_VALUE + 1; i++) {
-            map.mapColor(i, new Color(0, i * (255 / MAX_GRASS_VALUE), 0));
+        for (int i = 0; i < grassMaxValue + 1; i++) {
+            map.mapColor(i, new Color(0, i * (255 / grassMaxValue), 0));
         }
         map.mapColor(0, Color.black);
 
