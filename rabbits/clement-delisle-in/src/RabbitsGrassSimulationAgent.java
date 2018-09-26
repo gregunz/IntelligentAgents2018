@@ -66,11 +66,8 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         }
 
         Position2D nextMove = getRandomNeighborCell(this.pos);
-
-        if (tryMove(nextMove)) {
-            energy -= moveCost;
-        }
-
+        tryMove(nextMove);
+        energy -= moveCost;
         eatGrass();
 
         return tryToReproduce(birthThreshold, initialEnergy, birthCost);

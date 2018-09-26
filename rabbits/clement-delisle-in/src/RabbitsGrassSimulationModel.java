@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 
+
     private static final int GRID_WIDTH = 50;
     private static final int GRID_HEIGHT = 50;
     private static final int NUM_RABBITS = 5;
@@ -171,8 +172,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-        int initialGrass = 10;
-        rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), initialGrass);
+
+        rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getInitialGrass());
 
         rabbits = new ArrayList<>();
         int rabbitsToAdd = getNumRabbits();

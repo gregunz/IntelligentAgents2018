@@ -16,6 +16,8 @@ import java.awt.*;
 
 public class RabbitsGrassSimulationSpace {
 
+    private final int MAX_GRASS_VALUE = 1;
+
     private Discrete2DSpace grassSpace;
     private Discrete2DSpace rabbitsSpace;
 
@@ -43,13 +45,13 @@ public class RabbitsGrassSimulationSpace {
             // Get the value of the object at those coordinates
             int currentValue = getGrassAt(x, y);
             // Replace the Integer object with another one with the new value
-            grassSpace.putObjectAt(x, y, currentValue + 1);
+            grassSpace.putObjectAt(x, y, Math.min(MAX_GRASS_VALUE, currentValue + 1));
         }
     }
 
     public int getGrassAt(int x, int y) {
         if (grassSpace.getObjectAt(x, y) != null) {
-            return (Integer) grassSpace.getObjectAt(x, y);
+            return (int) grassSpace.getObjectAt(x, y);
         }
         return 0;
     }
@@ -92,8 +94,8 @@ public class RabbitsGrassSimulationSpace {
 
         ColorMap map = new ColorMap();
 
-        for (int i = 1; i < 32; i++) {
-            map.mapColor(i, new Color(0, i * 8, 0));
+        for (int i = 0; i < MAX_GRASS_VALUE + 1; i++) {
+            map.mapColor(i, new Color(0, i * (255 / MAX_GRASS_VALUE), 0));
         }
         map.mapColor(0, Color.black);
 
