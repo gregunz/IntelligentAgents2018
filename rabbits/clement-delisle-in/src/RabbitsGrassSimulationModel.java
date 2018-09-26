@@ -1,3 +1,6 @@
+import uchicago.src.sim.analysis.DataSource;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -20,8 +23,8 @@ import java.util.ArrayList;
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 
-    private static final int GRID_WIDTH = 50;
-    private static final int GRID_HEIGHT = 50;
+    private static final int GRID_WIDTH = 20;
+    private static final int GRID_HEIGHT = 20;
     private static final int NUM_RABBITS = 5;
     private static final int BIRTH_THRESHOLD = 200;
     private static final int GRASS_GROWTH_RATE = 50;
@@ -59,6 +62,30 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     private DisplaySurface displaySurf;
 
+    private OpenSequenceGraph amountOfEachPopInSpace;
+
+    class GrassInSpace implements DataSource, Sequence {
+
+        public Object execute() {
+            return getSValue();
+        }
+
+        public double getSValue() {
+            return (double) rgsSpace.getTotalGrass();
+        }
+    }
+
+    class RabbitsInSpace implements DataSource, Sequence {
+
+        public Object execute() {
+            return getSValue();
+        }
+
+        public double getSValue() {
+            return (double) rabbits.size();
+        }
+    }
+
     public static void main(String[] args) {
         SimInit init = new SimInit();
         RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
@@ -73,6 +100,17 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
         displaySurf = null;
 
+        if (amountOfEachPopInSpace != null) {
+            amountOfEachPopInSpace.dispose();
+        }
+        amountOfEachPopInSpace = null;
+
+        amountOfEachPopInSpace = new OpenSequenceGraph("Amount Of Grass In Space", this);
+
+        // Register Displays
+        registerDisplaySurface("Carry Drop Model Window 1", displaySurf);
+        this.registerMediaProducer("Plot", amountOfEachPopInSpace);
+
     }
 
     public void begin() {
@@ -84,6 +122,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         buildDisplay();
 
         displaySurf.display();
+        amountOfEachPopInSpace.display();
     }
 
     public String getName() {
@@ -172,7 +211,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-
         rgsSpace = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getInitialGrass());
 
         rabbits = new ArrayList<>();
@@ -203,6 +241,14 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 displaySurf.updateDisplay();
             }
         });
+
+        class UpdatePopInSpace extends BasicAction {
+            public void execute() {
+                amountOfEachPopInSpace.step();
+            }
+        }
+
+        schedule.scheduleActionAtInterval(10, new UpdatePopInSpace());
     }
 
     private void buildDisplay() {
@@ -211,6 +257,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         displaySurf.addDisplayable(rgsSpace.getRabbitsDisplayable(), "Rabbits");
 
         registerDisplaySurface("World", displaySurf);
+
+        amountOfEachPopInSpace.addSequence("Grass In Space", new GrassInSpace());
+        amountOfEachPopInSpace.addSequence("Rabbits In Space", new RabbitsInSpace());
     }
 
     private void nextStep() {

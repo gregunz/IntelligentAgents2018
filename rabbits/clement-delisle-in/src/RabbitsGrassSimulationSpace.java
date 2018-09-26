@@ -16,7 +16,7 @@ import java.awt.*;
 
 public class RabbitsGrassSimulationSpace {
 
-    private final int MAX_GRASS_VALUE = 1;
+    private final int MAX_GRASS_VALUE = 50;
 
     private Discrete2DSpace grassSpace;
     private Discrete2DSpace rabbitsSpace;
@@ -106,4 +106,14 @@ public class RabbitsGrassSimulationSpace {
         return new Object2DDisplay(rabbitsSpace);
     }
 
+    public int getTotalGrass() {
+        int totalGrass = 0;
+        for (int i = 0; i < grassSpace.getSizeX(); i++) {
+            for (int j = 0; j < grassSpace.getSizeY(); j++) {
+                if (getGrassAt(i, j)!=0)
+                    totalGrass += 1;
+            }
+        }
+        return totalGrass;
+    }
 }
