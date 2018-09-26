@@ -1,6 +1,5 @@
-import uchicago.src.sim.analysis.DataSource;
+import plot.InSpace;
 import uchicago.src.sim.analysis.OpenSequenceGraph;
-import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -72,34 +71,15 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     private OpenSequenceGraph amountOfEachPopInSpace;
 
-    class GrassInSpace implements DataSource, Sequence {
-
-        public Object execute() {
-            return getSValue();
-        }
-
-        public double getSValue() {
-            return (double) space.getTotalGrass();
-        }
-    }
-
-    class RabbitsInSpace implements DataSource, Sequence {
-
-        public Object execute() {
-            return getSValue();
-        }
-
-        public double getSValue() {
-            return (double) rabbits.size();
-        }
-    }
-
     public static void main(String[] args) {
         SimInit init = new SimInit();
         RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
         init.loadModel(model, "", false);
     }
 
+    /**
+     * This function is called when the button with the two curved arrows is pressed.
+     */
     public void setup() {
         System.out.println("Running setup");
         space = null;
@@ -120,6 +100,10 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     }
 
+    /**
+     * This function is responsible for initializing the simulation when the ‘Initialize’ button
+     * is clicked on the toolbar.
+     */
     public void begin() {
         System.out.println("Building model");
         buildModel();
@@ -132,16 +116,70 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         amountOfEachPopInSpace.display();
     }
 
+    public void buildModel() {
+
+        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue(), getInitialGrass());
+        rabbits = generateRabbits(getNumRabbits());
+    }
+
+    private void buildSchedule() {
+        schedule = new Schedule();
+
+        schedule.scheduleActionAtInterval(1, new BasicAction() {
+            @Override
+            public void execute() {
+                space.growGrass(getGrassGrowthRate());
+                evolveRabbits();
+                surface.updateDisplay();
+            }
+        });
+
+        schedule.scheduleActionAtInterval(10, new BasicAction() {
+            @Override
+            public void execute() {
+                amountOfEachPopInSpace.step();
+            }
+        });
+    }
+
+    public void buildDisplay() {
+        surface = new DisplaySurface(space.getCurrentGrassSpace().getSize(), this, "Display");
+        surface.addDisplayable(space.getGrassDisplayable(), "Grass");
+        surface.addDisplayable(space.getRabbitsDisplayable(), "Rabbits");
+
+        registerDisplaySurface("World", surface);
+
+        amountOfEachPopInSpace.addSequence("Rabbits In Space", new InSpace() {
+            @Override
+            public double getSValue() {
+                return (double) rabbits.size();
+            }
+        });
+        amountOfEachPopInSpace.addSequence("Grass In Space", new InSpace() {
+            @Override
+            public double getSValue() {
+                return (double) space.getTotalGrass();
+            }
+        });
+
+    }
+
+    /**
+     * This function returns an array of String variables, each one listing the name of a particular
+     * parameter that you want to be available to vary using the RePast control panel.
+     *
+     * @return Array of String variables for control panel
+     */
+    public String[] getInitParam() {
+        return initParams;
+    }
+
     public String getName() {
         return "Rabbit simulation for IA course";
     }
 
     public Schedule getSchedule() {
         return schedule;
-    }
-
-    public String[] getInitParam() {
-        return initParams;
     }
 
     public int getNumRabbits() {
@@ -216,47 +254,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         this.birthCost = birthCost;
     }
 
-    private void buildModel() {
-
-        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue(), getInitialGrass());
-        rabbits = generateRabbits(getNumRabbits());
-    }
-
-
-    private void buildSchedule() {
-        schedule = new Schedule();
-
-        schedule.scheduleActionAtInterval(1, new BasicAction() {
-            @Override
-            public void execute() {
-                space.growGrass(getGrassGrowthRate());
-                evolveRabbits();
-                surface.updateDisplay();
-            }
-        });
-
-        class UpdatePopInSpace extends BasicAction {
-            public void execute() {
-                amountOfEachPopInSpace.step();
-            }
-        }
-
-        schedule.scheduleActionAtInterval(10, new UpdatePopInSpace());
-    }
-
-    private void buildDisplay() {
-        surface = new DisplaySurface(space.getCurrentGrassSpace().getSize(), this, "Display");
-        surface.addDisplayable(space.getGrassDisplayable(), "Grass");
-        surface.addDisplayable(space.getRabbitsDisplayable(), "Rabbits");
-
-        registerDisplaySurface("World", surface);
-
-        amountOfEachPopInSpace.addSequence("Grass In Space", new GrassInSpace());
-        amountOfEachPopInSpace.addSequence("Rabbits In Space", new RabbitsInSpace());
-
-    }
-
-        private List<RabbitsGrassSimulationAgent> generateRabbits(int numRabbits) {
+    private List<RabbitsGrassSimulationAgent> generateRabbits(int numRabbits) {
         List<RabbitsGrassSimulationAgent> rabbits = new ArrayList<>();
         int rabbitsToAdd = Math.min(numRabbits, getGridWidth() * getGridHeight() - rabbits.size());
         while (rabbitsToAdd > 0) {
@@ -310,4 +308,5 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     public void setGrassStep(int grassStep) {
         this.grassStep = grassStep;
     }
+
 }

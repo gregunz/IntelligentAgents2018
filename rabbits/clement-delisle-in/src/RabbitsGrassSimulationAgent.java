@@ -55,40 +55,29 @@ public class RabbitsGrassSimulationAgent implements Drawable {
     }
 
     public void moveThenEat(int moveCost) {
-        Position2D nextMove = getRandomNeighborCell(this.pos);
-        move(nextMove);
+        Optional<Position2D> maybeNextMove = getRandomNeighborCell(this.pos);
+        maybeNextMove.ifPresent(nextMove -> space.moveRabbitAt(this.pos, nextMove));
         energy -= moveCost;
         eatGrass();
     }
 
     public Optional<RabbitsGrassSimulationAgent> tryToReproduce(int birthThreshold, int initialEnergy, int birthCost) {
         if (energy >= birthThreshold) {
-            Position2D newPos = getRandomNeighborCell(this.pos);
-            if (this.pos.isDifferent(newPos)) {
+            Optional<Position2D> maybeNextPos = getRandomNeighborCell(this.pos);
+            if (maybeNextPos.isPresent()) {
                 energy -= birthCost;
-                return Optional.of(new RabbitsGrassSimulationAgent(newPos, initialEnergy, space));
-
+                return Optional.of(new RabbitsGrassSimulationAgent(maybeNextPos.get(), initialEnergy, space));
             }
         }
-
         return Optional.empty();
-    }
-
-    private boolean move(Position2D nextMove) {
-        if (this.pos.isDifferent(nextMove)) {
-            space.moveRabbitAt(this.pos, nextMove);
-            return true;
-        }
-        return false;
     }
 
     private void eatGrass() {
         energy += space.eatGrassAt(this.pos);
     }
 
-    private Position2D getRandomNeighborCell(Position2D pos) {
+    private Optional<Position2D> getRandomNeighborCell(Position2D pos) {
         List<Position2D> availableCells = new ArrayList<>();
-        //availableCells.add(pos); //TODO: decide whether staying is a legal move
         int posX = pos.getX();
         int posY = pos.getY();
 
@@ -106,9 +95,9 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         }
 
         if (availableCells.isEmpty()) {
-            return pos;
+            return Optional.empty();
         } else {
-            return availableCells.get(new Random().nextInt(availableCells.size()));
+            return Optional.of(availableCells.get(new Random().nextInt(availableCells.size())));
         }
     }
 }

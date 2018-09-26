@@ -83,11 +83,11 @@ public class RabbitsGrassSimulationSpace {
     }
 
     public void moveRabbitAt(Position2D oldPos, Position2D newPos) {
-        RabbitsGrassSimulationAgent cda =
+        RabbitsGrassSimulationAgent rabbit =
                 (RabbitsGrassSimulationAgent) rabbitsSpace.getObjectAt(oldPos.getX(), oldPos.getY());
         removeRabbitAt(oldPos);
-        cda.setPos(newPos);
-        rabbitsSpace.putObjectAt(newPos.getX(), newPos.getY(), cda);
+        rabbit.setPos(newPos);
+        rabbitsSpace.putObjectAt(newPos.getX(), newPos.getY(), rabbit);
     }
 
 
@@ -109,9 +109,9 @@ public class RabbitsGrassSimulationSpace {
 
     public int getTotalGrass() {
         int totalGrass = 0;
-        for (int i = 0; i < grassSpace.getSizeX(); i++) {
-            for (int j = 0; j < grassSpace.getSizeY(); j++) {
-                if (getGrassAt(i, j)!=0)
+        for (int x = 0; x < grassSpace.getSizeX(); x++) {
+            for (int y = 0; y < grassSpace.getSizeY(); y++) {
+                if (getGrassAt(new Position2D(x, y)) != 0)
                     totalGrass += 1;
             }
         }
