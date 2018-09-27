@@ -34,7 +34,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private static final int INITIAL_GRASS = 100;
     private static final int BIRTH_COST = 100;
     private static final int GRASS_STEP = 1;
-    private static final int GRASS_MAX_VALUE = 4;
+    private static final int GRASS_MAX_VALUE = 10;
 
     private int gridWidth = GRID_WIDTH;
     private int gridHeight = GRID_HEIGHT;
@@ -90,12 +90,11 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         if (amountOfEachPopInSpace != null) {
             amountOfEachPopInSpace.dispose();
         }
-        amountOfEachPopInSpace = null;
-
-        amountOfEachPopInSpace = new OpenSequenceGraph("Amount Of Grass In Space", this);
+        surface = new DisplaySurface(this, "Rabbits grass simulation Model Window 1");
+        amountOfEachPopInSpace = new OpenSequenceGraph("Amount of rabbit and grass in space", this);
 
         // Register Displays
-        registerDisplaySurface("Carry Drop Model Window 1", surface);
+        registerDisplaySurface("Rabbits grass simulation Model Window 1", surface);
         this.registerMediaProducer("Plot", amountOfEachPopInSpace);
 
     }
@@ -123,7 +122,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     private void buildSchedule() {
-        schedule = new Schedule();
+        schedule = new Schedule(1);
 
         schedule.scheduleActionAtInterval(1, new BasicAction() {
             @Override
@@ -134,7 +133,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
             }
         });
 
-        schedule.scheduleActionAtInterval(10, new BasicAction() {
+        schedule.scheduleActionAtInterval(50, new BasicAction() {
             @Override
             public void execute() {
                 amountOfEachPopInSpace.step();
