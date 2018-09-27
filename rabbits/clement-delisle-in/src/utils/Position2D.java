@@ -3,6 +3,9 @@ package utils;
 import java.util.Random;
 
 public class Position2D {
+
+    private final static Random r = new Random();
+
     private int x;
     private int y;
 
@@ -20,8 +23,8 @@ public class Position2D {
         int difY = toY - fromY;
 
         return new Position2D(
-                new Random().nextInt(difX) + fromX,
-                new Random().nextInt(difY) + fromY
+                r.nextInt(difX) + fromX,
+                r.nextInt(difY) + fromY
         );
     }
 

@@ -18,7 +18,7 @@ import java.util.Random;
 public class RabbitsGrassSimulationAgent implements Drawable {
 
     private Position2D pos;
-    private int energy;
+    private long energy;
     private RabbitsGrassSimulationSpace space;
 
     public RabbitsGrassSimulationAgent(Position2D pos, int energy, RabbitsGrassSimulationSpace space) {

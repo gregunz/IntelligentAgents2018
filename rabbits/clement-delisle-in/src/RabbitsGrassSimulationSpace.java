@@ -20,22 +20,18 @@ public class RabbitsGrassSimulationSpace {
     private Discrete2DSpace grassSpace;
     private Discrete2DSpace rabbitsSpace;
     private int grassStep;
-    private int grassMaxValue;
 
-    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep, int grassMaxValue, int initGrassQuantity) {
+    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep) {
         this.rabbitsSpace = new Object2DTorus(gridWidth, gridHeight);
         this.grassSpace = createGrassSpace(gridWidth, gridHeight);
         this.grassStep = grassStep;
-        this.grassMaxValue = grassMaxValue;
-
-        growGrass(initGrassQuantity);
     }
 
     public Discrete2DSpace createGrassSpace(int width, int height) {
         Discrete2DSpace grassSpace = new Object2DTorus(width, height);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                grassSpace.putObjectAt(i, j, 0);
+                grassSpace.putObjectAt(i, j, 0L);
             }
         }
         return grassSpace;
@@ -44,16 +40,16 @@ public class RabbitsGrassSimulationSpace {
     public void growGrass(int grassQuantity) {
         for (int i = 0; i < grassQuantity; i++) {
             Position2D pos = Position2D.random(grassSpace.getSizeX(), grassSpace.getSizeY());
-            grassSpace.putObjectAt(pos.getX(), pos.getY(), Math.min(grassMaxValue, getGrassAt(pos) + grassStep));
+            grassSpace.putObjectAt(pos.getX(), pos.getY(), getGrassAt(pos) + grassStep);
         }
     }
 
-    public int getGrassAt(Position2D pos) {
+    public long getGrassAt(Position2D pos) {
         Object grassObject = grassSpace.getObjectAt(pos.getX(), pos.getY());
         if (grassObject != null) {
-            return (int) grassObject;
+            return (long) grassObject;
         }
-        return 0;
+        return 0L;
     }
 
     public Discrete2DSpace getCurrentGrassSpace() {
@@ -68,9 +64,9 @@ public class RabbitsGrassSimulationSpace {
         return rabbitsSpace.getObjectAt(x, y) == null;
     }
 
-    public int eatGrassAt(Position2D pos) {
-        Integer value = (Integer) grassSpace.getObjectAt(pos.getX(), pos.getY());
-        grassSpace.putObjectAt(pos.getX(), pos.getY(), 0);
+    public long eatGrassAt(Position2D pos) {
+        long value = (long) grassSpace.getObjectAt(pos.getX(), pos.getY());
+        grassSpace.putObjectAt(pos.getX(), pos.getY(), 0L);
         return value;
     }
 
@@ -95,8 +91,9 @@ public class RabbitsGrassSimulationSpace {
 
         ColorMap map = new ColorMap();
 
-        for (int i = 0; i < grassMaxValue + 1; i++) {
-            map.mapColor(i, new Color(0, i * (255 / grassMaxValue), 0));
+        final int grassMaxSteps = 16;
+        for (int i = 0; i < grassMaxSteps + 1; i++) {
+            map.mapColor(i, new Color(0, i * (255 / grassMaxSteps), 0));
         }
         map.mapColor(0, Color.black);
 
@@ -107,12 +104,11 @@ public class RabbitsGrassSimulationSpace {
         return new Object2DDisplay(rabbitsSpace);
     }
 
-    public int getTotalGrass() {
-        int totalGrass = 0;
+    public long getTotalGrass() {
+        long totalGrass = 0;
         for (int x = 0; x < grassSpace.getSizeX(); x++) {
             for (int y = 0; y < grassSpace.getSizeY(); y++) {
-                if (getGrassAt(new Position2D(x, y)) != 0)
-                    totalGrass += 1;
+                totalGrass += getGrassAt(new Position2D(x, y));
             }
         }
         return totalGrass;

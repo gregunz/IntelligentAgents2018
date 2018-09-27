@@ -31,10 +31,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private static final int GRASS_GROWTH_RATE = 50;
     private static final int MOVE_ENERGY_COST = 1;
     private static final int INITIAL_ENERGY = 100;
-    private static final int INITIAL_GRASS = 100;
     private static final int BIRTH_COST = 100;
     private static final int GRASS_STEP = 1;
-    private static final int GRASS_MAX_VALUE = 10;
 
     private int gridWidth = GRID_WIDTH;
     private int gridHeight = GRID_HEIGHT;
@@ -43,10 +41,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int grassGrowthRate = GRASS_GROWTH_RATE;
     private int moveEnergyCost = MOVE_ENERGY_COST;
     private int initialEnergy = INITIAL_ENERGY;
-    private int initialGrass = INITIAL_GRASS;
     private int birthCost = BIRTH_COST;
     private int grassStep = GRASS_STEP;
-    private int grassMaxValue = GRASS_MAX_VALUE;
 
     private String[] initParams = {
             "GridWidth",
@@ -117,14 +113,14 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue(), getInitialGrass());
+        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep());
         rabbits = generateRabbits(getNumRabbits());
     }
 
     private void buildSchedule() {
         schedule = new Schedule(1);
 
-        schedule.scheduleActionAtInterval(1, new BasicAction() {
+        schedule.scheduleActionBeginning(0, new BasicAction() {
             @Override
             public void execute() {
                 space.growGrass(getGrassGrowthRate());
@@ -160,7 +156,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
                 return (double) space.getTotalGrass();
             }
         });
-
     }
 
     /**
@@ -237,14 +232,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         this.initialEnergy = initialEnergy;
     }
 
-    public int getInitialGrass() {
-        return initialGrass;
-    }
-
-    public void setInitialGrass(int initialGrass) {
-        this.initialGrass = initialGrass;
-    }
-
     public int getBirthCost() {
         return birthCost;
     }
@@ -290,14 +277,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         rabbits.addAll(newRabbits);
         rabbits.removeAll(deadRabbits);
 
-    }
-
-    public int getGrassMaxValue() {
-        return grassMaxValue;
-    }
-
-    public void setGrassMaxValue(int grassMaxValue) {
-        this.grassMaxValue = grassMaxValue;
     }
 
     public int getGrassStep() {
