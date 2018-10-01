@@ -260,7 +260,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         while (rabbitsToAdd > 0) {
             Position2D pos = Position2D.random(getGridWidth(), getGridHeight());
             if (space.isCellFree(pos)) {
-                RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(pos, getRabbitMaxEat(), space);
+                RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(pos, getInitialEnergy(), space);
                 rabbits.add(agent);
                 rabbitsToAdd--;
             }
