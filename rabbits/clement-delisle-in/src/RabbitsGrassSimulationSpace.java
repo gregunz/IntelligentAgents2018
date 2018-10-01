@@ -20,11 +20,13 @@ public class RabbitsGrassSimulationSpace {
     private Discrete2DSpace grassSpace;
     private Discrete2DSpace rabbitsSpace;
     private int grassStep;
+    private int grassMaxValue;
 
-    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep) {
+    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep, int grassMaxValue) {
         this.rabbitsSpace = new Object2DTorus(gridWidth, gridHeight);
         this.grassSpace = createGrassSpace(gridWidth, gridHeight);
         this.grassStep = grassStep;
+        this.grassMaxValue = grassMaxValue;
     }
 
     public Discrete2DSpace createGrassSpace(int width, int height) {
@@ -37,10 +39,10 @@ public class RabbitsGrassSimulationSpace {
         return grassSpace;
     }
 
-    public void growGrass(int grassQuantity) {
+    public void growGrass(int grassQuantity, int grassMaxValue) {
         for (int i = 0; i < grassQuantity; i++) {
             Position2D pos = Position2D.random(grassSpace.getSizeX(), grassSpace.getSizeY());
-            grassSpace.putObjectAt(pos.getX(), pos.getY(), getGrassAt(pos) + grassStep);
+            grassSpace.putObjectAt(pos.getX(), pos.getY(), Math.min(grassMaxValue, getGrassAt(pos) + grassStep));
         }
     }
 
@@ -91,9 +93,8 @@ public class RabbitsGrassSimulationSpace {
 
         ColorMap map = new ColorMap();
 
-        final int grassMaxSteps = 16;
-        for (int i = 0; i < grassMaxSteps + 1; i++) {
-            map.mapColor(i, new Color(0, i * (255 / grassMaxSteps), 0));
+        for (int i = 0; i < grassMaxValue + 1; i++) {
+            map.mapColor(i, new Color(0, i * 255 / grassMaxValue, 0));
         }
         map.mapColor(0, Color.black);
 

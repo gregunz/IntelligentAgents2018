@@ -33,6 +33,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private static final int INITIAL_ENERGY = 100;
     private static final int BIRTH_COST = 100;
     private static final int GRASS_STEP = 1;
+    private static final int GRASS_MAX_VALUE = 10;
 
     private int gridWidth = GRID_WIDTH;
     private int gridHeight = GRID_HEIGHT;
@@ -43,6 +44,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int initialEnergy = INITIAL_ENERGY;
     private int birthCost = BIRTH_COST;
     private int grassStep = GRASS_STEP;
+    private int grassMaxValue = GRASS_MAX_VALUE;
+
 
     private String[] initParams = {
             "GridWidth",
@@ -113,7 +116,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep());
+        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue());
         rabbits = generateRabbits(getNumRabbits());
     }
 
@@ -123,7 +126,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         schedule.scheduleActionBeginning(0, new BasicAction() {
             @Override
             public void execute() {
-                space.growGrass(getGrassGrowthRate());
+                space.growGrass(getGrassGrowthRate(), getGrassMaxValue());
                 evolveRabbits();
                 surface.updateDisplay();
             }
@@ -238,6 +241,14 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void setBirthCost(int birthCost) {
         this.birthCost = birthCost;
+    }
+
+    public int getGrassMaxValue() {
+        return grassMaxValue;
+    }
+
+    public void setGrassMaxValue(int grassMaxValue) {
+        this.grassMaxValue = grassMaxValue;
     }
 
     private List<RabbitsGrassSimulationAgent> generateRabbits(int numRabbits) {
