@@ -21,12 +21,15 @@ public class RabbitsGrassSimulationSpace {
     private Discrete2DSpace rabbitsSpace;
     private int grassStep;
     private int grassMaxValue;
+    private int rabbitMaxEat;
 
-    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep, int grassMaxValue) {
+
+    public RabbitsGrassSimulationSpace(int gridWidth, int gridHeight, int grassStep, int grassMaxValue, int rabbitMaxEat) {
         this.rabbitsSpace = new Object2DTorus(gridWidth, gridHeight);
         this.grassSpace = createGrassSpace(gridWidth, gridHeight);
         this.grassStep = grassStep;
         this.grassMaxValue = grassMaxValue;
+        this.rabbitMaxEat = rabbitMaxEat;
     }
 
     public Discrete2DSpace createGrassSpace(int width, int height) {
@@ -68,8 +71,13 @@ public class RabbitsGrassSimulationSpace {
 
     public long eatGrassAt(Position2D pos) {
         long value = (long) grassSpace.getObjectAt(pos.getX(), pos.getY());
-        grassSpace.putObjectAt(pos.getX(), pos.getY(), 0L);
-        return value;
+        if (value > rabbitMaxEat) {
+            grassSpace.putObjectAt(pos.getX(), pos.getY(), value - rabbitMaxEat);
+            return rabbitMaxEat;
+        } else {
+            grassSpace.putObjectAt(pos.getX(), pos.getY(), 0L);
+            return value;
+        }
     }
 
     public void addRabbitAt(Position2D pos, RabbitsGrassSimulationAgent rabbit) {

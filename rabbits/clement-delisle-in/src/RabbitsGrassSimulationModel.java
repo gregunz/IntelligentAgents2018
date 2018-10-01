@@ -30,10 +30,11 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private static final int BIRTH_THRESHOLD = 200;
     private static final int GRASS_GROWTH_RATE = 50;
     private static final int MOVE_ENERGY_COST = 1;
-    private static final int INITIAL_ENERGY = 100;
+    private static final int INITIAL_ENERGY = 80;
     private static final int BIRTH_COST = 100;
     private static final int GRASS_STEP = 1;
-    private static final int GRASS_MAX_VALUE = 10;
+    private static final int GRASS_MAX_VALUE = 16;
+    private static final int RABBIT_MAX_EAT = 4;
 
     private int gridWidth = GRID_WIDTH;
     private int gridHeight = GRID_HEIGHT;
@@ -45,6 +46,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     private int birthCost = BIRTH_COST;
     private int grassStep = GRASS_STEP;
     private int grassMaxValue = GRASS_MAX_VALUE;
+    private int rabbitMaxEat = RABBIT_MAX_EAT;
 
 
     private String[] initParams = {
@@ -57,7 +59,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
             "InitialEnergy",
             "BirthCost",
             "GrassMaxValue",
-            "GrassStep"
+            "GrassStep",
+            "RabbitMaxEat"
     };
 
     private Schedule schedule;
@@ -116,7 +119,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
     public void buildModel() {
 
-        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue());
+        space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue(), getRabbitMaxEat());
         rabbits = generateRabbits(getNumRabbits());
     }
 
@@ -257,7 +260,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         while (rabbitsToAdd > 0) {
             Position2D pos = Position2D.random(getGridWidth(), getGridHeight());
             if (space.isCellFree(pos)) {
-                RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(pos, getInitialEnergy(), space);
+                RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(pos, getRabbitMaxEat(), space);
                 rabbits.add(agent);
                 rabbitsToAdd--;
             }
@@ -298,4 +301,11 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
         this.grassStep = grassStep;
     }
 
+    public int getRabbitMaxEat() {
+        return rabbitMaxEat;
+    }
+
+    public void setRabbitMaxEat(int rabbitMaxEat) {
+        this.rabbitMaxEat = rabbitMaxEat;
+    }
 }
