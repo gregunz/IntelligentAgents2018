@@ -24,17 +24,50 @@ import java.util.Optional;
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 
+    //* default seed=1538487159028
     private static final int GRID_WIDTH = 20;
     private static final int GRID_HEIGHT = 20;
-    private static final int NUM_RABBITS = 5;
+    private static final int NUM_RABBITS = 300;
     private static final int BIRTH_THRESHOLD = 200;
-    private static final int GRASS_GROWTH_RATE = 50;
+    private static final int GRASS_GROWTH_RATE = 200;
     private static final int MOVE_ENERGY_COST = 1;
-    private static final int INITIAL_ENERGY = 80;
-    private static final int BIRTH_COST = 100;
+    private static final int INITIAL_ENERGY = 50;
+    private static final int BIRTH_COST = 50;
     private static final int GRASS_STEP = 1;
-    private static final int GRASS_MAX_VALUE = 16;
-    private static final int RABBIT_MAX_EAT = 4;
+    private static final int GRASS_MAX_VALUE = 100;
+    private static final int RABBIT_MAX_EAT = 20;
+    //*/
+
+
+    /* stable seed=1538485249374
+    private static final int GRID_WIDTH = 100;
+    private static final int GRID_HEIGHT = 100;
+    private static final int NUM_RABBITS = 50;
+    private static final int BIRTH_THRESHOLD = 200;
+    private static final int GRASS_GROWTH_RATE = 110;
+    private static final int MOVE_ENERGY_COST = 3;
+    private static final int INITIAL_ENERGY = 200;
+    private static final int BIRTH_COST = 150;
+    private static final int GRASS_STEP = 4;
+    private static final int GRASS_MAX_VALUE = 64;
+    private static final int RABBIT_MAX_EAT = 8;
+    //*/
+
+
+
+    /* unstable seed=1538488171992
+    private static final int GRID_WIDTH = 100;
+    private static final int GRID_HEIGHT = 100;
+    private static final int NUM_RABBITS = 50;
+    private static final int BIRTH_THRESHOLD = 200;
+    private static final int GRASS_GROWTH_RATE = 110;
+    private static final int MOVE_ENERGY_COST = 3;
+    private static final int INITIAL_ENERGY = 200;
+    private static final int BIRTH_COST = 100;
+    private static final int GRASS_STEP = 4;
+    private static final int GRASS_MAX_VALUE = 64;
+    private static final int RABBIT_MAX_EAT = 8;
+    //*/
 
     private int gridWidth = GRID_WIDTH;
     private int gridHeight = GRID_HEIGHT;
@@ -118,7 +151,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
     }
 
     public void buildModel() {
-
         space = new RabbitsGrassSimulationSpace(getGridWidth(), getGridHeight(), getGrassStep(), getGrassMaxValue(), getRabbitMaxEat());
         rabbits = generateRabbits(getNumRabbits());
     }

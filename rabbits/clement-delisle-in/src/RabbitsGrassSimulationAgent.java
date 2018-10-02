@@ -45,7 +45,6 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         return this.pos.getY();
     }
 
-
     public boolean isDead() {
         return this.energy <= 0;
     }
@@ -62,7 +61,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
     }
 
     public Optional<RabbitsGrassSimulationAgent> tryToReproduce(int birthThreshold, int initialEnergy, int birthCost) {
-        if (energy >= birthThreshold) {
+        if (energy >= Math.max(birthThreshold, birthCost + 1)) {
             Optional<Position2D> maybeNextPos = getRandomNeighborCell(this.pos);
             if (maybeNextPos.isPresent()) {
                 energy -= birthCost;

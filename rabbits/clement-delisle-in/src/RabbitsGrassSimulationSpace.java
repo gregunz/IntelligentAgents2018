@@ -42,8 +42,8 @@ public class RabbitsGrassSimulationSpace {
         return grassSpace;
     }
 
-    public void growGrass(int grassQuantity, int grassMaxValue) {
-        for (int i = 0; i < grassQuantity; i++) {
+    public void growGrass(int grassGrowthRate, int grassMaxValue) {
+        for (int i = 0; i < grassGrowthRate; i++) {
             Position2D pos = Position2D.random(grassSpace.getSizeX(), grassSpace.getSizeY());
             grassSpace.putObjectAt(pos.getX(), pos.getY(), Math.min(grassMaxValue, getGrassAt(pos) + grassStep));
         }
