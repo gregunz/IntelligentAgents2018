@@ -34,10 +34,12 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		List<City> possibleDestinationOfTask = new ArrayList<>(topology.cities());
 
-		// TODO: define a "good enough" condition, it iterates non-stops as of now
-        int i = 0;
-		while(i < 100){
-            i ++;
+		// TODO: define a better "good enough" condition
+        double threshold = 0.0001;
+        boolean hasImproved = true;
+
+		while(hasImproved){
+		    hasImproved = false;
             // Go through all possible states, and if the taskDest == currentCity, change the task destination to null
             for (City destination : possibleDestinationOfTask) {
                 for (City currentCity : topology.cities()) {
@@ -84,7 +86,9 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
                     // Update S(s) if Q(s,a) is better
                     if (currentBestQ > v.getOrDefault(state, 0.0)) {
-                        System.out.println(currentBestQ - v.getOrDefault(state, 0.0));
+                        if (currentBestQ - v.getOrDefault(state,0.0) > threshold) {
+                            hasImproved = true;
+                        }
                         v.put(state, currentBestQ);
                         bestAction.put(state, currentBestAction);
                     }
