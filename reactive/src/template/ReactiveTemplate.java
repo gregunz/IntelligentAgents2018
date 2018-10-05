@@ -35,17 +35,18 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		List<City> possibleDestinationOfTask = new ArrayList<>(topology.cities());
 
 		// TODO: define a "good enough" condition, it iterates non-stops as of now
-		while(true){
+        int i = 0;
+		while(i < 10){
+            i ++;
             // Go through all possible states, and if the taskDest == currentCity, change the task destination to null
             for (City destination : possibleDestinationOfTask) {
                 for (City currentCity : topology.cities()) {
-                    State state = null;
+                    State state;
 
                     List<City> actions = new ArrayList<>(currentCity.neighbors());
 
                     if (currentCity.equals(destination)) {
-                        City noTask = null;
-                        state = new State(currentCity, noTask);
+                        state = new State(currentCity, null);
                     } else {
                         state = new State(currentCity, destination);
                         actions.add(destination);
@@ -63,10 +64,9 @@ public class ReactiveTemplate implements ReactiveBehavior {
                         // Go one step further and evaluate for future possible actions
                         for (City destinationPrime : possibleDestinationOfTask) {
 
-                            State statePrime = null;
+                            State statePrime;
                             if (action.equals(destinationPrime)) {
-                                City noTask = null;
-                                statePrime = new State(action, noTask);
+                                statePrime = new State(action, null);
                             } else {
                                 statePrime = new State(action, destinationPrime);
                             }
@@ -95,7 +95,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 	private double getReward(State state, City action, TaskDistribution td) {
 	    double gain = action.equals(state.destinationOfTask) ? td.reward(state.city, action) : 0.0;
-	    double cost = state.city.distanceTo(action);
+	    double cost = state.city.distanceTo(action) * myAgent.vehicles().get(0).costPerKm();
 
 	    return gain - cost;
     }
@@ -107,21 +107,42 @@ public class ReactiveTemplate implements ReactiveBehavior {
 			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");
 		}
 		numActions++;
-        City destinationOfTask = availableTask.equals(null) ? null : availableTask.deliveryCity;
+        City destinationOfTask = availableTask == null ? null : availableTask.deliveryCity;
 		State currentState = new State(vehicle.getCurrentCity(), destinationOfTask);
 
 		City nextDestination = bestAction.get(currentState);
 
-		return nextDestination.equals(destinationOfTask) ? new Pickup(availableTask) : new Move(nextDestination);
+		return nextDestination == destinationOfTask ? new Pickup(availableTask) : new Move(nextDestination);
 	}
 
-	class State {
-		public City city;
-		public City destinationOfTask;
+	private class State {
+        private City city;
+        private City destinationOfTask;
 
-        public State(City city, City destinationOfTask) {
+        private State(City city, City destinationOfTask) {
             this.city = city;
             this.destinationOfTask = destinationOfTask;
         }
-	}
+
+        @Override
+        public int hashCode() {
+            int prime = 11;
+            int cityHash = city == null ? 0 : city.hashCode();
+            int taskHash = destinationOfTask == null ? 0 : destinationOfTask.hashCode();
+
+            return prime * (prime + prime*cityHash) + taskHash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) return false;
+            if (this == obj) return true;
+            if (getClass() != obj.getClass()) return false;
+            State otherState = (State)obj;
+            if (this.city != otherState.city) return false;
+            if (this.destinationOfTask != otherState.destinationOfTask) return false;
+            return true;
+
+        }
+    }
 }
