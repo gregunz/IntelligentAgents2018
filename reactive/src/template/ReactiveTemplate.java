@@ -36,7 +36,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		// TODO: define a "good enough" condition, it iterates non-stops as of now
         int i = 0;
-		while(i < 10){
+		while(i < 100){
             i ++;
             // Go through all possible states, and if the taskDest == currentCity, change the task destination to null
             for (City destination : possibleDestinationOfTask) {
@@ -71,7 +71,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
                                 statePrime = new State(action, destinationPrime);
                             }
 
-                            r += discount * td.probability(state.city, statePrime.city) * v.getOrDefault(statePrime, 0.0);
+                            r += discount * td.probability(statePrime.city, statePrime.destinationOfTask) * v.getOrDefault(statePrime, 0.0);
 
                         }
 
@@ -84,6 +84,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
                     // Update S(s) if Q(s,a) is better
                     if (currentBestQ > v.getOrDefault(state, 0.0)) {
+                        System.out.println(currentBestQ - v.getOrDefault(state, 0.0));
                         v.put(state, currentBestQ);
                         bestAction.put(state, currentBestAction);
                     }
@@ -103,7 +104,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
 
-		if (numActions >= 1) {
+		if (numActions % 50 == 0 && numActions >= 1) {
 			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");
 		}
 		numActions++;
@@ -111,6 +112,10 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		State currentState = new State(vehicle.getCurrentCity(), destinationOfTask);
 
 		City nextDestination = bestAction.get(currentState);
+
+		if (nextDestination == destinationOfTask) {
+		    System.out.println("Task taken");
+        }
 
 		return nextDestination == destinationOfTask ? new Pickup(availableTask) : new Move(nextDestination);
 	}
