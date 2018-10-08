@@ -31,4 +31,5 @@ public class AlgoAction {
     public int hashCode() {
         return city.hashCode();
     }
+
 }

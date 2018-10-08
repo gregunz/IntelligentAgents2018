@@ -1,14 +1,9 @@
 package template;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import logist.simulation.Vehicle;
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
 import logist.plan.Action;
-import logist.plan.Action.Move;
-import logist.plan.Action.Pickup;
+import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
@@ -16,94 +11,101 @@ import logist.topology.Topology.City;
 import models.AlgoAction;
 import models.AlgoState;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class ReactiveTemplate implements ReactiveBehavior {
 
 	private int numActions;
 	private Agent myAgent;
 	private TaskDistribution myTaskDist;
 
+    private Map<AlgoState, Set<AlgoAction>> stateActions;
 	private Map<AlgoState, Double> v;
     private Map<AlgoState, AlgoAction> bestActions;
 
 	@Override
 	public void setup(Topology topology, TaskDistribution td, Agent agent) {
 
-		// Reads the discount factor from the agents.xml file.
-		// If the property is not present it defaults to 0.95
-		Double discount = agent.readProperty("discount-factor", Double.class,
-				0.95);
+        // Reads the discount factor from the agents.xml file.
+        // If the property is not present it defaults to 0.95
+        Double discount = agent.readProperty("discount-factor", Double.class,
+                0.95);
 
-		this.numActions = 0;
-		this.myAgent = agent;
-		this.myTaskDist = td;
+        this.numActions = 0;
+        this.myAgent = agent;
+        this.myTaskDist = td;
+
+        this.stateActions = new HashMap<>();
         this.bestActions = new HashMap<>();
         this.v = new HashMap<>();
 
-		// TODO: define a better "good enough" condition
+        for (City currentCity : topology.cities()) {
+            for (City destCity : topology.cities()) {
+                Set<AlgoAction> actions =
+                        currentCity.neighbors().stream().map(AlgoAction::new).collect(Collectors.toSet());
+                if (currentCity.equals(destCity)) {
+                    stateActions.put(new AlgoState(currentCity, null), actions);
+                } else {
+                    actions.add(new AlgoAction(destCity));
+                    stateActions.put(new AlgoState(currentCity, destCity), actions);
+                }
+
+            }
+        }
+
+        // TODO: define a better "good enough" condition
         double threshold = 0.0001;
         boolean hasImproved = true;
 
-		while(hasImproved){
-		    hasImproved = false;
+        while (hasImproved) {
+            hasImproved = false;
             // Go through all possible states, and if the taskDest == currentCity, change the task destination to null
-            for (City destCity : topology.cities()) {
-                for (City currentCity : topology.cities()) {
-                    AlgoState state;
+            for (AlgoState state : stateActions.keySet()) {
 
-                    Set<AlgoAction> actions = currentCity.neighbors().stream().map(AlgoAction::new).collect(Collectors.toSet());
+                // Store best action for current state and the associated Q value
+                Double currentQ = 0.0;
+                AlgoAction currentBestAction = null;
 
-                    if (currentCity.equals(destCity)) {
-                        state = new AlgoState(currentCity, null);
-                    } else {
-                        state = new AlgoState(currentCity, destCity);
-                        actions.add(new AlgoAction(destCity));
-                    }
+                // For all possible actions, compute the Q(s,a)
+                for (AlgoAction action : stateActions.get(state)) {
 
-                    // Store best action for current state and the associated Q value
-                    Double currentBestQ = 0.0;
-                    AlgoAction currentBestAction = null;
+                    Set<AlgoState> nextStates = stateActions.keySet();
 
-                    // For all possible actions, compute the Q(s,a)
-                    for (AlgoAction action : actions) {
+                    double newQ = computeExpectedReward(state, action); // R(s,a)
 
-                        double r = computeExpectedReward(state, action); // R(s,a)
-
-                        // Go one step further and evaluate for future possible actions
-                        for (City nextDest : topology.cities()) {
-
-                            AlgoState statePrime;
-                            if (action.getCity().equals(nextDest)) {
-                                statePrime = new AlgoState(action.getCity(), null);
-                            } else {
-                                statePrime = new AlgoState(action.getCity(), nextDest);
-                            }
-
-                            r += discount * td.probability(statePrime.getCity(), statePrime.getTaskDestination()) * v.getOrDefault(statePrime, 0.0);
-
-                        }
-
-                        // Store best action
-                        if (r >= currentBestQ) {
-                            currentBestQ = r;
-                            currentBestAction = action;
+                    // Go one step further and evaluate for future possible actions
+                    // γ􏰀 * sum_{s'}{ T(s,a,s′) * V(s′) }
+                    for (AlgoState nextState : stateActions.keySet()) {
+                        if (nextState.getCity().equals(action.getCity())) {
+                            newQ += discount * td.probability(nextState.getCity(), nextState.getTaskDestination()) *
+                                    v.getOrDefault(nextState, 0.0);
                         }
                     }
 
-                    // Update S(s) if Q(s,a) is better
-                    if (currentBestQ > v.getOrDefault(state, 0.0)) {
-                        if (currentBestQ - v.getOrDefault(state,0.0) > threshold) {
-                            hasImproved = true;
-                        }
-                        v.put(state, currentBestQ);
-                        bestActions.put(state, currentBestAction);
+
+                    // Store best action
+                    if (newQ >= currentQ) {
+                        currentBestAction = action;
+                        currentQ = newQ;
                     }
 
                 }
+
+                // Update S(s) if Q(s,a) is better
+                if (currentQ > v.getOrDefault(state, 0.0)) {
+                    if (currentQ - v.getOrDefault(state, 0.0) > threshold) {
+                        hasImproved = true;
+                    }
+                    v.put(state, currentQ);
+                    bestActions.put(state, currentBestAction);
+                }
+
             }
         }
-	}
-
-
+    }
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
@@ -115,21 +117,15 @@ public class ReactiveTemplate implements ReactiveBehavior {
         }
 
 		if (numActions % 50 == 0 && numActions >= 1) {
-			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");
+            System.out.println("The total profit after " + numActions + " actions is " + myAgent.getTotalProfit() +
+                    " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
 		}
 		numActions++;
         City destinationOfTask = availableTask == null ? null : availableTask.deliveryCity;
 		AlgoState currentState = new AlgoState(vehicle.getCurrentCity(), destinationOfTask);
-
 		City nextDestination = bestActions.get(currentState).getCity();
 
-		/*
-		if (nextDestination == destinationOfTask) {
-		    System.out.println("Task taken");
-        }
-        */
-
-		return nextDestination == destinationOfTask ? new Pickup(availableTask) : new Move(nextDestination);
+        return nextDestination == destinationOfTask ? new Action.Pickup(availableTask) : new Action.Move(nextDestination);
 	}
 
     private double computeExpectedReward(AlgoState state, AlgoAction action) {
