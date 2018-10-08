@@ -1,7 +1,5 @@
 package models;
 
-import logist.agent.Agent;
-import logist.task.TaskDistribution;
 import logist.topology.Topology;
 
 public class AlgoState {
