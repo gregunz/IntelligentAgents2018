@@ -66,8 +66,8 @@ public class ReactiveTemplate implements ReactiveBehavior {
             for (AlgoState state : stateActions.keySet()) {
 
                 // Store best action for current state and the associated Q value
-                Double currentQ = 0.0;
-                AlgoAction currentBestAction = null;
+                Double bestQ = 0.0;
+                AlgoAction bestAction = null;
 
                 // For all possible actions, compute the Q(s,a)
                 for (AlgoAction action : stateActions.get(state)) {
@@ -85,22 +85,21 @@ public class ReactiveTemplate implements ReactiveBehavior {
                         }
                     }
 
-
-                    // Store best action
-                    if (newQ >= currentQ) {
-                        currentBestAction = action;
-                        currentQ = newQ;
+                    // Store best action and bestQ
+                    if (newQ >= bestQ) {
+                        bestAction = action;
+                        bestQ = newQ;
                     }
 
                 }
 
                 // Update S(s) if Q(s,a) is better
-                if (currentQ > v.getOrDefault(state, 0.0)) {
-                    if (currentQ - v.getOrDefault(state, 0.0) > threshold) {
+                if (bestQ > v.getOrDefault(state, 0.0)) {
+                    if (bestQ - v.getOrDefault(state, 0.0) > threshold) {
                         hasImproved = true;
                     }
-                    v.put(state, currentQ);
-                    bestActions.put(state, currentBestAction);
+                    v.put(state, bestQ);
+                    bestActions.put(state, bestAction);
                 }
 
             }
