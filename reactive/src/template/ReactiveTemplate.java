@@ -1,6 +1,7 @@
 package template;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import logist.simulation.Vehicle;
 import logist.agent.Agent;
@@ -12,14 +13,17 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import models.AlgoAction;
+import models.AlgoState;
 
 public class ReactiveTemplate implements ReactiveBehavior {
 
 	private int numActions;
 	private Agent myAgent;
+	private TaskDistribution myTaskDist;
 
-	private Map<State, Double> v = new HashMap<>();
-    private Map<State, City> bestAction = new HashMap<>();
+	private Map<AlgoState, Double> v;
+    private Map<AlgoState, AlgoAction> bestActions;
 
 	@Override
 	public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -31,8 +35,9 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		this.numActions = 0;
 		this.myAgent = agent;
-
-		List<City> possibleDestinationOfTask = new ArrayList<>(topology.cities());
+		this.myTaskDist = td;
+        this.bestActions = new HashMap<>();
+        this.v = new HashMap<>();
 
 		// TODO: define a better "good enough" condition
         double threshold = 0.0001;
@@ -41,39 +46,39 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		while(hasImproved){
 		    hasImproved = false;
             // Go through all possible states, and if the taskDest == currentCity, change the task destination to null
-            for (City destination : possibleDestinationOfTask) {
+            for (City destCity : topology.cities()) {
                 for (City currentCity : topology.cities()) {
-                    State state;
+                    AlgoState state;
 
-                    List<City> actions = new ArrayList<>(currentCity.neighbors());
+                    Set<AlgoAction> actions = currentCity.neighbors().stream().map(AlgoAction::new).collect(Collectors.toSet());
 
-                    if (currentCity.equals(destination)) {
-                        state = new State(currentCity, null);
+                    if (currentCity.equals(destCity)) {
+                        state = new AlgoState(currentCity, null);
                     } else {
-                        state = new State(currentCity, destination);
-                        actions.add(destination);
+                        state = new AlgoState(currentCity, destCity);
+                        actions.add(new AlgoAction(destCity));
                     }
 
                     // Store best action for current state and the associated Q value
                     Double currentBestQ = 0.0;
-                    City currentBestAction = null;
+                    AlgoAction currentBestAction = null;
 
                     // For all possible actions, compute the Q(s,a)
-                    for (City action : actions) {
+                    for (AlgoAction action : actions) {
 
-                        double r = getReward(state, action, td); // R(s,a)
+                        double r = computeExpectedReward(state, action); // R(s,a)
 
                         // Go one step further and evaluate for future possible actions
-                        for (City destinationPrime : possibleDestinationOfTask) {
+                        for (City nextDest : topology.cities()) {
 
-                            State statePrime;
-                            if (action.equals(destinationPrime)) {
-                                statePrime = new State(action, null);
+                            AlgoState statePrime;
+                            if (action.getCity().equals(nextDest)) {
+                                statePrime = new AlgoState(action.getCity(), null);
                             } else {
-                                statePrime = new State(action, destinationPrime);
+                                statePrime = new AlgoState(action.getCity(), nextDest);
                             }
 
-                            r += discount * td.probability(statePrime.city, statePrime.destinationOfTask) * v.getOrDefault(statePrime, 0.0);
+                            r += discount * td.probability(statePrime.getCity(), statePrime.getTaskDestination()) * v.getOrDefault(statePrime, 0.0);
 
                         }
 
@@ -90,7 +95,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
                             hasImproved = true;
                         }
                         v.put(state, currentBestQ);
-                        bestAction.put(state, currentBestAction);
+                        bestActions.put(state, currentBestAction);
                     }
 
                 }
@@ -98,60 +103,45 @@ public class ReactiveTemplate implements ReactiveBehavior {
         }
 	}
 
-	private double getReward(State state, City action, TaskDistribution td) {
-	    double gain = action.equals(state.destinationOfTask) ? td.reward(state.city, action) : 0.0;
-	    double cost = state.city.distanceTo(action) * myAgent.vehicles().get(0).costPerKm();
 
-	    return gain - cost;
-    }
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
+        if (bestActions == null){
+            throw new IllegalStateException("bestActions must be initialized when act is called");
+        }
+        if (myAgent == null){
+            throw new IllegalStateException("myAgent must be initialized when act is called");
+        }
 
 		if (numActions % 50 == 0 && numActions >= 1) {
 			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");
 		}
 		numActions++;
         City destinationOfTask = availableTask == null ? null : availableTask.deliveryCity;
-		State currentState = new State(vehicle.getCurrentCity(), destinationOfTask);
+		AlgoState currentState = new AlgoState(vehicle.getCurrentCity(), destinationOfTask);
 
-		City nextDestination = bestAction.get(currentState);
+		City nextDestination = bestActions.get(currentState).getCity();
 
+		/*
 		if (nextDestination == destinationOfTask) {
 		    System.out.println("Task taken");
         }
+        */
 
 		return nextDestination == destinationOfTask ? new Pickup(availableTask) : new Move(nextDestination);
 	}
 
-	private class State {
-        private City city;
-        private City destinationOfTask;
-
-        private State(City city, City destinationOfTask) {
-            this.city = city;
-            this.destinationOfTask = destinationOfTask;
+    private double computeExpectedReward(AlgoState state, AlgoAction action) {
+        if (myAgent == null){
+            throw new IllegalStateException("myAgent must be initialized when computeExpectedReward is called");
         }
-
-        @Override
-        public int hashCode() {
-            int prime = 11;
-            int cityHash = city == null ? 0 : city.hashCode();
-            int taskHash = destinationOfTask == null ? 0 : destinationOfTask.hashCode();
-
-            return prime * (prime + prime*cityHash) + taskHash;
+        if (myTaskDist == null){
+            throw new IllegalStateException("myTaskDist must be initialized when computeExpectedReward is called");
         }
+        double gain = action.getCity().equals(state.getTaskDestination()) ? myTaskDist.reward(state.getCity(), action.getCity()) : 0.0;
+        double cost = state.getCity().distanceTo(action.getCity()) * myAgent.vehicles().get(0).costPerKm();
 
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) return false;
-            if (this == obj) return true;
-            if (getClass() != obj.getClass()) return false;
-            State otherState = (State)obj;
-            if (this.city != otherState.city) return false;
-            if (this.destinationOfTask != otherState.destinationOfTask) return false;
-            return true;
-
-        }
+        return gain - cost;
     }
 }
