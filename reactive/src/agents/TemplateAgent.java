@@ -29,7 +29,7 @@ public class TemplateAgent implements ReactiveBehavior {
                 0.95);
 
         this.random = new Random();
-        this.pPickup = 0;
+        this.pPickup = discount;
         this.numActions = 0;
         this.myAgent = agent;
     }
@@ -45,7 +45,7 @@ public class TemplateAgent implements ReactiveBehavior {
             action = new Pickup(availableTask);
         }
 
-        if (numActions >= 1) {
+        if (numActions % 50 == 0 && numActions >= 1) {
             System.out.println("The total profit after " + numActions + " actions is " + myAgent.getTotalProfit() + " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
         }
         numActions++;
