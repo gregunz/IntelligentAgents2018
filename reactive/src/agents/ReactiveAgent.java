@@ -54,7 +54,6 @@ public class ReactiveAgent implements ReactiveBehavior {
             }
         }
 
-        // TODO: define a better "good enough" condition
         double threshold = 0.0001;
         boolean hasImproved = true;
 
