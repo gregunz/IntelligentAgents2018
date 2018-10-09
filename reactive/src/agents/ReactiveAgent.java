@@ -78,8 +78,7 @@ public class ReactiveAgent implements ReactiveBehavior {
                     // γ􏰀 * sum_{s'}{ T(s,a,s′) * V(s′) }
                     for (AlgoState nextState : stateActions.keySet()) {
                         if (nextState.getCity().equals(action.getCity())) { // here we skip the state with probability 0
-                            newQ += discount * transition(state, action, nextState) *
-                                    v.getOrDefault(nextState, 0.0);
+                            newQ += discount * transition(state, action, nextState) * v.getOrDefault(nextState, 0.0);
                         }
                     }
 
@@ -132,7 +131,11 @@ public class ReactiveAgent implements ReactiveBehavior {
         if (myTaskDist == null){
             throw new IllegalStateException("myTaskDist must be initialized when reward is called");
         }
-        double gain = action.getCity().equals(state.getTaskDestination()) ? myTaskDist.reward(state.getCity(), action.getCity()) : 0.0;
+        if (isImpossible(state, action)) {
+            System.out.println("Our implementation should not go through this because it's too smart!");
+            return Double.NEGATIVE_INFINITY;
+        }
+        double gain = isTakingTask(state, action) ? myTaskDist.reward(state.getCity(), action.getCity()) : 0.0;
         double cost = state.getCity().distanceTo(action.getCity()) * myAgent.vehicles().get(0).costPerKm();
 
         return gain - cost;
@@ -142,10 +145,26 @@ public class ReactiveAgent implements ReactiveBehavior {
         if (myTaskDist == null) {
             throw new IllegalStateException("myTaskDist must be initialized when reward is called");
         }
-        if (!action.getCity().equals(nextState.getCity())) {
-            return 0d;
+        if (isImpossible(state, action) || nextStateImpossible(action, nextState)) {
+            System.out.println("Our implementation should not go through this because it's too smart!");
+            return 0;
         }
         // The probability to transit to state `nextState` is just the probability that the next city holds the next task
         return myTaskDist.probability(nextState.getCity(), nextState.getTaskDestination());
+    }
+
+    private boolean isImpossible(AlgoState state, AlgoAction action) {
+        // we cannot have action destinations which are neither neighbor nor task destination
+        return !state.getCity().neighbors().contains(action.getCity()) && !action.getCity().equals(state.getTaskDestination());
+    }
+
+    private boolean isTakingTask(AlgoState state, AlgoAction action) {
+        // this is true when the action we took is the task (delivery)
+        return action.getCity().equals(state.getTaskDestination());
+    }
+
+    private boolean nextStateImpossible(AlgoAction action, AlgoState nextState) {
+        // we cannot go to a city that was not the destination of our action
+        return !action.getCity().equals(nextState.getCity());
     }
 }
