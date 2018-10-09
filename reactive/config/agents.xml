@@ -18,10 +18,64 @@
     </agent>
 
     <!-- #### REACTIVE AGENTS ### -->
-    <agent name="reactive">
+    <agent name="reactive95">
         <set class-path="bin/"/>
         <set class-name="agents.ReactiveAgent"/>
         <set discount-factor=".95"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive85">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".85"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive75">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".75"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive65">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".65"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive55">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".55"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive45">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".45"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive35">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".35"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive25">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".25"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive15">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".15"/>
+    </agent>
+    <!-- #### REACTIVE AGENTS ### -->
+    <agent name="reactive05">
+        <set class-path="bin/"/>
+        <set class-name="agents.ReactiveAgent"/>
+        <set discount-factor=".05"/>
     </agent>
 	
 </agents>
