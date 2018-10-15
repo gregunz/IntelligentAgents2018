@@ -7,18 +7,17 @@
     <agent name="template">
 		<set class-path="bin/"/>
         <set class-name="agents.TemplateAgent"/>
-        <set discount-factor=".95"/>
+        <set discount-factor=".50"/>
 	</agent>
 
     <!-- #### DUMMY AGENTS ### -->
     <agent name="dummy">
         <set class-path="bin/"/>
         <set class-name="agents.DummyAgent"/>
-        <set discount-factor=".95"/>
     </agent>
 
     <!-- #### REACTIVE AGENTS ### -->
-    <agent name="reactive95">
+    <agent name="reactiveRLA">
         <set class-path="bin/"/>
         <set class-name="agents.ReactiveAgent"/>
         <set discount-factor=".95"/>
