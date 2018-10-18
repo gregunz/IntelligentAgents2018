@@ -1,6 +1,5 @@
 package template;
 
-import logist.plan.Action;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 
