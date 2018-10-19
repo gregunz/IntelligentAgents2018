@@ -2,6 +2,8 @@ package template;
 
 /* import table */
 
+import algo.AStar;
+import algo.BFS;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
@@ -11,6 +13,8 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import models.State;
+import models.StateRepresentation;
 
 /**
  * An optimal planner for one vehicle.
@@ -46,20 +50,24 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     @Override
     public Plan plan(Vehicle vehicle, TaskSet tasks) {
         Plan plan;
+        State startingState = new StateRepresentation(vehicle, tasks);
 
         // Compute the plan with the selected algorithm.
         switch (algorithm) {
             case ASTAR:
                 // ...
-                plan = naivePlan(vehicle, tasks);
+                System.out.println("ASTAR algorithm starting...");
+                plan = AStar.run(startingState);
                 break;
             case BFS:
                 // ...
-                plan = naivePlan(vehicle, tasks);
+                System.out.println("BFS algorithm starting...");
+                plan = BFS.run(startingState);
                 break;
             default:
                 throw new AssertionError("Should not happen.");
         }
+        System.out.println("Done!");
         return plan;
     }
 

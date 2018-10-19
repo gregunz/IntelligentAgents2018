@@ -1,6 +1,7 @@
 package models;
 
 import logist.plan.Plan;
+import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology;
@@ -11,20 +12,22 @@ import java.util.stream.Collectors;
 
 
 public class StateRepresentation implements State {
-    private Topology.City currentCity;
-    private TaskSet taskTaken;
-    private int capacityRemaining;
-    private TaskSet taskNotTaken;
-    private double currentReward;
-    private List<Action> previousActions;
+    private static final Task[] EMPTY_TASK_ARRAY = {};
+
+    private final Topology.City currentCity;
+    private final TaskSet taskTaken;
+    private final int capacityRemaining;
+    private final TaskSet taskNotTaken;
+    private final double currentReward;
+    private final List<Action> previousActions;
+
+
+    public StateRepresentation(Vehicle vehicle, TaskSet taskset) {
+        this(vehicle.getCurrentCity(), TaskSet.create(EMPTY_TASK_ARRAY), vehicle.capacity(), taskset);
+    }
 
     public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken) {
-        this.currentCity = currentCity;
-        this.taskTaken = taskTaken;
-        this.capacityRemaining = capacityRemaining;
-        this.taskNotTaken = taskNotTaken;
-        this.currentReward = 0d;
-        this.previousActions = Collections.unmodifiableList(new ArrayList<>());
+        this(currentCity, taskTaken, capacityRemaining, taskNotTaken, 0d, new ArrayList<>());
     }
 
     public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken, double currentReward, List<Action> previousActions) {
