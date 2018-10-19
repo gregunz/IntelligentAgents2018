@@ -7,18 +7,20 @@ import logist.topology.Topology;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StateRepresentation implements State{
+public class StateRepresentation implements State {
 
     private Topology.City currentCity;
     private TaskSet taskTaken;
     private int capacityRemaining;
     private TaskSet taskNotTaken;
+    private double currentReward;
 
     public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken) {
         this.currentCity = currentCity;
         this.taskTaken = taskTaken;
         this.capacityRemaining = capacityRemaining;
         this.taskNotTaken = taskNotTaken;
+        this.currentReward = 0d;
     }
 
     @Override
@@ -81,5 +83,15 @@ public class StateRepresentation implements State{
     @Override
     public TaskSet getTaskNotTaken() {
         return this.taskNotTaken;
+    }
+
+    @Override
+    public double getCurrentReward() {
+        return currentReward;
+    }
+
+    @Override
+    public void addReward(double reward) {
+        this.currentReward += reward;
     }
 }

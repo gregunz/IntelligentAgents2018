@@ -13,6 +13,9 @@ public interface State {
 
     State getNextState(Action action);
 
+    double getCurrentReward();
+
+    void addReward(double reward);
 
     Topology.City getCurrentCity();
     TaskSet getTaskTaken();
