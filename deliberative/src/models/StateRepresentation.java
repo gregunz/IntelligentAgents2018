@@ -23,7 +23,7 @@ public class StateRepresentation implements State {
 
 
     public StateRepresentation(Vehicle vehicle, TaskSet taskset) {
-        this(vehicle.getCurrentCity(), TaskSet.create(EMPTY_TASK_ARRAY), vehicle.capacity(), taskset);
+        this(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), vehicle.capacity(), taskset);
     }
 
     public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken) {
