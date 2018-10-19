@@ -1,16 +1,18 @@
 package algo;
 
-import logist.plan.Action;
+import logist.plan.Plan;
 import models.State;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
 public class BFS {
     private BFS() {
     }
 
-    public static List<Action> run(final State startingState) {
+    public static Plan run(final State startingState) {
         State state = startingState;
         Queue<State> statesQueue = new LinkedList<>(startingState.getNextStates());
         Set<State> visitedStates = new HashSet<>();
@@ -23,7 +25,7 @@ public class BFS {
             }
         }
 
-        return state.getPreviousActions().stream().map(models.Action::getAction).collect(Collectors.toList());
+        return state.toPlan(startingState);
     }
 
 }

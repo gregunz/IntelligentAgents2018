@@ -1,16 +1,18 @@
 package algo;
 
-import logist.plan.Action;
+import logist.plan.Plan;
 import models.State;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 public class AStar {
     private AStar() {
     }
 
-    public static List<Action> run(final State startingState) {
+    public static Plan run(final State startingState) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
             if (s2.getCurrentReward() - s1.getCurrentReward() > 0) {
@@ -36,6 +38,6 @@ public class AStar {
             statesQueue.addAll(state.getNextStates());
         }
 
-        return state.getPreviousActions().stream().map(models.Action::getAction).collect(Collectors.toList());
+        return state.toPlan(startingState);
     }
 }

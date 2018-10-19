@@ -1,5 +1,6 @@
 package models;
 
+import logist.plan.Plan;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 
@@ -22,5 +23,7 @@ public interface State {
     TaskSet getTaskTaken();
     int getCapacityRemaining();
     TaskSet getTaskNotTaken();
+
+    Plan toPlan(State startingState);
 
 }

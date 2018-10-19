@@ -1,5 +1,6 @@
 package models;
 
+import logist.plan.Plan;
 import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology;
@@ -97,6 +98,19 @@ public class StateRepresentation implements State {
     @Override
     public TaskSet getTaskNotTaken() {
         return this.taskNotTaken;
+    }
+
+    @Override
+    public Plan toPlan(State startingState) {
+        Plan plan = new Plan(startingState.getCurrentCity());
+
+        this.getPreviousActions().stream()
+                .map(models.Action::getAction)
+                .collect(Collectors.toCollection(LinkedList::new))
+                .descendingIterator()
+                .forEachRemaining(plan::append);
+
+        return plan;
     }
 
     @Override
