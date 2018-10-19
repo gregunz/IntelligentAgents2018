@@ -3,6 +3,8 @@ package algo;
 import template.State;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 public class BFS {
@@ -11,12 +13,15 @@ public class BFS {
 
     public static void run(final State startingState) {
         State state = startingState;
-        Set<State> nextStates = new HashSet<>();
+        Queue<State> statesQueue = new LinkedList<>(startingState.getNextStates());
+        Set<State> visitedStates = new HashSet<>();
 
-
-        while (!state.isFinalState()) {
-            //state.
-
+        while (!state.isFinalState() && !statesQueue.isEmpty()) {
+            state = statesQueue.poll();
+            if (!visitedStates.contains(state)) {
+                visitedStates.add(state);
+                statesQueue.addAll(state.getNextStates());
+            }
         }
     }
 

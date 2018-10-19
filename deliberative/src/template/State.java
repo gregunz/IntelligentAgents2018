@@ -4,18 +4,19 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 
 import java.util.List;
+import java.util.Set;
 
 public interface State {
 
     boolean isFinalState();
 
-    List<Action> getAllPossibleActions();
+    List<Action> getPreviousActions();
 
-    State getNextState(Action action);
+    Set<Action> getAllPossibleActions();
+
+    Set<State> getNextStates();
 
     double getCurrentReward();
-
-    void addReward(double reward);
 
     Topology.City getCurrentCity();
     TaskSet getTaskTaken();

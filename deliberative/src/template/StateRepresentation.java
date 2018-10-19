@@ -4,16 +4,18 @@ import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+
 
 public class StateRepresentation implements State {
-
     private Topology.City currentCity;
     private TaskSet taskTaken;
     private int capacityRemaining;
     private TaskSet taskNotTaken;
     private double currentReward;
+    private List<Action> previousActions;
 
     public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken) {
         this.currentCity = currentCity;
@@ -21,6 +23,16 @@ public class StateRepresentation implements State {
         this.capacityRemaining = capacityRemaining;
         this.taskNotTaken = taskNotTaken;
         this.currentReward = 0d;
+        this.previousActions = Collections.unmodifiableList(new ArrayList<>());
+    }
+
+    public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken, double currentReward, List<Action> previousActions) {
+        this.currentCity = currentCity;
+        this.taskTaken = taskTaken;
+        this.capacityRemaining = capacityRemaining;
+        this.taskNotTaken = taskNotTaken;
+        this.currentReward = currentReward;
+        this.previousActions = Collections.unmodifiableList(previousActions);
     }
 
     @Override
@@ -29,10 +41,10 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public List<Action> getAllPossibleActions() {
+    public Set<Action> getAllPossibleActions() {
 
-        List<Action> possibleActions = new ArrayList<>();
-        List<Topology.City> destinationInTaskPath = new ArrayList<>();
+        Set<Action> possibleActions = new HashSet<>();
+        Set<Topology.City> destinationInTaskPath = new HashSet<>();
 
         for (Task task : taskNotTaken) {
             if (task.weight <= capacityRemaining) {
@@ -61,8 +73,10 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public State getNextState(Action action) {
-        return action.getNextState(this);
+    public Set<State> getNextStates() {
+        return this.getAllPossibleActions().stream()
+                .map(a -> a.getNextState(this))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -91,7 +105,29 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public void addReward(double reward) {
-        this.currentReward += reward;
+    public List<Action> getPreviousActions() {
+        return Collections.unmodifiableList(previousActions);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StateRepresentation that = (StateRepresentation) o;
+
+        if (capacityRemaining != that.capacityRemaining) return false;
+        if (currentCity != null ? !currentCity.equals(that.currentCity) : that.currentCity != null) return false;
+        if (taskTaken != null ? !taskTaken.equals(that.taskTaken) : that.taskTaken != null) return false;
+        return taskNotTaken != null ? taskNotTaken.equals(that.taskNotTaken) : that.taskNotTaken == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = currentCity != null ? currentCity.hashCode() : 0;
+        result = 31 * result + (taskTaken != null ? taskTaken.hashCode() : 0);
+        result = 31 * result + capacityRemaining;
+        result = 31 * result + (taskNotTaken != null ? taskNotTaken.hashCode() : 0);
+        return result;
     }
 }
