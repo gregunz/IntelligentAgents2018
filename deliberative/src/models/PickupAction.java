@@ -1,4 +1,4 @@
-package template;
+package models;
 
 import logist.task.Task;
 import logist.task.TaskSet;

@@ -1,4 +1,4 @@
-package template;
+package models;
 
 import logist.topology.Topology;
 

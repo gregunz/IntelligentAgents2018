@@ -1,7 +1,7 @@
 package algo;
 
 import logist.plan.Action;
-import template.State;
+import models.State;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +36,6 @@ public class AStar {
             statesQueue.addAll(state.getNextStates());
         }
 
-        return state.getPreviousActions().stream().map(template.Action::getAction).collect(Collectors.toList());
+        return state.getPreviousActions().stream().map(models.Action::getAction).collect(Collectors.toList());
     }
 }
