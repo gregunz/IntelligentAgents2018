@@ -25,6 +25,10 @@ public class BFS {
             }
         }
 
+        if (!state.isFinalState()) {
+            throw new IllegalStateException("BFS did not find any final state");
+        }
+
         return state.toPlan(startingState);
     }
 

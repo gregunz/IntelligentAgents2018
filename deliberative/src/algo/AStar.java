@@ -38,6 +38,10 @@ public class AStar {
             statesQueue.addAll(state.getNextStates());
         }
 
+        if (!state.isFinalState()) {
+            throw new IllegalStateException("BFS did not find any final state");
+        }
+
         return state.toPlan(startingState);
     }
 }
