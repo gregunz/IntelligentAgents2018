@@ -37,13 +37,13 @@ public class PickupAction implements Action {
                 state.getCapacityRemaining() - task.weight,
                 notTaken,
                 state.getCostPerKM(),
-                state.getCurrentReward() + this.getReward(),
+                state.getCost() + this.getCost(),
                 actions
         );
     }
 
     @Override
-    public double getReward() {
+    public double getCost() {
         return 0;
     }
 }

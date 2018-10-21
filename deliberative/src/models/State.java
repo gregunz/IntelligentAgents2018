@@ -17,7 +17,8 @@ public interface State {
     List<State> getNextStates();
 
     double getCostPerKM();
-    double getCurrentReward();
+
+    double getCost();
 
     Topology.City getCurrentCity();
     TaskSet getTaskTaken();

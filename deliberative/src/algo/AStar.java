@@ -15,9 +15,9 @@ public class AStar {
     public static Plan run(final State startingState) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
-            if (s2.getCurrentReward() - s1.getCurrentReward() > 0) {
+            if (s2.getCost() - s1.getCost() < 0) {
                 return +1;
-            } else if (s2.getCurrentReward() - s1.getCurrentReward() < 0) {
+            } else if (s2.getCost() - s1.getCost() > 0) {
                 return -1;
             } else {
                 return 0;

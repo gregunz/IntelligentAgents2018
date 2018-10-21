@@ -6,6 +6,6 @@ public interface Action {
 
     State getNextState(State state);
 
-    double getReward();
+    double getCost();
 
 }

@@ -34,13 +34,13 @@ public class DeliveryAction implements Action {
                 state.getCapacityRemaining() + task.weight,
                 state.getTaskNotTaken(),
                 state.getCostPerKM(),
-                state.getCurrentReward() + this.getReward(),
+                state.getCost() + this.getCost(),
                 actions
         );
     }
 
     @Override
-    public double getReward() {
-        return task.reward;
+    public double getCost() {
+        return 0;
     }
 }

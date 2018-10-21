@@ -22,7 +22,7 @@ public class BFS {
         int nSteps = 0;
         while (!statesQueue.isEmpty()) {
             nSteps += 1;
-            if (state.isFinalState() && (bestState == null || bestState.getCurrentReward() < state.getCurrentReward())) {
+            if (state.isFinalState() && (bestState == null || bestState.getCost() < state.getCost())) {
                 bestState = state;
             }
             state = statesQueue.poll();

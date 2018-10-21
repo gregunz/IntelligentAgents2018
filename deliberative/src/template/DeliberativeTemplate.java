@@ -71,6 +71,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
                 throw new AssertionError("Should not happen.");
         }
         System.out.println("Done!");
+        System.out.println(plan);
         return plan;
     }
 

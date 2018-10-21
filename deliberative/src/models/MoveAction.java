@@ -34,13 +34,13 @@ public class MoveAction implements Action {
                 state.getCapacityRemaining(),
                 state.getTaskNotTaken().clone(),
                 costPerKM,
-                state.getCurrentReward() + this.getReward(),
+                state.getCost() + this.getCost(),
                 actions
         );
     }
 
     @Override
-    public double getReward() {
-        return - fromCity.distanceTo(toCity) * costPerKM;
+    public double getCost() {
+        return fromCity.distanceTo(toCity) * costPerKM;
     }
 }

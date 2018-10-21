@@ -128,7 +128,7 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public double getCurrentReward() {
+    public double getCost() {
         return currentReward;
     }
 
