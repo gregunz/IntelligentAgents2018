@@ -17,9 +17,14 @@ public class BFS {
         Queue<State> statesQueue = new LinkedList<>(startingState.getNextStates());
         Set<State> visitedStates = new HashSet<>();
 
+        State bestState = null;
+
         int nSteps = 0;
-        while (!state.isFinalState() && !statesQueue.isEmpty()) {
+        while (!statesQueue.isEmpty()) {
             nSteps += 1;
+            if (state.isFinalState() && (bestState == null || bestState.getCurrentReward() < state.getCurrentReward())) {
+                bestState = state;
+            }
             state = statesQueue.poll();
             if (!visitedStates.contains(state)) {
                 visitedStates.add(state);
@@ -29,11 +34,11 @@ public class BFS {
 
         System.out.println("BFS converged in " + nSteps + " number of steps");
 
-        if (!state.isFinalState()) {
+        if (bestState == null) {
             throw new IllegalStateException("BFS did not find any final state");
         }
 
-        return state.toPlan(startingState);
+        return bestState.toPlan(startingState);
     }
 
 }
