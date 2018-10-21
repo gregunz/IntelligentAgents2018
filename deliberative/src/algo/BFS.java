@@ -5,34 +5,33 @@ import models.State;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
 
 public class BFS {
     private BFS() {
     }
 
     public static Plan run(final State startingState) {
-        State state = startingState;
-        Queue<State> statesQueue = new LinkedList<>(startingState.getNextStates());
-        Set<State> visitedStates = new HashSet<>();
+        VisitOnceQueue statesQueue = new VisitOnceQueue(new LinkedList<>(), new HashSet<>());
+        statesQueue.visit(startingState);
+        statesQueue.addAll(startingState.getNextStates());
 
         State bestState = null;
+        if (startingState.isFinalState()) {
+            bestState = startingState;
+        }
 
         int nSteps = 0;
+
+        State state;
         while (!statesQueue.isEmpty()) {
             nSteps += 1;
-            if (state.isFinalState() && (bestState == null || bestState.getCost() < state.getCost())) {
-                bestState = state;
-            }
+
             state = statesQueue.poll();
-            if (!visitedStates.contains(state)) {
-                visitedStates.add(state);
-                state.getNextStates().forEach(s -> {
-                    if (!visitedStates.contains(s)) {
-                        statesQueue.add(s);
-                    }
-                });
+            if (!statesQueue.hasVisitedElseVisit(state)) {
+                statesQueue.addAll(state.getNextStates());
+            }
+            if (state.isFinalState() && (bestState == null || bestState.getCost() > state.getCost())) {
+                bestState = state;
             }
         }
 

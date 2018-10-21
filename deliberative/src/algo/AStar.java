@@ -3,7 +3,9 @@ package algo;
 import logist.plan.Plan;
 import models.State;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 public class AStar {
     private AStar() {
@@ -27,22 +29,17 @@ public class AStar {
 
         };
 
-        State state = startingState;
-        Queue<State> statesQueue = new PriorityQueue<>(statesComparator);
+        VisitOnceQueue statesQueue = new VisitOnceQueue(new PriorityQueue<>(statesComparator), new HashSet<>());
+        statesQueue.visit(startingState);
         statesQueue.addAll(startingState.getNextStates());
-        Set<State> visitedStates = new HashSet<>();
 
         int nSteps = 0;
+        State state = startingState;
         while (!state.isFinalState() && !statesQueue.isEmpty()) {
             nSteps += 1;
             state = statesQueue.poll();
-            if (!visitedStates.contains(state)) {
-                visitedStates.add(state);
-                state.getNextStates().forEach(s -> {
-                    if (!visitedStates.contains(s)) {
-                        statesQueue.add(s);
-                    }
-                });
+            if (!statesQueue.hasVisitedElseVisit(state)) {
+                statesQueue.addAll(state.getNextStates());
             }
         }
 

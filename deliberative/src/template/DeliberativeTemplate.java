@@ -58,7 +58,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
             case ASTAR:
                 // ...
                 System.out.println("ASTAR algorithm starting...");
-                plan = AStar.run(startingState, Heuristic.WeightNotTaken);
+                plan = AStar.run(startingState, Heuristic.Zero);
                 break;
             case BFS:
                 // ...
