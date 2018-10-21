@@ -12,17 +12,26 @@ public class AStar {
     }
 
     private static double weightOfTasksNotTaken(State s) {
-        return (double) s.getTaskNotTaken().weightSum();
+        double factor = 1000d;
+        return factor * s.getTaskNotTaken().weightSum();
+    }
+
+    private static double capacityRemaining(State s) {
+        double factor = 1d;
+        return factor * s.getCapacityRemaining();
     }
 
     public static Plan run(final State startingState, Heuristic h) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
             switch (h) {
-                case WeightNotTaken:
+                case CAPACITY:
+                    return Double.compare(s1.getCost() + capacityRemaining(s1),
+                            s2.getCost() + capacityRemaining(s2));
+                case WEIGHT_NOT_TAKEN:
                     return Double.compare(s1.getCost() + weightOfTasksNotTaken(s1),
                             s2.getCost() + weightOfTasksNotTaken(s2));
-                case Zero:
+                case ZERO:
                 default:
                     return Double.compare(s1.getCost(), s2.getCost());
             }
@@ -38,7 +47,8 @@ public class AStar {
         while (!state.isFinalState() && !statesQueue.isEmpty()) {
             nSteps += 1;
             state = statesQueue.poll();
-            if (!statesQueue.hasVisitedElseVisit(state)) {
+            if (statesQueue.hasNotVisited(state)) {
+                statesQueue.visit(state);
                 statesQueue.addAll(state.getNextStates());
             }
         }

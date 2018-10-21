@@ -31,6 +31,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     int capacity;
     /* the planning class */
     Algorithm algorithm;
+    Heuristic heuristic;
 
     @Override
     public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -40,10 +41,14 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
         // initialize the planner
         int capacity = agent.vehicles().get(0).capacity();
-        String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
+        String algorithmName = agent.readProperty("algorithm", String.class, "NAIVE");
 
         // Throws IllegalArgumentException if algorithm is unknown
         algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
+        if (algorithm == Algorithm.ASTAR) {
+            String heuristicName = agent.readProperty("heuristic", String.class, "ZERO");
+            heuristic = Heuristic.valueOf(heuristicName);
+        }
 
         // ...
     }
@@ -57,8 +62,8 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
         switch (algorithm) {
             case ASTAR:
                 // ...
-                System.out.println("ASTAR algorithm starting...");
-                plan = AStar.run(startingState, Heuristic.Zero);
+                System.out.println("ASTAR algorithm (with heuristic " + heuristic + ") starting...");
+                plan = AStar.run(startingState, heuristic);
                 break;
             case BFS:
                 // ...

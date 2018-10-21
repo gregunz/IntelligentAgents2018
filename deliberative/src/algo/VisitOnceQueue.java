@@ -21,12 +21,8 @@ public class VisitOnceQueue implements Queue<State> {
         return visitedStates.add(state);
     }
 
-    public boolean hasVisitedElseVisit(State state) {
-        boolean hasVisited = visitedStates.contains(state);
-        if (!hasVisited) {
-            this.visit(state);
-        }
-        return hasVisited;
+    public boolean hasNotVisited(State state) {
+        return !visitedStates.contains(state);
     }
 
     @Override

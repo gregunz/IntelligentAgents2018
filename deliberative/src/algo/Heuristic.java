@@ -1,3 +1,3 @@
 package algo;
 
-public enum Heuristic {WeightNotTaken, Zero}
+public enum Heuristic {CAPACITY, WEIGHT_NOT_TAKEN, ZERO}

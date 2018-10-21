@@ -17,6 +17,7 @@
     <agent name="deliberative-astar">
         <set class-path="bin/"/>
         <set class-name="template.DeliberativeTemplate"/>
+        <set heuristic="WEIGHT_NOT_TAKEN"/>
         <set algorithm="ASTAR"/>
     </agent>
 

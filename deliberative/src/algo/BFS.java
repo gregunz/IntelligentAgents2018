@@ -27,7 +27,8 @@ public class BFS {
             nSteps += 1;
 
             state = statesQueue.poll();
-            if (!statesQueue.hasVisitedElseVisit(state)) {
+            if (statesQueue.hasNotVisited(state)) {
+                statesQueue.visit(state);
                 statesQueue.addAll(state.getNextStates());
             }
             if (state.isFinalState() && (bestState == null || bestState.getCost() > state.getCost())) {
