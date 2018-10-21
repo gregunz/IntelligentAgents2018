@@ -4,6 +4,7 @@ package template;
 
 import algo.AStar;
 import algo.BFS;
+import algo.Heuristic;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
@@ -57,7 +58,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
             case ASTAR:
                 // ...
                 System.out.println("ASTAR algorithm starting...");
-                plan = AStar.run(startingState);
+                plan = AStar.run(startingState, Heuristic.WeightNotTaken);
                 break;
             case BFS:
                 // ...

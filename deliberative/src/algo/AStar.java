@@ -3,29 +3,32 @@ package algo;
 import logist.plan.Plan;
 import models.State;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public class AStar {
     private AStar() {
     }
 
-    public static Plan run(final State startingState) {
+    private static double weightOfTasksNotTaken(State s) {
+        return (double) s.getTaskNotTaken().weightSum();
+    }
+
+    public static Plan run(final State startingState, Heuristic h) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
-            if (s1.getCost() > s2.getCost()) {
-                return +1;
-            } else if (s1.getCost() < s2.getCost()) {
-                return -1;
-            } else {
-                return 0;
+            switch (h) {
+                case WeightNotTaken:
+                    return Double.compare(s1.getCost() + weightOfTasksNotTaken(s1),
+                            s2.getCost() + weightOfTasksNotTaken(s2));
+                case Zero:
+                default:
+                    return Double.compare(s1.getCost(), s2.getCost());
             }
+
         };
 
         State state = startingState;
-        PriorityQueue<State> statesQueue = new PriorityQueue<>(statesComparator);
+        Queue<State> statesQueue = new PriorityQueue<>(statesComparator);
         statesQueue.addAll(startingState.getNextStates());
         Set<State> visitedStates = new HashSet<>();
 
@@ -52,3 +55,4 @@ public class AStar {
         return state.toPlan(startingState);
     }
 }
+
