@@ -33,6 +33,7 @@ public class DeliveryAction implements Action {
                 taken,
                 state.getCapacityRemaining() + task.weight,
                 state.getTaskNotTaken(),
+                state.getCostPerKM(),
                 state.getCurrentReward() + this.getReward(),
                 actions
         );

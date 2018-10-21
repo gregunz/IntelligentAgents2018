@@ -64,6 +64,9 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
                 System.out.println("BFS algorithm starting...");
                 plan = BFS.run(startingState);
                 break;
+            case NAIVE:
+                plan = naivePlan(vehicle, tasks);
+                break;
             default:
                 throw new AssertionError("Should not happen.");
         }
@@ -98,11 +101,12 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     public void planCancelled(TaskSet carriedTasks) {
 
         if (!carriedTasks.isEmpty()) {
+            throw new IllegalStateException("plan cancelled should not happen with this simple agent!");
             // This cannot happen for this simple agent, but typically
             // you will need to consider the carriedTasks when the next
             // plan is computed.
         }
     }
 
-    enum Algorithm {BFS, ASTAR}
+    enum Algorithm {BFS, ASTAR, NAIVE}
 }

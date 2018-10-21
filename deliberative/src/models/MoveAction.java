@@ -2,15 +2,19 @@ package models;
 
 import logist.topology.Topology;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MoveAction implements Action {
 
     private Topology.City fromCity;
     private Topology.City toCity;
-    private double costPerKM = 1; // <-- this needs to be setup differently
+    private double costPerKM;
 
-    public MoveAction(Topology.City fromCity, Topology.City toCity) {
+    public MoveAction(Topology.City fromCity, Topology.City toCity, double costPerKM) {
         this.fromCity = fromCity;
         this.toCity = toCity;
+        this.costPerKM = costPerKM;
     }
 
     @Override
@@ -20,7 +24,19 @@ public class MoveAction implements Action {
 
     @Override
     public State getNextState(State state) {
-        return new StateRepresentation(toCity, state.getTaskTaken(), state.getCapacityRemaining(), state.getTaskNotTaken());
+
+        List<Action> actions = new ArrayList<>(state.getPreviousActions());
+        actions.add(this);
+
+        return new StateRepresentation(
+                toCity,
+                state.getTaskTaken().clone(),
+                state.getCapacityRemaining(),
+                state.getTaskNotTaken().clone(),
+                costPerKM,
+                state.getCurrentReward() + this.getReward(),
+                actions
+        );
     }
 
     @Override

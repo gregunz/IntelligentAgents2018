@@ -16,7 +16,7 @@ public class AStar {
 
         Comparator<State> statesComparator = (s1, s2) -> {
             if (s2.getCurrentReward() - s1.getCurrentReward() > 0) {
-                return 1;
+                return +1;
             } else if (s2.getCurrentReward() - s1.getCurrentReward() < 0) {
                 return -1;
             } else {
@@ -29,7 +29,9 @@ public class AStar {
         statesQueue.addAll(startingState.getNextStates());
         Set<State> visitedStates = new HashSet<>();
 
+        int nSteps = 0;
         while (!state.isFinalState() && !statesQueue.isEmpty()) {
+            nSteps += 1;
             state = statesQueue.poll();
             if (visitedStates.contains(state)) {
                 continue;
@@ -38,8 +40,10 @@ public class AStar {
             statesQueue.addAll(state.getNextStates());
         }
 
+        System.out.println("ASTAR converged in " + nSteps + " number of steps");
+
         if (!state.isFinalState()) {
-            throw new IllegalStateException("BFS did not find any final state");
+            throw new IllegalStateException("ASTAR did not find any final state");
         }
 
         return state.toPlan(startingState);

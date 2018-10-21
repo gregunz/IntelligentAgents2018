@@ -5,7 +5,6 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 
 import java.util.List;
-import java.util.Set;
 
 public interface State {
 
@@ -13,10 +12,11 @@ public interface State {
 
     List<Action> getPreviousActions();
 
-    Set<Action> getAllPossibleActions();
+    List<Action> getAllPossibleActions();
 
-    Set<State> getNextStates();
+    List<State> getNextStates();
 
+    double getCostPerKM();
     double getCurrentReward();
 
     Topology.City getCurrentCity();
@@ -25,5 +25,4 @@ public interface State {
     TaskSet getTaskNotTaken();
 
     Plan toPlan(State startingState);
-
 }

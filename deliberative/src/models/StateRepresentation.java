@@ -6,7 +6,10 @@ import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -20,23 +23,32 @@ public class StateRepresentation implements State {
     private final TaskSet taskNotTaken;
     private final double currentReward;
     private final List<Action> previousActions;
+    private final double costPerKM;
 
 
     public StateRepresentation(Vehicle vehicle, TaskSet taskset) {
-        this(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), vehicle.capacity(), taskset);
+        this(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), vehicle.capacity(), taskset, vehicle.costPerKm());
     }
 
-    public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken) {
-        this(currentCity, taskTaken, capacityRemaining, taskNotTaken, 0d, new ArrayList<>());
+    public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining,
+                               TaskSet taskNotTaken, double costPerKM) {
+        this(currentCity, taskTaken, capacityRemaining, taskNotTaken, costPerKM, 0d, new ArrayList<>());
     }
 
-    public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining, TaskSet taskNotTaken, double currentReward, List<Action> previousActions) {
+    public StateRepresentation(Topology.City currentCity,
+                               TaskSet taskTaken,
+                               int capacityRemaining,
+                               TaskSet taskNotTaken,
+                               double costPerKM,
+                               double currentReward,
+                               List<Action> previousActions) {
         this.currentCity = currentCity;
         this.taskTaken = taskTaken;
         this.capacityRemaining = capacityRemaining;
         this.taskNotTaken = taskNotTaken;
         this.currentReward = currentReward;
         this.previousActions = Collections.unmodifiableList(previousActions);
+        this.costPerKM = costPerKM;
     }
 
     @Override
@@ -45,10 +57,10 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public Set<Action> getAllPossibleActions() {
+    public List<Action> getAllPossibleActions() {
 
-        Set<Action> possibleActions = new HashSet<>();
-        Set<Topology.City> destinationInTaskPath = new HashSet<>();
+        List<Action> possibleActions = new ArrayList<>();
+        List<Topology.City> destinationInTaskPath = new ArrayList<>();
 
         for (Task task : taskNotTaken) {
             if (task.weight <= capacityRemaining) {
@@ -70,17 +82,17 @@ public class StateRepresentation implements State {
 
         // Add all "move to neighbor city which are in path to drop or take a task" actions
         for (Topology.City city : destinationInTaskPath) {
-            possibleActions.add(new MoveAction(currentCity, city));
+            possibleActions.add(new MoveAction(currentCity, city, costPerKM));
         }
 
         return possibleActions;
     }
 
     @Override
-    public Set<State> getNextStates() {
+    public List<State> getNextStates() {
         return this.getAllPossibleActions().stream()
                 .map(a -> a.getNextState(this))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -110,8 +122,7 @@ public class StateRepresentation implements State {
         this.getPreviousActions().stream()
                 .map(models.Action::getAction)
                 .collect(Collectors.toCollection(LinkedList::new))
-                .descendingIterator()
-                .forEachRemaining(plan::append);
+                .forEach(plan::append);
 
         return plan;
     }
@@ -119,6 +130,11 @@ public class StateRepresentation implements State {
     @Override
     public double getCurrentReward() {
         return currentReward;
+    }
+
+    @Override
+    public double getCostPerKM() {
+        return costPerKM;
     }
 
     @Override
