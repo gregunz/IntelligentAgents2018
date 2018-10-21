@@ -33,11 +33,10 @@ public class AStar {
         while (!state.isFinalState() && !statesQueue.isEmpty()) {
             nSteps += 1;
             state = statesQueue.poll();
-            if (visitedStates.contains(state)) {
-                continue;
+            if (!visitedStates.contains(state)) {
+                visitedStates.add(state);
+                statesQueue.addAll(state.getNextStates());
             }
-            visitedStates.add(state);
-            statesQueue.addAll(state.getNextStates());
         }
 
         System.out.println("ASTAR converged in " + nSteps + " number of steps");
