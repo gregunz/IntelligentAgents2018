@@ -31,4 +31,4 @@ hs_err_pid*
 !logist/*
 !logist/lib/*
 
-reactive/history.xml
+*/history.xml
