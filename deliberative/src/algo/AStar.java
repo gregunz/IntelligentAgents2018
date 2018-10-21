@@ -15,9 +15,9 @@ public class AStar {
     public static Plan run(final State startingState) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
-            if (s2.getCost() - s1.getCost() < 0) {
+            if (s1.getCost() > s2.getCost()) {
                 return +1;
-            } else if (s2.getCost() - s1.getCost() > 0) {
+            } else if (s1.getCost() < s2.getCost()) {
                 return -1;
             } else {
                 return 0;
@@ -35,7 +35,11 @@ public class AStar {
             state = statesQueue.poll();
             if (!visitedStates.contains(state)) {
                 visitedStates.add(state);
-                statesQueue.addAll(state.getNextStates());
+                state.getNextStates().forEach(s -> {
+                    if (!visitedStates.contains(s)) {
+                        statesQueue.add(s);
+                    }
+                });
             }
         }
 

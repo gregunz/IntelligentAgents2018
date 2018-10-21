@@ -28,7 +28,11 @@ public class BFS {
             state = statesQueue.poll();
             if (!visitedStates.contains(state)) {
                 visitedStates.add(state);
-                statesQueue.addAll(state.getNextStates());
+                state.getNextStates().forEach(s -> {
+                    if (!visitedStates.contains(s)) {
+                        statesQueue.add(s);
+                    }
+                });
             }
         }
 
