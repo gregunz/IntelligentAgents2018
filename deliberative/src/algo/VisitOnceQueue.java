@@ -108,7 +108,7 @@ public class VisitOnceQueue implements Queue<State> {
     @Override
     public State poll() {
         State state = statesQueue.poll();
-        if (visitedStates.containsKey(state) && state.getCurrentCost() <= visitedStates.get(state).getCurrentCost()) {
+        if (visitedStates.containsKey(state) && state.getCurrentCost() < visitedStates.get(state).getCurrentCost()) {
             visitedStates.remove(state);
         }
         return state;
