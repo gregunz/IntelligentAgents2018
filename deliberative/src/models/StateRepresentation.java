@@ -62,6 +62,15 @@ public class StateRepresentation implements State {
         List<Action> possibleActions = new ArrayList<>();
         List<Topology.City> destinationInTaskPath = new ArrayList<>();
 
+        for (Task task : taskTaken) {
+            if (task.deliveryCity == currentCity) { // Add all "drop task in current city" actions
+                possibleActions.add(new DeliveryAction(task));
+                return possibleActions;
+            } else { // Add all "move in direction to city to drop task" actions
+                destinationInTaskPath.add(currentCity.pathTo(task.deliveryCity).get(0));
+            }
+        }
+
         for (Task task : taskNotTaken) {
             if (task.weight <= capacityRemaining) {
                 if (task.pickupCity == currentCity) { // Add all "take task in current city" actions
@@ -69,14 +78,6 @@ public class StateRepresentation implements State {
                 } else { // Add all "move in direction to city to pickup task" actions
                     destinationInTaskPath.add(currentCity.pathTo(task.pickupCity).get(0));
                 }
-            }
-        }
-
-        for (Task task : taskTaken) {
-            if (task.deliveryCity == currentCity) { // Add all "drop task in current city" actions
-                possibleActions.add(new DeliveryAction(task));
-            } else { // Add all "move in direction to city to drop task" actions
-                destinationInTaskPath.add(currentCity.pathTo(task.deliveryCity).get(0));
             }
         }
 
