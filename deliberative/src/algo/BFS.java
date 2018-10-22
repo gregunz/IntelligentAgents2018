@@ -31,7 +31,7 @@ public class BFS {
                 statesQueue.visit(state);
                 statesQueue.addAll(state.getNextStates());
             }
-            if (state.isFinalState() && (bestState == null || bestState.getCost() > state.getCost())) {
+            if (state.isFinalState() && (bestState == null || bestState.getCurrentCost() > state.getCurrentCost())) {
                 bestState = state;
             }
         }

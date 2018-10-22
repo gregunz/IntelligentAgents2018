@@ -21,7 +21,7 @@ public class StateRepresentation implements State {
     private final TaskSet taskTaken;
     private final int capacityRemaining;
     private final TaskSet taskNotTaken;
-    private final double currentReward;
+    private final double currentCost;
     private final List<Action> previousActions;
     private final double costPerKM;
 
@@ -40,13 +40,13 @@ public class StateRepresentation implements State {
                                int capacityRemaining,
                                TaskSet taskNotTaken,
                                double costPerKM,
-                               double currentReward,
+                               double currentCost,
                                List<Action> previousActions) {
         this.currentCity = currentCity;
         this.taskTaken = taskTaken;
         this.capacityRemaining = capacityRemaining;
         this.taskNotTaken = taskNotTaken;
-        this.currentReward = currentReward;
+        this.currentCost = currentCost;
         this.previousActions = Collections.unmodifiableList(previousActions);
         this.costPerKM = costPerKM;
     }
@@ -129,8 +129,8 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public double getCost() {
-        return currentReward;
+    public double getCurrentCost() {
+        return currentCost;
     }
 
     @Override

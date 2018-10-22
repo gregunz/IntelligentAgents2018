@@ -34,7 +34,7 @@ public class MoveAction implements Action {
                 state.getCapacityRemaining(),
                 state.getTaskNotTaken().clone(),
                 costPerKM,
-                state.getCost() + this.getCost(),
+                state.getCurrentCost() + this.getCost(),
                 actions
         );
     }
@@ -42,5 +42,20 @@ public class MoveAction implements Action {
     @Override
     public double getCost() {
         return fromCity.distanceTo(toCity) * costPerKM;
+    }
+
+    @Override
+    public boolean isMove() {
+        return true;
+    }
+
+    @Override
+    public boolean isDeliver() {
+        return false;
+    }
+
+    @Override
+    public boolean isPickup() {
+        return false;
     }
 }

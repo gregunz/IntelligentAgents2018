@@ -14,10 +14,34 @@
         <set class-name="template.DeliberativeTemplate"/>
         <set algorithm="BFS"/>
     </agent>
-    <agent name="deliberative-astar">
+    <agent name="deliberative-astar-zero">
+        <set class-path="bin/"/>
+        <set class-name="template.DeliberativeTemplate"/>
+        <set heuristic="ZERO"/>
+        <set algorithm="ASTAR"/>
+    </agent>
+    <agent name="deliberative-astar-weight">
         <set class-path="bin/"/>
         <set class-name="template.DeliberativeTemplate"/>
         <set heuristic="WEIGHT_NOT_TAKEN"/>
+        <set algorithm="ASTAR"/>
+    </agent>
+    <agent name="deliberative-astar-dist-01">
+        <set class-path="bin/"/>
+        <set class-name="template.DeliberativeTemplate"/>
+        <set heuristic="DISTANCE_REMAINING1"/>
+        <set algorithm="ASTAR"/>
+    </agent>
+    <agent name="deliberative-astar-dist-02">
+        <set class-path="bin/"/>
+        <set class-name="template.DeliberativeTemplate"/>
+        <set heuristic="DISTANCE_REMAINING2"/>
+        <set algorithm="ASTAR"/>
+    </agent>
+    <agent name="deliberative-astar-dist-03">
+        <set class-path="bin/"/>
+        <set class-name="template.DeliberativeTemplate"/>
+        <set heuristic="DISTANCE_REMAINING3"/>
         <set algorithm="ASTAR"/>
     </agent>
 

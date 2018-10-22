@@ -18,7 +18,7 @@ public interface State {
 
     double getCostPerKM();
 
-    double getCost();
+    double getCurrentCost();
 
     Topology.City getCurrentCity();
     TaskSet getTaskTaken();

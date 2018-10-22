@@ -28,7 +28,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     TaskDistribution td;
     /* the properties of the agent */
     Agent agent;
-    int capacity;
     /* the planning class */
     Algorithm algorithm;
     Heuristic heuristic;
@@ -40,13 +39,12 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
         this.agent = agent;
 
         // initialize the planner
-        int capacity = agent.vehicles().get(0).capacity();
-        String algorithmName = agent.readProperty("algorithm", String.class, "NAIVE");
+        String algorithmName = agent.readProperty("algorithm", String.class, "NAIVE").toUpperCase();
 
         // Throws IllegalArgumentException if algorithm is unknown
-        algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
+        algorithm = Algorithm.valueOf(algorithmName);
         if (algorithm == Algorithm.ASTAR) {
-            String heuristicName = agent.readProperty("heuristic", String.class, "ZERO");
+            String heuristicName = agent.readProperty("heuristic", String.class, "ZERO").toUpperCase();
             heuristic = Heuristic.valueOf(heuristicName);
         }
 
@@ -77,7 +75,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
                 throw new AssertionError("Should not happen.");
         }
         System.out.println("Done!");
-        System.out.println(plan);
+        System.out.println("Plan has total distance of: " + plan.totalDistance() + " km");
         return plan;
     }
 
@@ -108,7 +106,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     public void planCancelled(TaskSet carriedTasks) {
 
         if (!carriedTasks.isEmpty()) {
-            throw new IllegalStateException("plan cancelled should not happen with this simple agent!");
             // This cannot happen for this simple agent, but typically
             // you will need to consider the carriedTasks when the next
             // plan is computed.

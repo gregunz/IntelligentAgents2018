@@ -8,4 +8,9 @@ public interface Action {
 
     double getCost();
 
+    boolean isMove();
+
+    boolean isDeliver();
+
+    boolean isPickup();
 }

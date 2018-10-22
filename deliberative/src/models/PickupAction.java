@@ -37,7 +37,7 @@ public class PickupAction implements Action {
                 state.getCapacityRemaining() - task.weight,
                 notTaken,
                 state.getCostPerKM(),
-                state.getCost() + this.getCost(),
+                state.getCurrentCost() + this.getCost(),
                 actions
         );
     }
@@ -45,5 +45,20 @@ public class PickupAction implements Action {
     @Override
     public double getCost() {
         return 0;
+    }
+
+    @Override
+    public boolean isMove() {
+        return false;
+    }
+
+    @Override
+    public boolean isDeliver() {
+        return false;
+    }
+
+    @Override
+    public boolean isPickup() {
+        return true;
     }
 }

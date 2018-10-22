@@ -34,7 +34,7 @@ public class DeliveryAction implements Action {
                 state.getCapacityRemaining() + task.weight,
                 state.getTaskNotTaken(),
                 state.getCostPerKM(),
-                state.getCost() + this.getCost(),
+                state.getCurrentCost() + this.getCost(),
                 actions
         );
     }
@@ -42,5 +42,20 @@ public class DeliveryAction implements Action {
     @Override
     public double getCost() {
         return 0;
+    }
+
+    @Override
+    public boolean isMove() {
+        return false;
+    }
+
+    @Override
+    public boolean isDeliver() {
+        return true;
+    }
+
+    @Override
+    public boolean isPickup() {
+        return false;
     }
 }
