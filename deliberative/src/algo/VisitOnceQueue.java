@@ -5,7 +5,7 @@ import models.State;
 import java.util.*;
 
 public class VisitOnceQueue implements Queue<State> {
-    private Set<State> visitedStates;
+    private Map<State, State> visitedStates;
     private Queue<State> statesQueue;
 
     public VisitOnceQueue(Queue<State> statesQueue) {
@@ -13,16 +13,16 @@ public class VisitOnceQueue implements Queue<State> {
     }
 
     public VisitOnceQueue(Queue<State> statesQueue, Set<State> visitedStates) {
-        this.visitedStates = new HashSet<>();
+        this.visitedStates = new HashMap<>();
         this.statesQueue = statesQueue;
     }
 
-    public boolean visit(State state) {
-        return visitedStates.add(state);
+    public void visit(State state) {
+        visitedStates.put(state, state);
     }
 
     public boolean hasNotVisited(State state) {
-        return !visitedStates.contains(state);
+        return !visitedStates.containsKey(state);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class VisitOnceQueue implements Queue<State> {
 
     @Override
     public boolean add(State state) {
-        if (!visitedStates.contains(state)) {
+        if (!visitedStates.containsKey(state)) {
             return statesQueue.add(state);
         }
         return false;
@@ -107,7 +107,11 @@ public class VisitOnceQueue implements Queue<State> {
 
     @Override
     public State poll() {
-        return statesQueue.poll();
+        State state = statesQueue.poll();
+        if (visitedStates.containsKey(state) && state.getCurrentCost() <= visitedStates.get(state).getCurrentCost()) {
+            visitedStates.remove(state);
+        }
+        return state;
     }
 
     @Override
