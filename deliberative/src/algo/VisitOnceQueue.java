@@ -121,7 +121,7 @@ public class VisitOnceQueue implements Queue<State> {
 
     @Override
     public State peek() {
-        return statesQueue.element();
+        return statesQueue.peek();
     }
 
 }
