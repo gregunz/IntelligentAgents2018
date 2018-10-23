@@ -18,7 +18,9 @@ public class VisitOnceQueue implements Queue<State> {
     }
 
     public void visit(State state) {
-        visitedStates.put(state, state);
+        if (!visitedStates.containsKey(state) || state.getCurrentCost() < visitedStates.get(state).getCurrentCost()) {
+            visitedStates.put(state, state);
+        }
     }
 
     public boolean hasNotVisited(State state) {
@@ -57,7 +59,7 @@ public class VisitOnceQueue implements Queue<State> {
 
     @Override
     public boolean add(State state) {
-        if (!visitedStates.containsKey(state)) {
+        if (!visitedStates.containsKey(state) || state.getCurrentCost() < visitedStates.get(state).getCurrentCost()) {
             return statesQueue.add(state);
         }
         return false;
