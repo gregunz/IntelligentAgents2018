@@ -57,6 +57,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
         State startingState = new StateRepresentation(vehicle, tasks);
 
         // Compute the plan with the selected algorithm.
+        long time = System.currentTimeMillis();
         switch (algorithm) {
             case ASTAR:
                 // ...
@@ -75,6 +76,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
                 throw new AssertionError("Should not happen.");
         }
         System.out.println("Done!");
+        System.out.println("Time needed to compute plan: "+ (System.currentTimeMillis() - time)+ "ms");
         System.out.println("Plan has total distance of: " + plan.totalDistance() + " km");
         return plan;
     }
