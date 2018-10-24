@@ -23,14 +23,12 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../logist" />
+          <root url="jar://$MODULE_DIR$/../logist/logist.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../logist" />
+          <root url="jar://$MODULE_DIR$/../logist/logist.jar!/" />
         </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/../logist" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/../logist" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
   </component>

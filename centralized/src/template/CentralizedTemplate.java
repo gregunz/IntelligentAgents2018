@@ -37,7 +37,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         // this code is used to get the timeouts
         LogistSettings ls = null;
         try {
-            ls = Parsers.parseSettings("config\\settings_default.xml");
+            ls = Parsers.parseSettings("config/settings_default.xml");
         } catch (Exception exc) {
             System.out.println("There was a problem loading the configuration file.");
         }
@@ -56,7 +56,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         long time_start = System.currentTimeMillis();
 
-//		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
+        System.out.println("Agent " + agent.id() + " has tasks " + tasks);
         Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
 
         List<Plan> plans = new ArrayList<Plan>();
