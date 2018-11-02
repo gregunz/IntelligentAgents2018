@@ -16,6 +16,7 @@ import logist.topology.Topology.City;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * A very simple auction agent that assigns all tasks to its first vehicle and
@@ -29,6 +30,8 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private Agent agent;
     private long timeout_setup;
     private long timeout_plan;
+
+    private Algorithm algorithm;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
@@ -46,6 +49,8 @@ public class CentralizedTemplate implements CentralizedBehavior {
         timeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
         // the plan method cannot execute more than timeout_plan milliseconds
         timeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
+        String algorithmChosen = agent.readProperty("algorithm", String.class, "NAIVE").toUpperCase();
+        algorithm = Algorithm.valueOf(algorithmChosen);
 
         this.topology = topology;
         this.distribution = distribution;
@@ -57,17 +62,31 @@ public class CentralizedTemplate implements CentralizedBehavior {
         long time_start = System.currentTimeMillis();
 
         System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-        Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
 
         List<Plan> plans = new ArrayList<Plan>();
-        plans.add(planVehicle1);
-        while (plans.size() < vehicles.size()) {
-            plans.add(Plan.EMPTY);
+        switch (algorithm) {
+            case NAIVE:
+                Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
+                plans.add(planVehicle1);
+                while (plans.size() < vehicles.size()) {
+                    plans.add(Plan.EMPTY);
+                }
+                break;
+            case SLS:
+                plans = slsPlans(vehicles, tasks);
+                break;
         }
 
         long time_end = System.currentTimeMillis();
         long duration = time_end - time_start;
         System.out.println("The plan was generated in " + duration + " milliseconds.");
+
+
+        float totalCost = 0;
+        for (int i = 0; i < plans.size(); i++) {
+            totalCost += plans.get(i).totalDistance() * vehicles.get(i).costPerKm();
+        }
+        System.out.println("The plan costs a total of " + totalCost);
 
         return plans;
     }
@@ -96,4 +115,80 @@ public class CentralizedTemplate implements CentralizedBehavior {
         }
         return plan;
     }
+
+    private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
+
+        // A <- initialSolution(X, D, C, f)
+        List<Plan> A = selectInitialSolution(vehicles, tasks);
+        System.out.println(A);
+        // repeat ------
+
+        // Aold <- A
+        // N <- ChooseNeighbours(Aold, X, D, C, f)
+        // A <- LocalChoice(N,f)
+
+        // until termination condition met ------
+
+        // return A
+
+        return A;
+    }
+
+    // Take the vehicle with the largest capacity and plan deliver the task completely at random
+    private List<Plan> selectInitialSolution(List<Vehicle> vehicles, TaskSet tasks) {
+
+        Random rand = new Random();
+        List<Plan> plans = new ArrayList<>();
+        Vehicle largest = vehicles.get(0);
+        for (Vehicle v : vehicles) {
+            if (v.capacity() > largest.capacity()) {
+                largest = v;
+            }
+        }
+        List<Task> taskTaken = new ArrayList<>();
+        List<Task> taskNotTaken = new ArrayList<>(tasks);
+
+        int capacityRemaining = largest.capacity();
+
+        City current = largest.getCurrentCity();
+        Plan initialPlan = new Plan(current);
+        while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
+            int possibleChoice = taskTaken.size() + taskNotTaken.size();
+
+            int  n = rand.nextInt(possibleChoice);
+            if (n >= taskTaken.size()) {
+                Task task = taskNotTaken.get(n-taskTaken.size());
+                if (capacityRemaining >= task.weight) {
+                    capacityRemaining -= task.weight;
+                    taskNotTaken.remove(n - taskTaken.size());
+                    taskTaken.add(task);
+                    for (City city : current.pathTo(task.pickupCity)) {
+                        initialPlan.appendMove(city);
+                    }
+                    current = task.pickupCity;
+                    initialPlan.appendPickup(task);
+                }
+            } else {
+                Task task = taskTaken.get(n);
+                capacityRemaining += task.weight;
+                taskTaken.remove(task);
+                for (City city : current.pathTo(task.deliveryCity)) {
+                    initialPlan.appendMove(city);
+                }
+                current = task.deliveryCity;
+                initialPlan.appendDelivery(task);
+            }
+
+        }
+        for (int i = 0; i < vehicles.size(); i++) {
+            if (i == vehicles.indexOf(largest)) {
+                plans.add(initialPlan);
+            } else {
+                plans.add(Plan.EMPTY);
+            }
+        }
+        return plans;
+    }
+
+    enum Algorithm {NAIVE, SLS}
 }
