@@ -116,7 +116,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
         if (random.nextDouble() < this.prob) {
             if (objectiveOf(this.actualPlans) != objectiveOf(choices.get(idx))) {
                 System.out.println(numIter + " =\t" + objectiveOf(this.actualPlans()) +
-                        " ->\t" + objectiveOf(choices.get(idx)));
+                        "\t->\t" + objectiveOf(choices.get(idx)));
             }
             this.actualPlans = choices.get(idx);
         }
