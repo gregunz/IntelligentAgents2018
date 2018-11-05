@@ -123,13 +123,16 @@ public class CentralizedTemplate implements CentralizedBehavior {
         double localChoiceProb = 0.3;
         int maxNumIter = 10000;
 
+        System.out.println("Initializing SLS algorithm");
         SLS sls = new SLS(localChoiceProb);
         sls.init(vehicles, tasks);
 
+        System.out.println("Starting SLS convergence");
         while (sls.numIterStoppingCriterion(maxNumIter)) {
             Set<List<ActionSequence>> neighboors = sls.chooseNeighbours();
             sls.localChoice(neighboors);
         }
+        System.out.println("SLS has converged!");
 
         return sls.actualLogistPlans();
     }
