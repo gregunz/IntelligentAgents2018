@@ -139,7 +139,6 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private List<Plan> selectInitialSolution(List<Vehicle> vehicles, TaskSet tasks) {
 
         Random rand = new Random();
-        List<Plan> plans = new ArrayList<>();
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
             if (v.capacity() > largest.capacity()) {
@@ -169,6 +168,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
             }
 
         }
+
+        // create plan for each vehicles
+        List<Plan> plans = new ArrayList<>();
         for (int i = 0; i < vehicles.size(); i++) {
             if (i == vehicles.indexOf(largest)) {
                 plans.add(initialPlan.getPlan());
