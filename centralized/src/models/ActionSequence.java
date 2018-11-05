@@ -5,9 +5,7 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ActionSequence {
 
@@ -21,6 +19,12 @@ public class ActionSequence {
         this.sequence = new ArrayList<>();
     }
 
+    public ActionSequence(ActionSequence actionSequence){
+        this.vehicle = actionSequence.vehicle;
+        this.sequence = new ArrayList<>(actionSequence.sequence);
+        this.currentLoad = actionSequence.currentLoad;
+    }
+
     public boolean addLoadAction(Task task) {
         if (currentLoad + task.weight > vehicle.capacity()) {
             return false;
@@ -28,6 +32,66 @@ public class ActionSequence {
             currentLoad += task.weight;
             sequence.add(new BasicAction(Event.LOAD, task));
             return true;
+        }
+    }
+
+    public boolean advanceAction(int i) {
+        if (i == 0 || i > sequence.size()) {
+            return false;
+        }
+        BasicAction action = sequence.get(i);
+        if (action.event == Event.DROP) {
+            if (sequence.get(i-1).task != action.task) {
+                Collections.swap(sequence, i, i-1);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int load = 0;
+            for (int j = 0; j < i-1; j++) {
+                BasicAction action2 = sequence.get(j);
+                if (action2.event == Event.DROP) {
+                    load -= action2.task.weight;
+                } else {
+                    load += action2.task.weight;
+                }
+                if (load + action.task.weight <= vehicle.capacity()) {
+                    Collections.swap(sequence, i, i-1);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public boolean postponeAction(int i) {
+        if (i >= sequence.size()-1) {
+            return false;
+        }
+        BasicAction action = sequence.get(i);
+        if (action.event == Event.LOAD) {
+            if (sequence.get(i+1).task != action.task) {
+                Collections.swap(sequence, i, i+1);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int load = 0;
+            for (int j = 0; j <= i+1; j++) {
+                BasicAction action2 = sequence.get(j);
+                if (action2.event == Event.DROP) {
+                    load -= action2.task.weight;
+                } else {
+                    load += action2.task.weight;
+                }
+                if (load + action.task.weight <= vehicle.capacity()) {
+                    Collections.swap(sequence, i, i+1);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -49,9 +113,9 @@ public class ActionSequence {
 
     public Plan getPlan() {
 
-        Plan plan = Plan.EMPTY;
-
         Topology.City currentCity = this.vehicle.getCurrentCity();
+        Plan plan = new Plan(currentCity);
+
         for (BasicAction action : sequence) {
             if (action.event == Event.LOAD) {
                 if (action.task.pickupCity != currentCity) {

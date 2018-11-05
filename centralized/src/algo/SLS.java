@@ -1,5 +1,6 @@
 package algo;
 
+import logist.plan.Action;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -42,7 +43,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
             List<Task> taskTaken = new ArrayList<>();
             List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-            Topology.City current = largest.getCurrentCity();
             ActionSequence initialPlan = new ActionSequence(largest);
             while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
                 int possibleChoice = taskTaken.size() + taskNotTaken.size();
@@ -88,7 +88,13 @@ public class SLS extends ISLS<List<ActionSequence>> {
 
     @Override
     public Set<List<ActionSequence>> chooseNeighbours() {
-        throw new UnsupportedOperationException();
+        Set<List<ActionSequence>> neighbours = new HashSet<>();
+
+        neighbours.addAll(passTasksAround());
+
+        neighbours.addAll(moveTasksInTime());
+
+        return neighbours;
     }
 
     @Override
@@ -123,10 +129,59 @@ public class SLS extends ISLS<List<ActionSequence>> {
 
     @Override
     public List<Plan> actualLogistPlans() {
-        return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toUnmodifiableList());
+        return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toList());
     }
 
     public boolean numIterStoppingCriterion(int maxNumIter) {
         return numIter < maxNumIter;
+    }
+
+    private List<List<ActionSequence>> passTasksAround(){
+        List<List<ActionSequence>> neighbours = new ArrayList<>();
+
+        for (int i = 0; i < actualPlans.size(); i++) {
+            if (actualPlans.get(i).getLength() > 0) {
+                for (int j = 0; j < actualPlans.size(); j++) {
+                    if (i != j) {
+                        List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
+                        Task task = newPlans.get(i).takeOutFirstTask();
+                        if (newPlans.get(j).addLoadAction(task)){
+                            newPlans.get(j).addDropAction(task);
+                            neighbours.add(newPlans);
+                        }
+                    }
+                }
+            }
+        }
+    return neighbours;
+    }
+
+    private List<List<ActionSequence>> moveTasksInTime(){
+        List<List<ActionSequence>> neighbours = new ArrayList<>();
+
+        for (int i = 0; i < actualPlans.size(); i++) {
+            if (actualPlans.get(i).getLength() > 2) {
+                for (int j = 0; j < actualPlans.get(i).getLength(); j++) {
+                    List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
+                    if(newPlans.get(i).advanceAction(j)){
+                        neighbours.add(newPlans);
+                    }
+                    newPlans = getCopyOfPlans(actualPlans);
+                    if(newPlans.get(i).postponeAction(j)){
+                        neighbours.add(newPlans);
+                    }
+                }
+
+            }
+        }
+    return neighbours;
+    }
+
+    private List<ActionSequence> getCopyOfPlans(List<ActionSequence> plans) {
+        List<ActionSequence> copy = new ArrayList<>();
+        for (ActionSequence plan : plans) {
+            copy.add(new ActionSequence(plan));
+        }
+        return copy;
     }
 }
