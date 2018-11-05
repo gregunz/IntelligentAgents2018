@@ -67,7 +67,15 @@ public class ActionSequence {
     }
 
     public double getCost() {
-        throw new UnsupportedOperationException();
+        double cost = 0;
+        if (sequence.size() > 0) {
+            assert sequence.get(0).event == Event.LOAD;
+            cost += vehicle.getCurrentCity().distanceTo(sequence.get(0).task.pickupCity) * vehicle.costPerKm();
+        }
+        for (BasicAction action : sequence) {
+            cost += action.task.pathLength() * vehicle.costPerKm();
+        }
+        return cost;
     }
 
 
