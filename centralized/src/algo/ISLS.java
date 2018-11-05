@@ -7,7 +7,7 @@ import logist.task.TaskSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ISLS<PLANS> {
+abstract class ISLS<PLANS> {
     abstract void init(List<Vehicle> vehicles, TaskSet tasks);
 
     abstract double objectiveOf(PLANS plans);

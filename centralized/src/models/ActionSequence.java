@@ -5,7 +5,10 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.topology.Topology;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class ActionSequence {
 
@@ -139,15 +142,7 @@ public class ActionSequence {
     }
 
     public double getCost() {
-        double cost = 0;
-        if (sequence.size() > 0) {
-            assert sequence.get(0).event == Event.LOAD;
-            cost += vehicle.getCurrentCity().distanceTo(sequence.get(0).task.pickupCity) * vehicle.costPerKm();
-        }
-        for (BasicAction action : sequence) {
-            cost += action.task.pathLength() * vehicle.costPerKm();
-        }
-        return cost;
+        return this.getPlan().totalDistance() * this.vehicle.costPerKm();
     }
 
     public int getLength() {

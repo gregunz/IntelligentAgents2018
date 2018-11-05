@@ -1,11 +1,9 @@
 package algo;
 
-import logist.plan.Action;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
-import logist.topology.Topology;
 import models.ActionSequence;
 
 import java.util.*;
@@ -60,7 +58,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
                         taskTaken.remove(task);
                     }
                 }
-
             }
 
             // create plan for each vehicles
@@ -117,6 +114,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
         }
 
         if (random.nextDouble() < this.prob) {
+            if (objectiveOf(this.actualPlans) != objectiveOf(choices.get(idx))) {
+                System.out.println(numIter + " =\t" + objectiveOf(this.actualPlans()) +
+                        " ->\t" + objectiveOf(choices.get(idx)));
+            }
             this.actualPlans = choices.get(idx);
         }
         numIter += 1;
@@ -153,7 +154,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
                 }
             }
         }
-    return neighbours;
+        return neighbours;
     }
 
     private List<List<ActionSequence>> moveTasksInTime(){
