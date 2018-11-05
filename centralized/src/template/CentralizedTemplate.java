@@ -121,7 +121,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
         double localChoiceProb = 0.3;
-        //int maxNumIter = 1000;
+        int maxNumIter = 1000;
         long maxDuration = timeout_plan - 1000; // we stop one second before timeout
 
         System.out.println("Initializing SLS algorithm");
@@ -129,6 +129,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         sls.init(vehicles, tasks);
 
         System.out.println("Starting SLS convergence");
+        //while (sls.numIterStoppingCriterion(maxNumIter)) {
         while (sls.durationStoppingCriterion(startTime, maxDuration)) {
             Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
             sls.localChoice(neighbors);

@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SLS extends ISLS<List<ActionSequence>> {
+    private static final boolean DISPLAY_PRINT = true;
+
     private double prob;
     private Random random;
     private boolean isInit;
@@ -115,7 +117,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
         }
 
         if (random.nextDouble() < this.prob) {
-            if (objectiveOf(this.actualPlans) != objectiveOf(choices.get(idx))) {
+            if (DISPLAY_PRINT && objectiveOf(this.actualPlans) != objectiveOf(choices.get(idx))) {
                 System.out.println(numIter + "\t=\t" + objectiveOf(this.actualPlans()) +
                         "\t->\t" + objectiveOf(choices.get(idx)));
             }
