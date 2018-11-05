@@ -1,16 +1,27 @@
 package algo;
 
+import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.TaskSet;
-import models.ActionSequence;
 
 import java.util.List;
 import java.util.Set;
 
-public interface ISLS {
-    void init(List<Vehicle> vehicles, TaskSet tasks);
+public abstract class ISLS<PLANS> {
+    abstract void init(List<Vehicle> vehicles, TaskSet tasks);
 
-    Set<List<ActionSequence>> chooseNeighbours();
+    abstract double objectiveOf(PLANS plans);
 
-    void localChoice(Set<List<ActionSequence>> neighbors);
+    abstract Set<PLANS> chooseNeighbours();
+
+    abstract void localChoice(Set<PLANS> neighbors);
+
+    abstract PLANS actualPlans();
+
+    abstract List<Plan> actualLogistPlans();
+
+    double actualObjective() {
+        return objectiveOf(actualPlans());
+    }
+
 }

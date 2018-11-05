@@ -7,14 +7,12 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 import models.ActionSequence;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class SLS implements ISLS {
+public class SLS extends ISLS<List<ActionSequence>> {
     private double prob;
+    private Random random;
     private boolean isInit;
     private int numIter;
     private List<ActionSequence> actualPlans;
@@ -24,6 +22,7 @@ public class SLS implements ISLS {
         this.isInit = false;
         this.numIter = 0;
         this.actualPlans = new ArrayList<>();
+        this.random = new Random();
     }
 
     @Override
@@ -79,21 +78,56 @@ public class SLS implements ISLS {
     }
 
     @Override
+    double objectiveOf(List<ActionSequence> actionSequences) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double actualObjective() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Set<List<ActionSequence>> chooseNeighbours() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void localChoice(Set<List<ActionSequence>> neighbors) {
+        double minObj = Double.MAX_VALUE;
+        List<List<ActionSequence>> choices = new ArrayList<>();
+
+        for (List<ActionSequence> plans : neighbors) {
+            double obj = objectiveOf(plans);
+            if (obj < minObj) {
+                choices = new ArrayList<>();
+                choices.add(plans);
+            } else if (obj == minObj) {
+                choices.add(plans);
+            }
+        }
+        int idx = 0;
+        if (choices.size() > 1) {
+            idx = random.nextInt(choices.size());
+        }
+
+        if (random.nextDouble() < this.prob) {
+            this.actualPlans = choices.get(idx);
+        }
         numIter += 1;
-        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    List<ActionSequence> actualPlans() {
+        return Collections.unmodifiableList(actualPlans);
+    }
+
+    @Override
+    List<Plan> actualLogistPlans() {
+        return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toUnmodifiableList());
     }
 
     public boolean numIterStoppingCriterion(int maxNumIter) {
         return numIter < maxNumIter;
-    }
-
-    public List<Plan> getActualPlans() {
-        return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toUnmodifiableList());
     }
 }
