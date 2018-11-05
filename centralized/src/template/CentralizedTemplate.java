@@ -18,6 +18,7 @@ import models.ActionSequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * A very simple auction agent that assigns all tasks to its first vehicle and
@@ -120,7 +121,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
 
         // A <- initialSolution(X, D, C, f)
-        List<Plan> A = selectInitialSolution(vehicles, tasks);
+        List<ActionSequence> A = selectInitialSolution(vehicles, tasks);
 
         // repeat ------
 
@@ -131,15 +132,14 @@ public class CentralizedTemplate implements CentralizedBehavior {
         // until termination condition met ------
 
         // return A
-
-        return A;
+        return A.stream().map(ActionSequence::getPlan).collect(Collectors.toList());
     }
 
     // Take the vehicle with the largest capacity and plan deliver the task completely at random
-    private List<Plan> selectInitialSolution(List<Vehicle> vehicles, TaskSet tasks) {
+    private List<ActionSequence> selectInitialSolution(List<Vehicle> vehicles, TaskSet tasks) {
 
         Random rand = new Random();
-        List<Plan> plans = new ArrayList<>();
+        List<ActionSequence> plans = new ArrayList<>();
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
             if (v.capacity() > largest.capacity()) {
@@ -171,9 +171,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
         }
         for (int i = 0; i < vehicles.size(); i++) {
             if (i == vehicles.indexOf(largest)) {
-                plans.add(initialPlan.getPlan());
+                plans.add(initialPlan);
             } else {
-                plans.add(Plan.EMPTY);
+                plans.add(new ActionSequence(vehicles.get(i)));
             }
         }
         return plans;
