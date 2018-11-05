@@ -121,22 +121,30 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
         double localChoiceProb = 0.3;
-        int maxNumIter = 1000;
+        int maxNumIter = 10000;
         long maxDuration = timeout_plan - 1000; // we stop one second before timeout
 
         System.out.println("Initializing SLS algorithm");
         SLS sls = new SLS(localChoiceProb);
         sls.init(vehicles, tasks);
 
+        double minCost = sls.getActualCost();
+        List<Plan> bestPlans = sls.actualLogistPlans();
+
         System.out.println("Starting SLS convergence");
-        //while (sls.numIterStoppingCriterion(maxNumIter)) {
-        while (sls.durationStoppingCriterion(startTime, maxDuration)) {
+        while (sls.numIterStoppingCriterion(maxNumIter)) {
+            //while (sls.durationStoppingCriterion(startTime, maxDuration)) {
             Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
-            sls.localChoice(neighbors);
+            double cost = sls.localChoice(neighbors);
+
+            if (cost < minCost) {
+                minCost = cost;
+                bestPlans = sls.actualLogistPlans();
+            }
         }
         System.out.println("SLS has converged!");
 
-        return sls.actualLogistPlans();
+        return bestPlans;
     }
 
     enum Algorithm {NAIVE, SLS}

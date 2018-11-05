@@ -16,7 +16,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
     private Random random;
     private boolean isInit;
     private int numIter;
-    private long startTime;
     private List<ActionSequence> actualPlans;
 
     public SLS(double prob) {
@@ -98,7 +97,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     @Override
-    public void localChoice(Set<List<ActionSequence>> neighbors) {
+    public double localChoice(Set<List<ActionSequence>> neighbors) {
+        if (neighbors.isEmpty()) {
+            System.out.println("NO NEIGHBORS");
+        }
         double minObj = Double.MAX_VALUE;
         List<List<ActionSequence>> choices = new ArrayList<>();
 
@@ -117,14 +119,17 @@ public class SLS extends ISLS<List<ActionSequence>> {
             idx = random.nextInt(choices.size());
         }
 
-        if (random.nextDouble() < this.prob) {
-            if (DISPLAY_PRINT && objectiveOf(this.actualPlans) != objectiveOf(choices.get(idx))) {
-                System.out.println(numIter + "\t=\t" + objectiveOf(this.actualPlans()) +
+        if (random.nextDouble() < this.prob) { // with probability p we take the best neighbor, otherwise nothing changes
+            if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
+                System.out.println(numIter + "\t=\t" + getActualCost() +
                         "\t->\t" + objectiveOf(choices.get(idx)));
             }
             this.actualPlans = choices.get(idx);
+        } else {
+            this.actualPlans = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
         }
         numIter += 1;
+        return getActualCost();
     }
 
     @Override
@@ -135,6 +140,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
     @Override
     public List<Plan> actualLogistPlans() {
         return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toList());
+    }
+
+    public double getActualCost() {
+        return objectiveOf(this.actualPlans);
     }
 
     public boolean numIterStoppingCriterion(int maxNumIter) {
@@ -166,24 +175,24 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     private List<List<ActionSequence>> moveTasksInTime(){
-        List<List<ActionSequence>> neighbours = new ArrayList<>();
+        List<List<ActionSequence>> neighbors = new ArrayList<>();
 
         for (int i = 0; i < actualPlans.size(); i++) {
             if (actualPlans.get(i).getLength() > 2) {
                 for (int j = 0; j < actualPlans.get(i).getLength(); j++) {
                     List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
                     if(newPlans.get(i).advanceAction(j)){
-                        neighbours.add(newPlans);
+                        neighbors.add(newPlans);
                     }
                     newPlans = getCopyOfPlans(actualPlans);
                     if(newPlans.get(i).postponeAction(j)){
-                        neighbours.add(newPlans);
+                        neighbors.add(newPlans);
                     }
                 }
 
             }
         }
-    return neighbours;
+        return neighbors;
     }
 
     private List<ActionSequence> getCopyOfPlans(List<ActionSequence> plans) {

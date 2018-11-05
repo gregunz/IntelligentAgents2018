@@ -14,7 +14,7 @@ abstract class ISLS<PLANS> {
 
     abstract Set<PLANS> chooseNeighbours();
 
-    abstract void localChoice(Set<PLANS> neighbors);
+    abstract double localChoice(Set<PLANS> neighbors);
 
     abstract PLANS actualPlans();
 
