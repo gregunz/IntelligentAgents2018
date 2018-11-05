@@ -107,6 +107,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
             if (obj < minObj) {
                 choices = new ArrayList<>();
                 choices.add(plans);
+                minObj = obj;
             } else if (obj == minObj) {
                 choices.add(plans);
             }
