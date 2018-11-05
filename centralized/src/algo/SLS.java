@@ -14,6 +14,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
     private Random random;
     private boolean isInit;
     private int numIter;
+    private long startTime;
     private List<ActionSequence> actualPlans;
 
     public SLS(double prob) {
@@ -135,6 +136,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
 
     public boolean numIterStoppingCriterion(int maxNumIter) {
         return numIter < maxNumIter;
+    }
+
+    public boolean durationStoppingCriterion(long startTime, long maxDuration) {
+        return (System.currentTimeMillis() - startTime) < maxDuration;
     }
 
     private List<List<ActionSequence>> passTasksAround(){
