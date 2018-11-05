@@ -52,7 +52,7 @@ public class ActionSequence {
             }
         } else {
             int load = 0;
-            for (int j = 0; j < i-1; j++) {
+            for (int j = 0; j < i; j++) {
                 BasicAction action2 = sequence.get(j);
                 if (action2.event == Event.DROP) {
                     load -= action2.task.weight;
