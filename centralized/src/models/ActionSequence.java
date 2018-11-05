@@ -42,60 +42,19 @@ public class ActionSequence {
         if (i == 0 || i > sequence.size()) {
             return false;
         }
-        BasicAction action = sequence.get(i);
-        if (action.event == Event.DROP) {
-            if (sequence.get(i-1).task != action.task) {
-                Collections.swap(sequence, i, i-1);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            int load = 0;
-            for (int j = 0; j < i; j++) {
-                BasicAction action2 = sequence.get(j);
-                if (action2.event == Event.DROP) {
-                    load -= action2.task.weight;
-                } else {
-                    load += action2.task.weight;
-                }
-                if (load + action.task.weight <= vehicle.capacity()) {
-                    Collections.swap(sequence, i, i-1);
-                    return true;
-                }
-            }
-            return false;
-        }
+        Collections.swap(sequence, i, i-1);
+
+        return !isOverloaded();
     }
 
     public boolean postponeAction(int i) {
         if (i >= sequence.size()-1) {
             return false;
         }
-        BasicAction action = sequence.get(i);
-        if (action.event == Event.LOAD) {
-            if (sequence.get(i+1).task != action.task) {
-                Collections.swap(sequence, i, i+1);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            int load = 0;
-            for (int j = 0; j <= i+1; j++) {
-                BasicAction action2 = sequence.get(j);
-                if (action2.event == Event.DROP) {
-                    load -= action2.task.weight;
-                } else {
-                    load += action2.task.weight;
-                }
-                if (load + action.task.weight <= vehicle.capacity()) {
-                    Collections.swap(sequence, i, i+1);
-                    return true;
-                }
-            }
-            return false;
-        }
+
+        Collections.swap(sequence, i, i+1);
+
+        return !isOverloaded();
     }
 
     public boolean addDropAction(Task task) {
@@ -147,6 +106,21 @@ public class ActionSequence {
 
     public int getLength() {
         return sequence.size();
+    }
+
+    private boolean isOverloaded() {
+        int load = 0;
+        for (BasicAction action : sequence) {
+            if (action.event == Event.LOAD) {
+                load += action.task.weight;
+            } else {
+                load -= action.task.weight;
+            }
+            if (load >= vehicle.capacity()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
