@@ -7,6 +7,7 @@ import logist.topology.Topology;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ActionSequence {
 
@@ -37,6 +38,13 @@ public class ActionSequence {
             return true;
         }
         return false;
+    }
+
+    public Task takeOutFirstTask() {
+        Task task = sequence.get(0).task;
+        sequence.remove(0);
+        sequence.remove(new BasicAction(Event.DROP, task));
+        return task;
     }
 
     public Plan getPlan() {
@@ -78,6 +86,10 @@ public class ActionSequence {
         return cost;
     }
 
+    public int getLength() {
+        return sequence.size();
+    }
+
 
     private class BasicAction {
 
@@ -87,6 +99,21 @@ public class ActionSequence {
         private BasicAction(Event event, Task task) {
             this.task = task;
             this.event = event;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BasicAction that = (BasicAction) o;
+            return Objects.equals(task, that.task) &&
+                    event == that.event;
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(task, event);
         }
     }
 
