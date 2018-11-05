@@ -2,6 +2,7 @@ package template;
 
 //the list of imports
 
+import algo.SLS;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.CentralizedBehavior;
@@ -17,7 +18,7 @@ import models.ActionSequence;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 /**
  * A very simple auction agent that assigns all tasks to its first vehicle and
@@ -119,66 +120,18 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks) {
 
-        // A <- initialSolution(X, D, C, f)
-        List<Plan> A = selectInitialSolution(vehicles, tasks);
+        double localChoiceProb = 0.3;
+        int maxNumIter = 10000;
 
-        // repeat ------
+        SLS sls = new SLS(localChoiceProb);
+        sls.init(vehicles, tasks);
 
-        // Aold <- A
-        // N <- ChooseNeighbours(Aold, X, D, C, f)
-        // A <- LocalChoice(N,f)
-
-        // until termination condition met ------
-
-        // return A
-
-        return A;
-    }
-
-    // Take the vehicle with the largest capacity and plan deliver the task completely at random
-    private List<Plan> selectInitialSolution(List<Vehicle> vehicles, TaskSet tasks) {
-
-        Random rand = new Random();
-        Vehicle largest = vehicles.get(0);
-        for (Vehicle v : vehicles) {
-            if (v.capacity() > largest.capacity()) {
-                largest = v;
-            }
-        }
-        List<Task> taskTaken = new ArrayList<>();
-        List<Task> taskNotTaken = new ArrayList<>(tasks);
-
-        City current = largest.getCurrentCity();
-        ActionSequence initialPlan = new ActionSequence(largest);
-        while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
-            int possibleChoice = taskTaken.size() + taskNotTaken.size();
-
-            int  n = rand.nextInt(possibleChoice);
-            if (n >= taskTaken.size()) {
-                Task task = taskNotTaken.get(n-taskTaken.size());
-                if (initialPlan.addLoadAction(task)) {
-                    taskNotTaken.remove(n - taskTaken.size());
-                    taskTaken.add(task);
-                }
-            } else {
-                Task task = taskTaken.get(n);
-                if (initialPlan.addDropAction(task)) {
-                    taskTaken.remove(task);
-                }
-            }
-
+        while (sls.numIterStoppingCriterion(maxNumIter)) {
+            Set<List<ActionSequence>> neighboors = sls.chooseNeighbours();
+            sls.localChoice(neighboors);
         }
 
-        // create plan for each vehicles
-        List<Plan> plans = new ArrayList<>();
-        for (int i = 0; i < vehicles.size(); i++) {
-            if (i == vehicles.indexOf(largest)) {
-                plans.add(initialPlan.getPlan());
-            } else {
-                plans.add(Plan.EMPTY);
-            }
-        }
-        return plans;
+        return sls.getActualPlans();
     }
 
     enum Algorithm {NAIVE, SLS}
