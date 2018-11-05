@@ -131,7 +131,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
             sls.localChoice(neighboors);
         }
 
-        return sls.getActualPlans();
+        return sls.actualLogistPlans();
     }
 
     enum Algorithm {NAIVE, SLS}

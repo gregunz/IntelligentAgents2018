@@ -78,7 +78,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     @Override
-    double objectiveOf(List<ActionSequence> actionSequences) {
+    public double objectiveOf(List<ActionSequence> actionSequences) {
         double cost = 0;
         for (ActionSequence seq : actionSequences) {
             cost += seq.getCost();
@@ -117,12 +117,12 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     @Override
-    List<ActionSequence> actualPlans() {
+    public List<ActionSequence> actualPlans() {
         return Collections.unmodifiableList(actualPlans);
     }
 
     @Override
-    List<Plan> actualLogistPlans() {
+    public List<Plan> actualLogistPlans() {
         return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toUnmodifiableList());
     }
 
