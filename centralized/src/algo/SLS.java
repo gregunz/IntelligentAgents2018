@@ -79,7 +79,11 @@ public class SLS extends ISLS<List<ActionSequence>> {
 
     @Override
     double objectiveOf(List<ActionSequence> actionSequences) {
-        throw new UnsupportedOperationException();
+        double cost = 0;
+        for (ActionSequence seq : actionSequences) {
+            cost += seq.getCost();
+        }
+        return cost;
     }
 
     @Override

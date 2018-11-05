@@ -66,6 +66,10 @@ public class ActionSequence {
         return plan;
     }
 
+    public double getCost() {
+        throw new UnsupportedOperationException();
+    }
+
 
     private class BasicAction {
 
