@@ -83,11 +83,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     @Override
-    public double actualObjective() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Set<List<ActionSequence>> chooseNeighbours() {
         throw new UnsupportedOperationException();
     }
