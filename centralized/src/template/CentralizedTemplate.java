@@ -13,6 +13,7 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import models.ActionSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +121,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
         // A <- initialSolution(X, D, C, f)
         List<Plan> A = selectInitialSolution(vehicles, tasks);
-        System.out.println(A);
+
         // repeat ------
 
         // Aold <- A
@@ -148,41 +149,29 @@ public class CentralizedTemplate implements CentralizedBehavior {
         List<Task> taskTaken = new ArrayList<>();
         List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-        int capacityRemaining = largest.capacity();
-
         City current = largest.getCurrentCity();
-        Plan initialPlan = new Plan(current);
+        ActionSequence initialPlan = new ActionSequence(largest);
         while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
             int possibleChoice = taskTaken.size() + taskNotTaken.size();
 
             int  n = rand.nextInt(possibleChoice);
             if (n >= taskTaken.size()) {
                 Task task = taskNotTaken.get(n-taskTaken.size());
-                if (capacityRemaining >= task.weight) {
-                    capacityRemaining -= task.weight;
+                if (initialPlan.addLoadAction(task)) {
                     taskNotTaken.remove(n - taskTaken.size());
                     taskTaken.add(task);
-                    for (City city : current.pathTo(task.pickupCity)) {
-                        initialPlan.appendMove(city);
-                    }
-                    current = task.pickupCity;
-                    initialPlan.appendPickup(task);
                 }
             } else {
                 Task task = taskTaken.get(n);
-                capacityRemaining += task.weight;
-                taskTaken.remove(task);
-                for (City city : current.pathTo(task.deliveryCity)) {
-                    initialPlan.appendMove(city);
+                if (initialPlan.addDropAction(task)) {
+                    taskTaken.remove(task);
                 }
-                current = task.deliveryCity;
-                initialPlan.appendDelivery(task);
             }
 
         }
         for (int i = 0; i < vehicles.size(); i++) {
             if (i == vehicles.indexOf(largest)) {
-                plans.add(initialPlan);
+                plans.add(initialPlan.getPlan());
             } else {
                 plans.add(Plan.EMPTY);
             }
