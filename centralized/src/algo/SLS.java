@@ -13,7 +13,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SLS extends ISLS<List<ActionSequence>> {
-    private static final boolean DISPLAY_PRINT = true;
+    private static final boolean DISPLAY_PRINT = false;
+    private static final boolean INIT_WITH_ASTAR = false;
 
     private double prob;
     private Random random;
@@ -36,9 +37,43 @@ public class SLS extends ISLS<List<ActionSequence>> {
             throw new UnsupportedOperationException("cannot init twice");
         } else {
             isInit = true;
+            Vehicle largest = vehicles.get(0);
+            for (Vehicle v : vehicles) {
+                if (v.capacity() > largest.capacity()) {
+                    largest = v;
+                }
+            }
+            ActionSequence initialPlan;
+            if (INIT_WITH_ASTAR) {
+                initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
+            } else {
+                List<Task> taskTaken = new ArrayList<>();
+                List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-            List<List<Task>> tasksPerVehicle = Utils.chopped(new ArrayList<>(tasks), vehicles.size());
+                initialPlan = new ActionSequence(largest);
+                while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
+                    int possibleChoice = taskTaken.size() + taskNotTaken.size();
 
+                    int n = random.nextInt(possibleChoice);
+                    if (n >= taskTaken.size()) {
+                        Task task = taskNotTaken.get(n - taskTaken.size());
+                        if (initialPlan.addLoadAction(task)) {
+                            taskNotTaken.remove(n - taskTaken.size());
+                            taskTaken.add(task);
+                        }
+                    } else {
+                        Task task = taskTaken.get(n);
+                        if (initialPlan.addDropAction(task)) {
+                            taskTaken.remove(task);
+                        }
+                    }
+                }
+            }
+
+            if (initialPlan.isValid()) {
+                System.out.println("The initial plan is indeed valid");
+            }
+            // create plan for each vehicles
             List<ActionSequence> plans = new ArrayList<>();
             for (int i = 0; i < vehicles.size(); i++) {
                 Vehicle v = vehicles.get(i);
@@ -113,7 +148,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
                         "\t->\t" + objectiveOf(rdmNeighbor));
             }
             this.actualPlans = rdmNeighbor;
-
         }
         numIter += 1;
     }
@@ -163,9 +197,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
         List<List<ActionSequence>> neighbors = new ArrayList<>();
 
         if (actualPlans.get(n).getLength() > 2) {
-            for (int j = 0; j < actualPlans.get(n).getLength(); j++) {
+            int t = random.nextInt(actualPlans.get(n).getLength());
+
                 boolean isValid;
-                int i = j;
+                int i = t;
                 do {
                     List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
                     isValid = newPlans.get(n).advanceAction(i);
@@ -174,7 +209,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     }
                     i--;
                 } while (isValid);
-                i = j;
+                i = t;
                 do {
                     List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
                     isValid = newPlans.get(n).postponeAction(i);
@@ -183,7 +218,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     }
                     i++;
                 } while (isValid);
-            }
+
 
         }
         return neighbors;
