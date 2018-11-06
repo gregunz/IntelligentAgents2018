@@ -111,12 +111,12 @@ public class SLS extends ISLS<List<ActionSequence>> {
             }
             this.actualPlans = choices.get(idx);
         } else {
-            int randomIdx = random.nextInt(neighbors.size());
+            List<ActionSequence> rdmNeighbor = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
             if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
                 System.out.println(numIter + "\t(random)\t=\t" + getActualCost() +
-                        "\t->\t" + objectiveOf(choices.get(randomIdx)));
+                        "\t->\t" + objectiveOf(rdmNeighbor));
             }
-            this.actualPlans = new ArrayList<>(neighbors).get(randomIdx);
+            this.actualPlans = rdmNeighbor;
         }
         numIter += 1;
         return getActualCost();
