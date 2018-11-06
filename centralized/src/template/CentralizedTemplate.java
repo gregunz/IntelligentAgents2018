@@ -120,7 +120,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
-        double localChoiceProb = 0.3;
+        double localChoiceProb = 0.5;
         int maxNumIter = 10000;
         long maxDuration = timeout_plan - 1000; // we stop one second before timeout
 
@@ -135,8 +135,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
         while (sls.numIterStoppingCriterion(maxNumIter)) {
             //while (sls.durationStoppingCriterion(startTime, maxDuration)) {
             Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
-            double cost = sls.localChoice(neighbors);
+            sls.localChoice(neighbors);
 
+            double cost = sls.getActualCost();
             if (cost < minCost) {
                 minCost = cost;
                 bestPlans = sls.actualLogistPlans();
