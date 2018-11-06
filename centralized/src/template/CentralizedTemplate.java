@@ -120,27 +120,24 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
-        double exploitationRate = 1;
-        int exploitationLength = (int) 1e6;
-        long maxDuration = Math.min((long) 60e3, timeout_plan - (long) 1e3); // we stop 1 seconds before timeout
+        double exploitationRate = 0.99;
+        int exploitationDeepness = (int) 1e5;
+        long maxDuration = timeout_plan - (long) 1e3; // we stop 1 seconds before timeout
         long seed = System.currentTimeMillis();
-        boolean oneInitWithAStar = false;
+        boolean oneInitWithAStar = true;
 
-        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationLength=" + exploitationLength + " \tSEED=" + seed);
+        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationDeepness=" + exploitationDeepness + " \tSEED=" + seed);
         System.out.println("Initializing SLS algorithm");
         SLS sls = new SLS(exploitationRate, seed);
-        sls.init(vehicles, tasks, true);
+        sls.init(vehicles, tasks, oneInitWithAStar);
+        int numOfInit = 1;
 
         double minCost = Double.MAX_VALUE;
         List<Plan> bestPlans = null;
 
         System.out.println("Starting SLS convergence");
-        int numOfInit = 1;
         while (sls.durationStoppingCriterion(startTime, maxDuration)) {
-            while (sls.numIterStoppingCriterion(exploitationLength) && sls.durationStoppingCriterion(startTime, maxDuration)) {
-                if (!oneInitWithAStar) {
-                    break;
-                }
+            while (sls.numIterStoppingCriterion(exploitationDeepness) && sls.durationStoppingCriterion(startTime, maxDuration)) {
                 Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
                 sls.localChoice(neighbors);
 
@@ -157,7 +154,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         }
         System.out.println("#RESTART = " + numOfInit);
         System.out.println("SLS has converged!");
-        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationLength=" + exploitationLength + " \tSEED=" + seed);
+        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationDeepness=" + exploitationDeepness + " \tSEED=" + seed);
 
         return bestPlans;
     }
