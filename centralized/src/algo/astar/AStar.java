@@ -110,7 +110,7 @@ public class AStar {
             }
         }
 
-        System.out.println("ASTAR converged in " + nSteps + " number of steps");
+        //System.out.println("ASTAR converged in " + nSteps + " number of steps");
 
         if (!state.isFinalState()) {
             throw new IllegalStateException("ASTAR did not find any final state");

@@ -120,22 +120,27 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
-        double localChoiceProb = 1;
-        int maxNumIter = (int) 1e5;
+        double exploitationRate = 1;
+        int exploitationLength = (int) 1e6;
         long maxDuration = Math.min((long) 60e3, timeout_plan - (long) 1e3); // we stop 1 seconds before timeout
-        System.out.println(timeout_plan);
+        long seed = System.currentTimeMillis();
+        boolean oneInitWithAStar = false;
 
+        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationLength=" + exploitationLength + " \tSEED=" + seed);
         System.out.println("Initializing SLS algorithm");
-        SLS sls = new SLS(localChoiceProb);
+        SLS sls = new SLS(exploitationRate, seed);
         sls.init(vehicles, tasks, true);
 
-        double minCost = sls.getActualCost();
-        List<Plan> bestPlans = sls.actualLogistPlans();
-        System.out.println("INIT BEST COST = " + minCost);
+        double minCost = Double.MAX_VALUE;
+        List<Plan> bestPlans = null;
 
         System.out.println("Starting SLS convergence");
+        int numOfInit = 1;
         while (sls.durationStoppingCriterion(startTime, maxDuration)) {
-            while (sls.numIterStoppingCriterion(maxNumIter) && sls.durationStoppingCriterion(startTime, maxDuration)) {
+            while (sls.numIterStoppingCriterion(exploitationLength) && sls.durationStoppingCriterion(startTime, maxDuration)) {
+                if (!oneInitWithAStar) {
+                    break;
+                }
                 Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
                 sls.localChoice(neighbors);
 
@@ -143,13 +148,16 @@ public class CentralizedTemplate implements CentralizedBehavior {
                 if (cost < minCost) {
                     minCost = cost;
                     bestPlans = sls.actualLogistPlans();
-                    System.out.println("NEW BEST COST = " + minCost);
+                    System.out.println("BEST COST UPDATED = " + minCost);
                 }
             }
-            sls = new SLS(localChoiceProb);
+            sls = new SLS(exploitationRate, seed + numOfInit);
             sls.init(vehicles, tasks, false);
+            numOfInit += 1;
         }
+        System.out.println("#RESTART = " + numOfInit);
         System.out.println("SLS has converged!");
+        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationLength=" + exploitationLength + " \tSEED=" + seed);
 
         return bestPlans;
     }

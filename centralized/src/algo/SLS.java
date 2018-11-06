@@ -14,18 +14,24 @@ import java.util.stream.Collectors;
 public class SLS {
     private static final boolean DISPLAY_PRINT = false;
 
-    private double prob;
+    private double exploitationRate;
     private Random random;
-    private boolean isInit;
     private int numIter;
     private List<ActionSequence> actualPlans;
 
-    public SLS(double prob) {
-        this.prob = prob;
-        this.isInit = false;
+    public SLS(double prob, long seed) {
+        this.exploitationRate = prob;
         this.numIter = 0;
         this.actualPlans = new ArrayList<>();
-        this.random = new Random();
+        this.random = new Random(seed);
+    }
+
+    public static double objectiveOf(List<ActionSequence> actionSequences) {
+        double cost = 0;
+        for (ActionSequence seq : actionSequences) {
+            cost += seq.getCost();
+        }
+        return cost;
     }
 
     // Take the vehicle with the largest capacity and plan deliver the task completely at random
@@ -63,8 +69,8 @@ public class SLS {
             }
         }
 
-        if (initialPlan.isValid()) {
-            System.out.println("The initial plan is indeed valid");
+        if (!initialPlan.isValid()) {
+            System.out.println("The initial plan is NOT valid");
         }
         // create plan for each vehicles
         List<ActionSequence> plans = new ArrayList<>();
@@ -77,14 +83,6 @@ public class SLS {
         }
         this.actualPlans = plans;
 
-    }
-
-    public double objectiveOf(List<ActionSequence> actionSequences) {
-        double cost = 0;
-        for (ActionSequence seq : actionSequences) {
-            cost += seq.getCost();
-        }
-        return cost;
     }
 
     public Set<List<ActionSequence>> chooseNeighbours() {
@@ -120,7 +118,7 @@ public class SLS {
         }
 
         // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
-        if (random.nextDouble() < this.prob) {
+        if (random.nextDouble() < this.exploitationRate) {
             double minObj = Double.MAX_VALUE;
             List<List<ActionSequence>> choices = new ArrayList<>();
 
@@ -145,6 +143,8 @@ public class SLS {
                         "\t->\t" + objectiveOf(bestNeighbor));
             }
             this.actualPlans = bestNeighbor;
+        } else {
+            this.actualPlans = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
         }
         numIter += 1;
     }
