@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class SLS extends ISLS<List<ActionSequence>> {
     private static final boolean DISPLAY_PRINT = true;
+    private static final boolean INIT_WITH_ASTAR = true;
 
     private double prob;
     private Random random;
@@ -35,15 +36,39 @@ public class SLS extends ISLS<List<ActionSequence>> {
             throw new UnsupportedOperationException("cannot init twice");
         } else {
             isInit = true;
-            Random rand = new Random();
             Vehicle largest = vehicles.get(0);
             for (Vehicle v : vehicles) {
                 if (v.capacity() > largest.capacity()) {
                     largest = v;
                 }
             }
+            ActionSequence initialPlan;
+            if (INIT_WITH_ASTAR) {
+                initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
+            } else {
+                List<Task> taskTaken = new ArrayList<>();
+                List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-            ActionSequence initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
+                initialPlan = new ActionSequence(largest);
+                while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
+                    int possibleChoice = taskTaken.size() + taskNotTaken.size();
+
+                    int n = random.nextInt(possibleChoice);
+                    if (n >= taskTaken.size()) {
+                        Task task = taskNotTaken.get(n - taskTaken.size());
+                        if (initialPlan.addLoadAction(task)) {
+                            taskNotTaken.remove(n - taskTaken.size());
+                            taskTaken.add(task);
+                        }
+                    } else {
+                        Task task = taskTaken.get(n);
+                        if (initialPlan.addDropAction(task)) {
+                            taskTaken.remove(task);
+                        }
+                    }
+                }
+            }
+
             if (initialPlan.isValid()) {
                 System.out.println("The initial plan is indeed valid");
             }
