@@ -120,29 +120,34 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
 
-        double localChoiceProb = 0.35;
-        int maxNumIter = (int) 1e6;
-        long maxDuration = timeout_plan - (int) 1e3; // we stop one second before timeout
+        double localChoiceProb = 1;
+        int maxNumIter = (int) 1e5;
+        long maxDuration = Math.min((long) 60e3, timeout_plan - (long) 1e3); // we stop 1 seconds before timeout
+        System.out.println(timeout_plan);
 
         System.out.println("Initializing SLS algorithm");
         SLS sls = new SLS(localChoiceProb);
-        sls.init(vehicles, tasks);
+        sls.init(vehicles, tasks, true);
 
         double minCost = sls.getActualCost();
         List<Plan> bestPlans = sls.actualLogistPlans();
         System.out.println("INIT BEST COST = " + minCost);
 
         System.out.println("Starting SLS convergence");
-        while (sls.durationStoppingCriterion(startTime, maxDuration) && sls.numIterStoppingCriterion(maxNumIter)) {
-            Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
-            sls.localChoice(neighbors);
+        while (sls.durationStoppingCriterion(startTime, maxDuration)) {
+            while (sls.numIterStoppingCriterion(maxNumIter) && sls.durationStoppingCriterion(startTime, maxDuration)) {
+                Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
+                sls.localChoice(neighbors);
 
-            double cost = sls.getActualCost();
-            if (cost < minCost) {
-                minCost = cost;
-                bestPlans = sls.actualLogistPlans();
-                System.out.println("NEW BEST COST = " + minCost);
+                double cost = sls.getActualCost();
+                if (cost < minCost) {
+                    minCost = cost;
+                    bestPlans = sls.actualLogistPlans();
+                    System.out.println("NEW BEST COST = " + minCost);
+                }
             }
+            sls = new SLS(localChoiceProb);
+            sls.init(vehicles, tasks, false);
         }
         System.out.println("SLS has converged!");
 

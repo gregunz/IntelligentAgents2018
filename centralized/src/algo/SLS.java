@@ -11,9 +11,8 @@ import models.ActionSequence;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SLS extends ISLS<List<ActionSequence>> {
+public class SLS {
     private static final boolean DISPLAY_PRINT = false;
-    private static final boolean INIT_WITH_ASTAR = false;
 
     private double prob;
     private Random random;
@@ -29,64 +28,57 @@ public class SLS extends ISLS<List<ActionSequence>> {
         this.random = new Random();
     }
 
-    @Override
     // Take the vehicle with the largest capacity and plan deliver the task completely at random
-    public void init(List<Vehicle> vehicles, TaskSet tasks) {
-        if (isInit) {
-            throw new UnsupportedOperationException("cannot init twice");
-        } else {
-            isInit = true;
-            Vehicle largest = vehicles.get(0);
-            for (Vehicle v : vehicles) {
-                if (v.capacity() > largest.capacity()) {
-                    largest = v;
-                }
+    public void init(List<Vehicle> vehicles, TaskSet tasks, boolean initWithAstar) {
+        Vehicle largest = vehicles.get(0);
+        for (Vehicle v : vehicles) {
+            if (v.capacity() > largest.capacity()) {
+                largest = v;
             }
-            ActionSequence initialPlan;
-            if (INIT_WITH_ASTAR) {
-                initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
-            } else {
-                List<Task> taskTaken = new ArrayList<>();
-                List<Task> taskNotTaken = new ArrayList<>(tasks);
+        }
+        ActionSequence initialPlan;
+        if (initWithAstar) {
+            initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
+        } else {
+            List<Task> taskTaken = new ArrayList<>();
+            List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-                initialPlan = new ActionSequence(largest);
-                while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
-                    int possibleChoice = taskTaken.size() + taskNotTaken.size();
+            initialPlan = new ActionSequence(largest);
+            while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
+                int possibleChoice = taskTaken.size() + taskNotTaken.size();
 
-                    int n = random.nextInt(possibleChoice);
-                    if (n >= taskTaken.size()) {
-                        Task task = taskNotTaken.get(n - taskTaken.size());
-                        if (initialPlan.addLoadAction(task)) {
-                            taskNotTaken.remove(n - taskTaken.size());
-                            taskTaken.add(task);
-                        }
-                    } else {
-                        Task task = taskTaken.get(n);
-                        if (initialPlan.addDropAction(task)) {
-                            taskTaken.remove(task);
-                        }
+                int n = random.nextInt(possibleChoice);
+                if (n >= taskTaken.size()) {
+                    Task task = taskNotTaken.get(n - taskTaken.size());
+                    if (initialPlan.addLoadAction(task)) {
+                        taskNotTaken.remove(n - taskTaken.size());
+                        taskTaken.add(task);
+                    }
+                } else {
+                    Task task = taskTaken.get(n);
+                    if (initialPlan.addDropAction(task)) {
+                        taskTaken.remove(task);
                     }
                 }
             }
-
-            if (initialPlan.isValid()) {
-                System.out.println("The initial plan is indeed valid");
-            }
-            // create plan for each vehicles
-            List<ActionSequence> plans = new ArrayList<>();
-            for (int i = 0; i < vehicles.size(); i++) {
-                if (i == vehicles.indexOf(largest)) {
-                    plans.add(initialPlan);
-                } else {
-                    plans.add(new ActionSequence(vehicles.get(i)));
-                }
-            }
-            this.actualPlans = plans;
-
         }
+
+        if (initialPlan.isValid()) {
+            System.out.println("The initial plan is indeed valid");
+        }
+        // create plan for each vehicles
+        List<ActionSequence> plans = new ArrayList<>();
+        for (int i = 0; i < vehicles.size(); i++) {
+            if (i == vehicles.indexOf(largest)) {
+                plans.add(initialPlan);
+            } else {
+                plans.add(new ActionSequence(vehicles.get(i)));
+            }
+        }
+        this.actualPlans = plans;
+
     }
 
-    @Override
     public double objectiveOf(List<ActionSequence> actionSequences) {
         double cost = 0;
         for (ActionSequence seq : actionSequences) {
@@ -95,7 +87,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
         return cost;
     }
 
-    @Override
     public Set<List<ActionSequence>> chooseNeighbours() {
         Set<List<ActionSequence>> neighbours = new HashSet<>();
 
@@ -122,28 +113,28 @@ public class SLS extends ISLS<List<ActionSequence>> {
         return neighbours;
     }
 
-    @Override
     public void localChoice(Set<List<ActionSequence>> neighbors) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
             return;
         }
-        double minObj = Double.MAX_VALUE;
-        List<List<ActionSequence>> choices = new ArrayList<>();
-
-        for (List<ActionSequence> plans : neighbors) {
-            double obj = objectiveOf(plans);
-            if (obj < minObj) {
-                choices = new ArrayList<>();
-                choices.add(plans);
-                minObj = obj;
-            } else if (obj == minObj) {
-                choices.add(plans);
-            }
-        }
 
         // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
         if (random.nextDouble() < this.prob) {
+            double minObj = Double.MAX_VALUE;
+            List<List<ActionSequence>> choices = new ArrayList<>();
+
+            for (List<ActionSequence> plans : neighbors) {
+                double obj = objectiveOf(plans);
+                if (obj < minObj) {
+                    choices = new ArrayList<>();
+                    choices.add(plans);
+                    minObj = obj;
+                } else if (obj == minObj) {
+                    choices.add(plans);
+                }
+            }
+
             int idx = 0;
             if (choices.size() > 1) {
                 idx = random.nextInt(choices.size());
@@ -158,12 +149,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
         numIter += 1;
     }
 
-    @Override
     public List<ActionSequence> actualPlans() {
         return Collections.unmodifiableList(actualPlans);
     }
 
-    @Override
     public List<Plan> actualLogistPlans() {
         return actualPlans.stream().map(ActionSequence::getPlan).collect(Collectors.toList());
     }
