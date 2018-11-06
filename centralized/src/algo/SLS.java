@@ -173,9 +173,10 @@ public class SLS extends ISLS<List<ActionSequence>> {
         List<List<ActionSequence>> neighbors = new ArrayList<>();
 
         if (actualPlans.get(n).getLength() > 2) {
-            for (int j = 0; j < actualPlans.get(n).getLength(); j++) {
+            int t = random.nextInt(actualPlans.get(n).getLength());
+
                 boolean isValid;
-                int i = j;
+                int i = t;
                 do {
                     List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
                     isValid = newPlans.get(n).advanceAction(i);
@@ -184,7 +185,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     }
                     i--;
                 } while (isValid);
-                i = j;
+                i = t;
                 do {
                     List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
                     isValid = newPlans.get(n).postponeAction(i);
@@ -193,7 +194,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     }
                     i++;
                 } while (isValid);
-            }
+
 
         }
         return neighbors;
