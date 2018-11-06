@@ -44,7 +44,9 @@ public class SLS extends ISLS<List<ActionSequence>> {
             }
 
             ActionSequence initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
-
+            if (initialPlan.isValid()) {
+                System.out.println("The initial plan is indeed valid");
+            }
             // create plan for each vehicles
             List<ActionSequence> plans = new ArrayList<>();
             for (int i = 0; i < vehicles.size(); i++) {
