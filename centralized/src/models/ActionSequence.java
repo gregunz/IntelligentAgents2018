@@ -165,11 +165,13 @@ public class ActionSequence {
 
     public boolean isValid() {
         if (isOverloaded()) {
+            System.out.println("At one point, the vehicle is overloaded");
             return false;
         }
         for (int i = 0; i < sequence.size(); i++) {
             Task task = sequence.get(i).task;
             if (sequence.indexOf(new BasicAction(Event.DROP, task)) > sequence.indexOf(new BasicAction(Event.LOAD, task))) {
+                System.out.println("At one point, the drops before loading");
                 return false;
             }
         }
