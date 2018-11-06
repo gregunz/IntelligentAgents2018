@@ -154,13 +154,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
                         "\t->\t" + objectiveOf(bestNeighbor));
             }
             this.actualPlans = bestNeighbor;
-        } else {
-            List<ActionSequence> rdmNeighbor = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
-            if (DISPLAY_PRINT) {
-                System.out.println(numIter + "\t(random)\t=\t" + getActualCost() +
-                        "\t->\t" + objectiveOf(rdmNeighbor));
-            }
-            this.actualPlans = rdmNeighbor;
         }
         numIter += 1;
     }
