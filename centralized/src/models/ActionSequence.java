@@ -51,18 +51,19 @@ public class ActionSequence {
             }
         } else {
             int load = 0;
-            for (int j = 0; j < i; j++) {
+            for (int j = 0; j < i - 1; j++) {
                 BasicAction action2 = sequence.get(j);
                 if (action2.event == Event.DROP) {
                     load -= action2.task.weight;
                 } else {
                     load += action2.task.weight;
                 }
-                if (load + action.task.weight <= vehicle.capacity()) {
-                    Collections.swap(sequence, i, i-1);
-                    return true;
-                }
             }
+            if (load + action.task.weight <= vehicle.capacity()) {
+                Collections.swap(sequence, i, i-1);
+                return true;
+            }
+
             return false;
         }
     }
@@ -81,18 +82,19 @@ public class ActionSequence {
             }
         } else {
             int load = 0;
-            for (int j = 0; j < i; j++) {
+            for (int j = 0; j <= i + 1; j++) {
                 BasicAction action2 = sequence.get(j);
                 if (action2.event == Event.DROP) {
                     load -= action2.task.weight;
                 } else {
                     load += action2.task.weight;
                 }
+            }
                 if (load + action.task.weight <= vehicle.capacity()) {
                     Collections.swap(sequence, i, i+1);
                     return true;
                 }
-            }
+
             return false;
         }
     }
@@ -156,7 +158,7 @@ public class ActionSequence {
             } else {
                 load -= action.task.weight;
             }
-            if (load >= vehicle.capacity()) {
+            if (load > vehicle.capacity()) {
                 return true;
             }
         }
@@ -170,7 +172,7 @@ public class ActionSequence {
         }
         for (int i = 0; i < sequence.size(); i++) {
             Task task = sequence.get(i).task;
-            if (sequence.indexOf(new BasicAction(Event.DROP, task)) > sequence.indexOf(new BasicAction(Event.LOAD, task))) {
+            if (sequence.indexOf(new BasicAction(Event.DROP, task)) < sequence.indexOf(new BasicAction(Event.LOAD, task))) {
                 System.out.println("At one point, the drop happens before the load");
                 return false;
             }
