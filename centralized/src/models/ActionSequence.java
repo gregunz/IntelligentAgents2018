@@ -177,26 +177,4 @@ public class ActionSequence {
         }
         return true;
     }
-
-    public boolean dumbAdvanceAction(int i) {
-        if (i == 0 || i > sequence.size()) {
-            return false;
-        }
-
-        Collections.swap(sequence, i, i-1);
-
-        return isValid();
-
-    }
-
-    public boolean dumbPostponeAction(int i) {
-        if (i >= sequence.size()-1) {
-            return false;
-        }
-
-        Collections.swap(sequence, i, i+1);
-
-        return isValid();
-
-    }
 }
