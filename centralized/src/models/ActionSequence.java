@@ -167,16 +167,36 @@ public class ActionSequence {
 
     public boolean isValid() {
         if (isOverloaded()) {
-            System.out.println("At one point, the vehicle is overloaded");
             return false;
         }
         for (int i = 0; i < sequence.size(); i++) {
             Task task = sequence.get(i).task;
             if (sequence.indexOf(new BasicAction(Event.DROP, task)) < sequence.indexOf(new BasicAction(Event.LOAD, task))) {
-                System.out.println("At one point, the drop happens before the load");
                 return false;
             }
         }
         return true;
+    }
+
+    public boolean dumbAdvanceAction(int i) {
+        if (i == 0 || i > sequence.size()) {
+            return false;
+        }
+
+        Collections.swap(sequence, i, i-1);
+
+        return isValid();
+
+    }
+
+    public boolean dumbPostponeAction(int i) {
+        if (i >= sequence.size()-1) {
+            return false;
+        }
+
+        Collections.swap(sequence, i, i+1);
+
+        return isValid();
+
     }
 }
