@@ -82,7 +82,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
     }
 
     @Override
-    public double localChoice(Set<List<ActionSequence>> neighbors) {
+    public void localChoice(Set<List<ActionSequence>> neighbors) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
         }
@@ -99,27 +99,28 @@ public class SLS extends ISLS<List<ActionSequence>> {
                 choices.add(plans);
             }
         }
-        int idx = 0;
-        if (choices.size() > 1) {
-            idx = random.nextInt(choices.size());
-        }
 
-        if (random.nextDouble() < this.prob) { // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
-            if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
-                System.out.println(numIter + "\t(best)\t=\t" + getActualCost() +
-                        "\t->\t" + objectiveOf(choices.get(idx)));
+        // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
+        if (random.nextDouble() < this.prob) {
+            int idx = 0;
+            if (choices.size() > 1) {
+                idx = random.nextInt(choices.size());
             }
-            this.actualPlans = choices.get(idx);
+            List<ActionSequence> bestNeighbor = choices.get(idx);
+            if (DISPLAY_PRINT) {
+                System.out.println(numIter + "\t(best)\t=\t" + getActualCost() +
+                        "\t->\t" + objectiveOf(bestNeighbor));
+            }
+            this.actualPlans = bestNeighbor;
         } else {
             List<ActionSequence> rdmNeighbor = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
-            if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
+            if (DISPLAY_PRINT) {
                 System.out.println(numIter + "\t(random)\t=\t" + getActualCost() +
                         "\t->\t" + objectiveOf(rdmNeighbor));
             }
             this.actualPlans = rdmNeighbor;
         }
         numIter += 1;
-        return getActualCost();
     }
 
     @Override
