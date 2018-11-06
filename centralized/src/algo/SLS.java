@@ -106,11 +106,15 @@ public class SLS extends ISLS<List<ActionSequence>> {
 
         if (random.nextDouble() < this.prob) { // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
             if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
-                System.out.println(numIter + "\t=\t" + getActualCost() +
+                System.out.println(numIter + "\t(best)\t=\t" + getActualCost() +
                         "\t->\t" + objectiveOf(choices.get(idx)));
             }
             this.actualPlans = choices.get(idx);
         } else {
+            if (DISPLAY_PRINT && getActualCost() != objectiveOf(choices.get(idx))) {
+                System.out.println(numIter + "\t(random)\t=\t" + getActualCost() +
+                        "\t->\t" + objectiveOf(choices.get(idx)));
+            }
             this.actualPlans = new ArrayList<>(neighbors).get(random.nextInt(neighbors.size()));
         }
         numIter += 1;
