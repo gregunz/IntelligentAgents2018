@@ -1,5 +1,7 @@
 package algo;
 
+import algo.astar.AStar;
+import algo.astar.Heuristic;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -40,27 +42,8 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     largest = v;
                 }
             }
-            List<Task> taskTaken = new ArrayList<>();
-            List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-            ActionSequence initialPlan = new ActionSequence(largest);
-            while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
-                int possibleChoice = taskTaken.size() + taskNotTaken.size();
-
-                int n = rand.nextInt(possibleChoice);
-                if (n >= taskTaken.size()) {
-                    Task task = taskNotTaken.get(n - taskTaken.size());
-                    if (initialPlan.addLoadAction(task)) {
-                        taskNotTaken.remove(n - taskTaken.size());
-                        taskTaken.add(task);
-                    }
-                } else {
-                    Task task = taskTaken.get(n);
-                    if (initialPlan.addDropAction(task)) {
-                        taskTaken.remove(task);
-                    }
-                }
-            }
+            ActionSequence initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
 
             // create plan for each vehicles
             List<ActionSequence> plans = new ArrayList<>();

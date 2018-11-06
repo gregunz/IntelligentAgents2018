@@ -8,7 +8,6 @@ import logist.topology.Topology;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class ActionSequence {
 
@@ -163,33 +162,4 @@ public class ActionSequence {
         }
         return false;
     }
-
-
-    private class BasicAction {
-
-        private final Task task;
-        private final Event event;
-
-        private BasicAction(Event event, Task task) {
-            this.task = task;
-            this.event = event;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            BasicAction that = (BasicAction) o;
-            return Objects.equals(task, that.task) &&
-                    event == that.event;
-        }
-
-        @Override
-        public int hashCode() {
-
-            return Objects.hash(task, event);
-        }
-    }
-
-    enum Event {LOAD, DROP}
 }
