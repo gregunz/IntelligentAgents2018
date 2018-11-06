@@ -42,19 +42,60 @@ public class ActionSequence {
         if (i == 0 || i > sequence.size()) {
             return false;
         }
-        Collections.swap(sequence, i, i-1);
-
-        return !isOverloaded();
+        BasicAction action = sequence.get(i);
+        if (action.event == Event.DROP) {
+            if (sequence.get(i-1).task != action.task) {
+                Collections.swap(sequence, i, i-1);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int load = 0;
+            for (int j = 0; j < i; j++) {
+                BasicAction action2 = sequence.get(j);
+                if (action2.event == Event.DROP) {
+                    load -= action2.task.weight;
+                } else {
+                    load += action2.task.weight;
+                }
+                if (load + action.task.weight <= vehicle.capacity()) {
+                    Collections.swap(sequence, i, i-1);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public boolean postponeAction(int i) {
         if (i >= sequence.size()-1) {
             return false;
         }
-
-        Collections.swap(sequence, i, i+1);
-
-        return !isOverloaded();
+        BasicAction action = sequence.get(i);
+        if (action.event == Event.LOAD) {
+            if (sequence.get(i+1).task != action.task) {
+                Collections.swap(sequence, i, i+1);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int load = 0;
+            for (int j = 0; j < i; j++) {
+                BasicAction action2 = sequence.get(j);
+                if (action2.event == Event.DROP) {
+                    load -= action2.task.weight;
+                } else {
+                    load += action2.task.weight;
+                }
+                if (load + action.task.weight <= vehicle.capacity()) {
+                    Collections.swap(sequence, i, i+1);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public boolean addDropAction(Task task) {
