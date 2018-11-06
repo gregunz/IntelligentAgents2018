@@ -32,9 +32,9 @@ public class MoveAction implements Action {
 
         return new StateRepresentation(
                 toCity,
-                state.getTaskTaken().clone(),
+                new ArrayList<>(state.getTaskTaken()),
                 state.getCapacityRemaining(),
-                state.getTaskNotTaken().clone(),
+                new ArrayList<>(state.getTaskNotTaken()),
                 costPerKM,
                 state.getCurrentCost() + this.getCost(),
                 actions

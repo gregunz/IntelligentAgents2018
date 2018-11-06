@@ -7,6 +7,7 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
 import models.ActionSequence;
+import utils.Utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,29 +36,17 @@ public class SLS extends ISLS<List<ActionSequence>> {
             throw new UnsupportedOperationException("cannot init twice");
         } else {
             isInit = true;
-            Random rand = new Random();
-            Vehicle largest = vehicles.get(0);
-            for (Vehicle v : vehicles) {
-                if (v.capacity() > largest.capacity()) {
-                    largest = v;
-                }
-            }
 
-            ActionSequence initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
-            if (initialPlan.isValid()) {
-                System.out.println("The initial plan is indeed valid");
-            }
-            // create plan for each vehicles
+            List<List<Task>> tasksPerVehicle = Utils.chopped(new ArrayList<>(tasks), vehicles.size());
+
             List<ActionSequence> plans = new ArrayList<>();
             for (int i = 0; i < vehicles.size(); i++) {
-                if (i == vehicles.indexOf(largest)) {
-                    plans.add(initialPlan);
-                } else {
-                    plans.add(new ActionSequence(vehicles.get(i)));
-                }
+                Vehicle v = vehicles.get(i);
+                List<Task> t = tasksPerVehicle.get(i);
+                plans.add(AStar.run(v, t, Heuristic.WEIGHT_NOT_TAKEN));
             }
-            this.actualPlans = plans;
 
+            this.actualPlans = plans;
         }
     }
 

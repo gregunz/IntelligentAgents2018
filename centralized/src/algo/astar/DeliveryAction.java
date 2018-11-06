@@ -1,7 +1,6 @@
 package algo.astar;
 
 import logist.task.Task;
-import logist.task.TaskSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class DeliveryAction implements Action {
     @Override
     public State getNextState(State state) {
 
-        TaskSet taken = state.getTaskTaken().clone();
+        List<Task> taken = new ArrayList<>(state.getTaskTaken());
         taken.remove(task);
 
         List<Action> actions = new ArrayList<>(state.getPreviousActions());

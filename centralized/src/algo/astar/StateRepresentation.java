@@ -3,7 +3,6 @@ package algo.astar;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
-import logist.task.TaskSet;
 import logist.topology.Topology;
 import models.ActionSequence;
 
@@ -18,27 +17,27 @@ public class StateRepresentation implements State {
     private static final Task[] EMPTY_TASK_ARRAY = {};
 
     private final Topology.City currentCity;
-    private final TaskSet taskTaken;
+    private final List<Task> taskTaken;
     private final int capacityRemaining;
-    private final TaskSet taskNotTaken;
+    private final List<Task> taskNotTaken;
     private final double currentCost;
     private final List<Action> previousActions;
     private final double costPerKM;
 
 
-    public StateRepresentation(Vehicle vehicle, TaskSet taskset) {
-        this(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), vehicle.capacity(), taskset, vehicle.costPerKm());
+    public StateRepresentation(Vehicle vehicle, List<Task> taskset) {
+        this(vehicle.getCurrentCity(), new ArrayList<>(vehicle.getCurrentTasks()), vehicle.capacity(), taskset, vehicle.costPerKm());
     }
 
-    public StateRepresentation(Topology.City currentCity, TaskSet taskTaken, int capacityRemaining,
-                               TaskSet taskNotTaken, double costPerKM) {
+    public StateRepresentation(Topology.City currentCity, List<Task> taskTaken, int capacityRemaining,
+                               List<Task> taskNotTaken, double costPerKM) {
         this(currentCity, taskTaken, capacityRemaining, taskNotTaken, costPerKM, 0d, new ArrayList<>());
     }
 
     public StateRepresentation(Topology.City currentCity,
-                               TaskSet taskTaken,
+                               List<Task> taskTaken,
                                int capacityRemaining,
-                               TaskSet taskNotTaken,
+                               List<Task> taskNotTaken,
                                double costPerKM,
                                double currentCost,
                                List<Action> previousActions) {
@@ -102,7 +101,7 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public TaskSet getTaskTaken() {
+    public List<Task> getTaskTaken() {
         return this.taskTaken;
     }
 
@@ -112,7 +111,7 @@ public class StateRepresentation implements State {
     }
 
     @Override
-    public TaskSet getTaskNotTaken() {
+    public List<Task> getTaskNotTaken() {
         return this.taskNotTaken;
     }
 
