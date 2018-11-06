@@ -12,8 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SLS extends ISLS<List<ActionSequence>> {
-    private static final boolean DISPLAY_PRINT = true;
-    private static final boolean INIT_WITH_ASTAR = true;
+    private static final boolean DISPLAY_PRINT = false;
+    private static final boolean INIT_WITH_ASTAR = false;
 
     private double prob;
     private Random random;
@@ -149,7 +149,6 @@ public class SLS extends ISLS<List<ActionSequence>> {
                         "\t->\t" + objectiveOf(rdmNeighbor));
             }
             this.actualPlans = rdmNeighbor;
-
         }
         numIter += 1;
     }
