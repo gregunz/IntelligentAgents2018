@@ -99,14 +99,25 @@ public class SLS extends ISLS<List<ActionSequence>> {
     public Set<List<ActionSequence>> chooseNeighbours() {
         Set<List<ActionSequence>> neighbours = new HashSet<>();
 
+
+
         int n = random.nextInt(actualPlans.size());
-        if (actualPlans.get(n).getLength() == 0) {
-            return chooseNeighbours();
-        }
+        while(actualPlans.get(n).getLength() == 0)
+            n = random.nextInt(actualPlans.size());
 
         neighbours.addAll(passTasksAround(n));
 
+        n = random.nextInt(actualPlans.size());
+        while(actualPlans.get(n).getLength() <= 2)
+            n = random.nextInt(actualPlans.size());
+
         neighbours.addAll(moveTasksInTime(n));
+
+        n = random.nextInt(actualPlans.size());
+        while(actualPlans.get(n).getLength() <= 2)
+            n = random.nextInt(actualPlans.size());
+
+        neighbours.addAll(swapTasks(n));
 
         return neighbours;
     }
@@ -115,6 +126,7 @@ public class SLS extends ISLS<List<ActionSequence>> {
     public void localChoice(Set<List<ActionSequence>> neighbors) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
+            return;
         }
         double minObj = Double.MAX_VALUE;
         List<List<ActionSequence>> choices = new ArrayList<>();
@@ -189,6 +201,22 @@ public class SLS extends ISLS<List<ActionSequence>> {
                     }
                 }
             }
+        }
+
+        return neighbours;
+    }
+
+    private List<List<ActionSequence>> swapTasks(int n){
+
+        List<List<ActionSequence>> neighbours = new ArrayList<>();
+
+        int t1 = random.nextInt(actualPlans.get(n).getLength());
+        int t2 = random.nextInt(actualPlans.get(n).getLength());
+        while (t1 == t2)
+            t2 = random.nextInt(actualPlans.get(n).getLength());
+        List<ActionSequence> newPlans = getCopyOfPlans(actualPlans);
+        if (newPlans.get(n).swapActions(t1, t2)){
+            neighbours.add(newPlans);
         }
 
         return neighbours;

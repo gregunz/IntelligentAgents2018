@@ -177,4 +177,20 @@ public class ActionSequence {
         }
         return true;
     }
+
+    public boolean swapActions(int t1, int t2) {
+        BasicAction action1 = sequence.get(t1);
+        BasicAction action2 = sequence.get(t2);
+        if (action1.task == action2.task) {
+            return false;
+        } else {
+            int l1 = sequence.indexOf(new BasicAction(Event.LOAD, action1.task));
+            int l2 = sequence.indexOf(new BasicAction(Event.LOAD, action2.task));
+            int d1 = sequence.indexOf(new BasicAction(Event.DROP, action1.task));
+            int d2 = sequence.indexOf(new BasicAction(Event.DROP, action2.task));
+            Collections.swap(sequence, l1, l2);
+            Collections.swap(sequence, d1, d2);
+            return isValid();
+        }
+    }
 }
