@@ -176,8 +176,8 @@ public class CentralizedPlan {
         return getRandomVehicle(0, Integer.MAX_VALUE);
     }
 
-    private Vehicle getRandomVehicle(int numTasks) {
-        return getRandomVehicle(numTasks, numTasks);
+    private Vehicle getRandomVehicle(int minNumTasks) {
+        return getRandomVehicle(minNumTasks, Integer.MAX_VALUE);
     }
 
     private Vehicle getRandomVehicle(int minNumTasks, int maxNumTasks) {
@@ -192,10 +192,20 @@ public class CentralizedPlan {
 
     private Set<CentralizedPlan> chooseNeighbours() {
         Set<CentralizedPlan> neighbours = new HashSet<>();
-
-        neighbours.addAll(passTasksAround(getRandomVehicle(0)));
-        neighbours.addAll(moveTasksInTime(getRandomVehicle(0, 2)));
-        neighbours.addAll(swapTasks(getRandomVehicle(0, 2)));
+        int maxNumTask = 0;
+        for (VehiclePlan p : plans.values()) {
+            if (p.getLength() > maxNumTask) {
+                maxNumTask = p.getLength();
+            }
+        }
+        ;
+        if (maxNumTask >= 1) {
+            neighbours.addAll(passTasksAround(getRandomVehicle(1)));
+        }
+        if (maxNumTask >= 3) {
+            neighbours.addAll(moveTasksInTime(getRandomVehicle(3)));
+            neighbours.addAll(swapTasks(getRandomVehicle(3)));
+        }
 
         return neighbours;
     }

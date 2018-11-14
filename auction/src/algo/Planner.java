@@ -6,36 +6,42 @@ import logist.task.Task;
 import models.CentralizedPlan;
 import models.Initialization;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Planner {
 
-    private CentralizedPlan actualPlan;
     private CentralizedPlan bestPlan;
+    private Map<Task, CentralizedPlan> betToPlan;
 
     private boolean didAStarInit = false;
 
     public Planner(List<Vehicle> vehicles) {
-        this.actualPlan = new CentralizedPlan(vehicles);
-        this.setBestPlan();
+        this.bestPlan = new CentralizedPlan(vehicles);
+        this.betToPlan = new HashMap<>();
     }
 
-    /**
-     * add a task and return marginal cost
-     */
-    public double addTask(Task task, long timeLimit) {
+    public long computeMarginalCost(Task task, long timeLimit) {
         long startTime = System.currentTimeMillis();
 
         double oldCost = this.bestPlan.getCost();
 
-        this.actualPlan.addTask(task, Initialization.RANDOM /*TODO might change this*/);
-        this.didAStarInit = false;
+        CentralizedPlan nextPlan = this.bestPlan.copy();
+        nextPlan.addTask(task, Initialization.RANDOM /*TODO might change this*/);
+        nextPlan = this.findBestPlan(nextPlan, timeLimit - (System.currentTimeMillis() - startTime));
 
-        this.setBestPlan();
+        betToPlan.put(task, nextPlan);
 
-        this.findBestPlan(timeLimit - (System.currentTimeMillis() - startTime));
+        //System.out.println("old cost = " + oldCost + " new cost = " + nextPlan.getCost());
+        return (long) (nextPlan.getCost() - oldCost); // marginal actualCost
+    }
 
-        return this.bestPlan.getCost() - oldCost; // marginal actualCost
+    /**
+     * add a task
+     */
+    public void addTask(Task task) {
+        bestPlan = betToPlan.get(task);
     }
 
     public List<Plan> toLogistPlans() {
@@ -45,16 +51,31 @@ public class Planner {
     /**
      * Return the best plan for all vehicles within a time limit
      */
-    public void findBestPlan(long timeLimit) {
+    public CentralizedPlan findBestPlan(long timeLimit) {
+        CentralizedPlan bestLocalPlan = findBestPlan(this.bestPlan.copy(), timeLimit);
+        if (bestLocalPlan.getCost() < this.bestPlan.getCost()) {
+            this.bestPlan = bestLocalPlan.copy();
+        }
+        return this.bestPlan;
+    }
+
+    private CentralizedPlan findBestPlan(CentralizedPlan plan, long timeLimit) {
+        this.didAStarInit = false; // force doing one astar init
+
+        CentralizedPlan bestLocalPlan = plan.copy();
+
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < timeLimit) {
             long timeLimitRemaining = timeLimit - (System.currentTimeMillis() - startTime);
-            this.actualPlan = this.actualPlan.nextPlan(timeLimitRemaining, nextInit());
-            if (this.actualPlan.getCost() < this.bestPlan.getCost()) {
-                this.setBestPlan();
+            plan = plan.nextPlan(timeLimitRemaining, nextInit());
+            if (plan.getCost() < bestLocalPlan.getCost()) {
+                bestLocalPlan = plan.copy();
             }
         }
+
+        return bestLocalPlan;
     }
+
 
     private Initialization nextInit() {
         if (!didAStarInit) {
@@ -62,9 +83,5 @@ public class Planner {
             return Initialization.ASTAR;
         }
         return Initialization.RANDOM;
-    }
-
-    private void setBestPlan() {
-        this.bestPlan = this.actualPlan.copy();
     }
 }

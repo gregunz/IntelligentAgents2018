@@ -31,8 +31,10 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        double marginalCost = this.planner.addTask(task, bidTimout);
-        return null; //TODO
+        long marginalCost = this.planner.computeMarginalCost(task, bidTimout);
+        long expectedProfit = 100;
+        //TODO do more here, come up with brilliant ideas
+        return marginalCost + expectedProfit;
     }
 
     /**
@@ -40,7 +42,7 @@ public class Bidder {
      */
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
-            this.planner.addTask(previous, /*TODO: what time here*/ bidTimout);
+            this.planner.addTask(previous);
         }
         //TODO
     }

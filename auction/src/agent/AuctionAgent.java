@@ -26,6 +26,9 @@ public class AuctionAgent implements AuctionBehavior {
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
+
+        System.out.println("we are agent <" + agent.id() + ">");
+
         LogistSettings ls = null;
         try {
             ls = Parsers.parseSettings("config/settings_auction.xml");
@@ -60,9 +63,8 @@ public class AuctionAgent implements AuctionBehavior {
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        //TODO: question? do we really need vehicles and taskset as we set the vehicles at first AND added the task we won in the bidder ?
+        //TODO: question? do we really need vehicles and tasks as we set the vehicles at first AND added the task when we won in the bidder ?
         Planner planner = this.bidder.getPlanner();
-        planner.findBestPlan(planTimeout);
-        return planner.toLogistPlans();
+        return planner.findBestPlan(planTimeout).toLogistPlans();
     }
 }
