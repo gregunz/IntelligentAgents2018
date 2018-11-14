@@ -5,7 +5,6 @@ import algo.astar.Heuristic;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
-import logist.task.TaskSet;
 import random.RandomHandler;
 
 import java.util.*;
@@ -15,12 +14,11 @@ public class CentralizedPlan {
 
     private static final boolean DISPLAY_PRINT = false;
     private static final double EXPLOITATION_RATE = 1;
+    private static final int EXPLOITATION_DEEPNESS = (int) 1e5;
 
     private List<Vehicle> vehicles;
     private List<Task> tasks;
     private Map<Vehicle, VehiclePlan> plans;
-
-    private int numIter;
 
     public CentralizedPlan(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
@@ -30,7 +28,6 @@ public class CentralizedPlan {
         vehicles.forEach(v -> {
             this.plans.put(v, new VehiclePlan(v));
         });
-        this.numIter = 0;
     }
 
     private CentralizedPlan(List<Vehicle> vehicles, Map<Vehicle, VehiclePlan> plans, List<Task> tasks) {
@@ -59,25 +56,64 @@ public class CentralizedPlan {
         return this.vehicles.stream().map(v -> this.plans.get(v).getPlan()).collect(Collectors.toList());
     }
 
-    public void addTask(Task t) {
-        this.tasks.add(t);
-        //TODO give task to a vehicle such that the plan is ideally optimal
+    public void addTask(Task t, Initialization init) {
+
+        switch (init) {
+            case ASTAR:
+            case RANDOM:
+                this.tasks.add(t);
+                this.initialize(init);
+                break;
+            case NONE:
+            default:
+                //TODO, could give the task to a random vehicle (= no need to initialize again)
+                throw new UnsupportedOperationException("need to add the task somewhere!!!!");
+        }
+
     }
 
-    public CentralizedPlan tryToImprovePlan() { // sls algo here (I guess)
+    public CentralizedPlan nextPlan(long timeLimit, Initialization init) {
+        long startTime = System.currentTimeMillis();
+        int numIter = 0;
 
-        //TODO iteration improvement of plan
-        //this will update "this.cost"
+        CentralizedPlan bestLocalPlan = this.copy();
+        double minCost = bestLocalPlan.getCost();
 
-        return null; //TODO
+        this.initialize(init);
+
+        while (numIter < EXPLOITATION_DEEPNESS && durationStoppingCriterion(startTime, timeLimit)) {
+            Set<CentralizedPlan> neighbors = chooseNeighbours();
+            CentralizedPlan nextPlan = localChoice(neighbors);
+            if (nextPlan.getCost() < minCost) {
+                bestLocalPlan = nextPlan.copy();
+                minCost = nextPlan.getCost();
+            }
+            setNewPlans(nextPlan); // we always set nextPlan as newPlan because it might lead to local minima
+            numIter += 1;
+        }
+        return bestLocalPlan; // but we only return the best plan
     }
 
     public double getCost() {
         return computeCostOf(this);
     }
 
+    private boolean durationStoppingCriterion(long startTime, long timeLimit) {
+        return (System.currentTimeMillis() - startTime) < timeLimit;
+    }
+
+    private void setNewPlans(CentralizedPlan plan) {
+        assert this.vehicles == plan.vehicles;
+        assert this.tasks == plan.tasks;
+        this.setNewPlans(plan.plans);
+    }
+
+    private void setNewPlans(Map<Vehicle, VehiclePlan> plans) {
+        this.plans = plans;
+    }
+
     // Take the vehicle with the largest capacity and plan deliver the task completely at random
-    public void init(List<Vehicle> vehicles, TaskSet tasks, boolean initWithAstar) {
+    private void initialize(Initialization init) {
 
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
@@ -86,30 +122,37 @@ public class CentralizedPlan {
             }
         }
         VehiclePlan initialPlan;
-        if (initWithAstar) {
-            initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
-        } else {
-            List<Task> taskTaken = new ArrayList<>();
-            List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-            initialPlan = new VehiclePlan(largest);
-            while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
-                int possibleChoice = taskTaken.size() + taskNotTaken.size();
+        switch (init) {
+            case ASTAR:
+                initialPlan = AStar.run(largest, tasks, Heuristic.WEIGHT_NOT_TAKEN);
+                break;
+            case RANDOM:
+                List<Task> taskTaken = new ArrayList<>();
+                List<Task> taskNotTaken = new ArrayList<>(tasks);
 
-                int n = RandomHandler.get().nextInt(possibleChoice);
-                if (n >= taskTaken.size()) {
-                    Task task = taskNotTaken.get(n - taskTaken.size());
-                    if (initialPlan.addLoadAction(task)) {
-                        taskNotTaken.remove(n - taskTaken.size());
-                        taskTaken.add(task);
-                    }
-                } else {
-                    Task task = taskTaken.get(n);
-                    if (initialPlan.addDropAction(task)) {
-                        taskTaken.remove(task);
+                initialPlan = new VehiclePlan(largest);
+                while (!taskTaken.isEmpty() || !taskNotTaken.isEmpty()) {
+                    int possibleChoice = taskTaken.size() + taskNotTaken.size();
+
+                    int n = RandomHandler.get().nextInt(possibleChoice);
+                    if (n >= taskTaken.size()) {
+                        Task task = taskNotTaken.get(n - taskTaken.size());
+                        if (initialPlan.addLoadAction(task)) {
+                            taskNotTaken.remove(n - taskTaken.size());
+                            taskTaken.add(task);
+                        }
+                    } else {
+                        Task task = taskTaken.get(n);
+                        if (initialPlan.addDropAction(task)) {
+                            taskTaken.remove(task);
+                        }
                     }
                 }
-            }
+                break;
+            case NONE:
+            default:
+                return;
         }
 
         if (!initialPlan.isValid()) {
@@ -147,7 +190,7 @@ public class CentralizedPlan {
         return v;
     }
 
-    public Set<CentralizedPlan> chooseNeighbours() {
+    private Set<CentralizedPlan> chooseNeighbours() {
         Set<CentralizedPlan> neighbours = new HashSet<>();
 
         neighbours.addAll(passTasksAround(getRandomVehicle(0)));
@@ -157,11 +200,12 @@ public class CentralizedPlan {
         return neighbours;
     }
 
-    public void localChoice(Set<CentralizedPlan> neighbors) {
+    private CentralizedPlan localChoice(Set<CentralizedPlan> neighbors) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
-            return;
+            return this;
         }
+
         // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
         if (RandomHandler.get().nextDouble() < this.EXPLOITATION_RATE) {
             double minCost = Double.MAX_VALUE;
@@ -183,37 +227,10 @@ public class CentralizedPlan {
                 idx = RandomHandler.get().nextInt(choices.size());
             }
             CentralizedPlan bestNeighborPlan = choices.get(idx);
-            if (DISPLAY_PRINT) {
-                System.out.println(numIter + "\t(best)\t=\t" + getActualCost() +
-                        "\t->\t" + computeCostOf(bestNeighborPlan));
-            }
-            this.setNewPlans(bestNeighborPlan);
+            return bestNeighborPlan;
         } else {
-            this.setNewPlans(new ArrayList<>(neighbors).get(RandomHandler.get().nextInt(neighbors.size())));
+            return new ArrayList<>(neighbors).get(RandomHandler.get().nextInt(neighbors.size()));
         }
-        numIter += 1;
-    }
-
-    private void setNewPlans(CentralizedPlan plan) {
-        assert this.vehicles == plan.vehicles;
-        assert this.tasks == plan.tasks;
-        this.setNewPlans(plan.plans);
-    }
-
-    private void setNewPlans(Map<Vehicle, VehiclePlan> plans) {
-        this.plans = plans;
-    }
-
-    public double getActualCost() {
-        return computeCostOf(this);
-    }
-
-    public boolean numIterStoppingCriterion(int maxNumIter) {
-        return numIter < maxNumIter;
-    }
-
-    public boolean durationStoppingCriterion(long startTime, long maxDuration) {
-        return (System.currentTimeMillis() - startTime) < maxDuration;
     }
 
     private List<CentralizedPlan> passTasksAround(Vehicle v) {

@@ -1,7 +1,7 @@
 package algo.astar;
 
 import logist.simulation.Vehicle;
-import logist.task.TaskSet;
+import logist.task.Task;
 import logist.topology.Topology;
 import models.VehiclePlan;
 
@@ -71,7 +71,7 @@ public class AStar {
         return factor * citiesToGoThrough.size() * minDistance * s.getCostPerKM();
     }
 
-    public static VehiclePlan run(final Vehicle v, final TaskSet ts, final Heuristic h) {
+    public static VehiclePlan run(final Vehicle v, final List<Task> tasks, final Heuristic h) {
 
         Comparator<State> statesComparator = (s1, s2) -> {
             switch (h) {
@@ -94,7 +94,7 @@ public class AStar {
 
         };
 
-        State startingState = new StateRepresentation(v, ts);
+        State startingState = new StateRepresentation(v, tasks);
         VisitOnceQueue statesQueue = new VisitOnceQueue(new PriorityQueue<>(statesComparator), new HashSet<>());
         statesQueue.visit(startingState);
         statesQueue.addAll(startingState.getNextStates());

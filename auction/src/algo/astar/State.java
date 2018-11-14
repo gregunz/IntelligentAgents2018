@@ -2,7 +2,7 @@ package algo.astar;
 
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
-import logist.task.TaskSet;
+import logist.task.Task;
 import logist.topology.Topology;
 import models.VehiclePlan;
 
@@ -24,11 +24,11 @@ public interface State {
 
     Topology.City getCurrentCity();
 
-    TaskSet getTaskTaken();
+    List<Task> getTaskTaken();
 
     int getCapacityRemaining();
 
-    TaskSet getTaskNotTaken();
+    List<Task> getTaskNotTaken();
 
     Plan toPlan(State startingState);
 
