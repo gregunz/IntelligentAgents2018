@@ -31,7 +31,7 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        long marginalCost = this.planner.computeMarginalCost(task, bidTimout);
+        long marginalCost = this.planner.estimateMarginalCost(task, bidTimout);
         long expectedProfit = 100;
         //TODO do more here, come up with brilliant ideas
         return marginalCost + expectedProfit;

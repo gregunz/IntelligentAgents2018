@@ -5,6 +5,7 @@ import algo.astar.Heuristic;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskSet;
 import random.RandomHandler;
 
 import java.util.*;
@@ -52,8 +53,16 @@ public class CentralizedPlan {
         return new CentralizedPlan(this.vehicles, newPlans, this.tasks);
     }
 
-    public List<Plan> toLogistPlans() {
-        return this.vehicles.stream().map(v -> this.plans.get(v).getPlan()).collect(Collectors.toList());
+    public List<Plan> toLogistPlans(TaskSet tasks) {
+        Map<Task, Task> oldToNewTasksMap = new HashMap<>();
+        for (Task t1 : tasks) {
+            for (Task t2 : this.tasks) {
+                if (t1.id == t2.id) {
+                    oldToNewTasksMap.put(t2, t1);
+                }
+            }
+        }
+        return this.vehicles.stream().map(v -> this.plans.get(v).getPlan(oldToNewTasksMap::get)).collect(Collectors.toList());
     }
 
     public void addTask(Task t, Initialization init) {
@@ -103,8 +112,6 @@ public class CentralizedPlan {
     }
 
     private void setNewPlans(CentralizedPlan plan) {
-        assert this.vehicles == plan.vehicles;
-        assert this.tasks == plan.tasks;
         this.setNewPlans(plan.plans);
     }
 

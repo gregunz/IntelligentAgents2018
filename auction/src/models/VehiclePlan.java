@@ -8,6 +8,7 @@ import logist.topology.Topology;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 public class VehiclePlan {
 
@@ -119,6 +120,10 @@ public class VehiclePlan {
     }
 
     public Plan getPlan() {
+        return getPlan(Function.identity());
+    }
+
+    public Plan getPlan(Function<Task, Task> oldToNewTasks) {
 
         Topology.City currentCity = this.vehicle.getCurrentCity();
         Plan plan = new Plan(currentCity);
@@ -131,7 +136,7 @@ public class VehiclePlan {
                     }
                 }
                 currentCity = action.task.pickupCity;
-                plan.appendPickup(action.task);
+                plan.appendPickup(oldToNewTasks.apply(action.task));
             } else {
                 if (action.task.deliveryCity != currentCity) {
                     for (Topology.City city : currentCity.pathTo(action.task.deliveryCity)) {
@@ -139,7 +144,7 @@ public class VehiclePlan {
                     }
                 }
                 currentCity = action.task.deliveryCity;
-                plan.appendDelivery(action.task);
+                plan.appendDelivery(oldToNewTasks.apply(action.task));
             }
         }
         return plan;

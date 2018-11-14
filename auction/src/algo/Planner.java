@@ -3,6 +3,7 @@ package algo;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import logist.task.TaskSet;
 import models.CentralizedPlan;
 import models.Initialization;
 
@@ -20,7 +21,7 @@ public class Planner {
         this.planIfBetIsWon = null;
     }
 
-    public long computeMarginalCost(Task task, long timeLimit) {
+    public long estimateMarginalCost(Task task, long timeLimit) {
         long startTime = System.currentTimeMillis();
 
         double oldCost = this.bestPlan.getCost();
@@ -39,8 +40,8 @@ public class Planner {
         bestPlan = planIfBetIsWon;
     }
 
-    public List<Plan> toLogistPlans() {
-        return this.bestPlan.toLogistPlans();
+    public List<Plan> toLogistPlans(TaskSet tasks) {
+        return this.bestPlan.toLogistPlans(tasks);
     }
 
     /**
