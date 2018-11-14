@@ -146,6 +146,9 @@ public class VehiclePlan {
     }
 
     public double getCost() {
+        if (getLength() == 0) {
+            return 0;
+        }
         return this.getPlan().totalDistance() * this.vehicle.costPerKm();
     }
 

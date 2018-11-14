@@ -6,20 +6,18 @@ import logist.task.Task;
 import models.CentralizedPlan;
 import models.Initialization;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Planner {
 
     private CentralizedPlan bestPlan;
-    private Map<Task, CentralizedPlan> betToPlan;
+    private CentralizedPlan planIfBetIsWon;
 
     private boolean didAStarInit = false;
 
     public Planner(List<Vehicle> vehicles) {
         this.bestPlan = new CentralizedPlan(vehicles);
-        this.betToPlan = new HashMap<>();
+        this.planIfBetIsWon = null;
     }
 
     public long computeMarginalCost(Task task, long timeLimit) {
@@ -31,7 +29,7 @@ public class Planner {
         nextPlan.addTask(task, Initialization.RANDOM /*TODO might change this*/);
         nextPlan = this.findBestPlan(nextPlan, timeLimit - (System.currentTimeMillis() - startTime));
 
-        betToPlan.put(task, nextPlan);
+        planIfBetIsWon = nextPlan;
 
         //System.out.println("old cost = " + oldCost + " new cost = " + nextPlan.getCost());
         return (long) (nextPlan.getCost() - oldCost); // marginal actualCost
@@ -41,7 +39,7 @@ public class Planner {
      * add a task
      */
     public void addTask(Task task) {
-        bestPlan = betToPlan.get(task);
+        bestPlan = planIfBetIsWon;
     }
 
     public List<Plan> toLogistPlans() {
