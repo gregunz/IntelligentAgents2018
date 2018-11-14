@@ -6,7 +6,12 @@
     <!-- #### AUCTION AGENTS ### -->
     <agent name="auction-random">
         <set class-path="bin/"/>
-        <set class-name="template.AuctionTemplate"/>
+        <set class-name="agent.AuctionTemplate"/>
+    </agent>
+
+    <agent name="auction-agent">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
     </agent>
 
 </agents>

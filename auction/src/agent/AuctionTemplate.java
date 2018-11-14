@@ -1,4 +1,4 @@
-package template;
+package agent;
 
 //the list of imports
 
