@@ -31,7 +31,7 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        int marginalCost = this.planner.addTask(task, bidTimout);
+        double marginalCost = this.planner.addTask(task, bidTimout);
         return null; //TODO
     }
 

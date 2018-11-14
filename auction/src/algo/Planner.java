@@ -21,10 +21,10 @@ public class Planner {
     /**
      * add a task and return marginal cost
      */
-    public int addTask(Task task, long timeLimit) {
+    public double addTask(Task task, long timeLimit) {
         long startTime = System.currentTimeMillis();
 
-        int oldCost = this.bestPlan.getCost();
+        double oldCost = this.bestPlan.getCost();
 
         this.actualPlan.addTask(task);
         this.setBestPlan();
