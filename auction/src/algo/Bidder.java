@@ -28,5 +28,6 @@ public class Bidder {
      * Improve Bidder by getting information of previous auction results
      */
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
+        //TODO
     }
 }
