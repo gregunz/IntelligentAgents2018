@@ -35,10 +35,7 @@ public class Planner {
         return (long) (nextPlan.getCost() - oldCost); // marginal actualCost
     }
 
-    /**
-     * add a task
-     */
-    public void addTask(Task task) {
+    public void betIsWon(Task task) {
         bestPlan = planIfBetIsWon;
     }
 

@@ -42,7 +42,7 @@ public class Bidder {
      */
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
-            this.planner.addTask(previous);
+            this.planner.betIsWon(previous);
         }
         //TODO
     }
