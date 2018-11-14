@@ -2,33 +2,56 @@ package algo;
 
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
-import logist.task.TaskSet;
+import logist.task.Task;
+import models.CentralizedPlan;
 
 import java.util.List;
 
 public class Planner {
 
-    List<Vehicle> vehicles;
-    TaskSet tasks;
+    private CentralizedPlan actualPlan;
+    private CentralizedPlan bestPlan;
 
-    public Planner(List<Vehicle> vehicles, TaskSet tasks) {
-        this.vehicles = vehicles;
-        this.tasks = tasks;
+    public Planner(List<Vehicle> vehicles) {
+        this.actualPlan = new CentralizedPlan(vehicles);
+        this.setBestPlan();
+    }
+
+
+    /**
+     * add a task and return marginal cost
+     */
+    public int addTask(Task task, long timeLimit) {
+        long startTime = System.currentTimeMillis();
+
+        int oldCost = this.bestPlan.getCost();
+
+        this.actualPlan.addTask(task);
+        this.setBestPlan();
+
+        this.findBestPlan(timeLimit);
+
+        return this.bestPlan.getCost() - oldCost; // marginal actualCost
+    }
+
+    public List<Plan> toLogistPlans() {
+        return this.bestPlan.toLogistPlans();
     }
 
     /**
      * Return the best plan for all vehicles within a time limit
      */
-    public List<Plan> findBestPlan(long timeLimit) {
+    public void findBestPlan(long timeLimit) {
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < timeLimit) {
-            this.improvePlan();
+            this.actualPlan = this.actualPlan.tryToImprovePlan();
+            if (this.actualPlan.getCost() < this.bestPlan.getCost()) {
+                this.setBestPlan();
+            }
         }
-        return null; //TODO: update this //it must be quick because we must not timeout!
     }
 
-    private void improvePlan() {
-        //TODO iteration improvement of plan
+    private void setBestPlan() {
+        this.bestPlan = this.actualPlan.copy();
     }
-
 }

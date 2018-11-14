@@ -19,32 +19,30 @@ import java.util.List;
 
 public class AuctionAgent implements AuctionBehavior {
 
-    private final long PLAN_TIME_MARGIN = (long) 1e3; // we stop 1 second before just to be sure!
-
     //private long timeout_setup;
-    private long timeout_plan;
+    private long planTimeout;
 
     private Bidder bidder;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
-
-        this.bidder = new Bidder(topology, distribution, agent);
-
         LogistSettings ls = null;
         try {
             ls = Parsers.parseSettings("config/settings_auction.xml");
         } catch (Exception exc) {
             System.out.println("There was a problem loading the configuration file.");
         }
-        // the setup method cannot last more than timeout_setup milliseconds
-        //timeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
-        // the plan method cannot execute more than timeout_plan milliseconds
-        timeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
+
+        final long PLAN_TIME_MARGIN = (long) 1e3; // we stop 1 second before just to be sure!
+
+        //timeoutSetup = ls.get(LogistSettings.TimeoutKey.SETUP) - PLAN_TIME_MARGIN;
+        planTimeout = ls.get(LogistSettings.TimeoutKey.PLAN) - PLAN_TIME_MARGIN;
+        long bidTimeout = ls.get(LogistSettings.TimeoutKey.BID) - PLAN_TIME_MARGIN;
 
         long seed = -9019554669489983951L * agent.vehicles().get(0).hashCode() * agent.id();
         RandomHandler.set(seed);
 
+        this.bidder = new Bidder(topology, distribution, agent, bidTimeout);
     }
 
     @Override
@@ -62,7 +60,9 @@ public class AuctionAgent implements AuctionBehavior {
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        Planner planner = new Planner(vehicles, tasks);
-        return planner.findBestPlan(timeout_plan - PLAN_TIME_MARGIN);
+        //TODO: question? do we really need vehicles and taskset as we set the vehicles at first AND added the task we won in the bidder ?
+        Planner planner = this.bidder.getPlanner();
+        planner.findBestPlan(planTimeout);
+        return planner.toLogistPlans();
     }
 }
