@@ -15,7 +15,7 @@ public class Planner {
 
     private static final int EXPLOITATION_DEEPNESS = 100 * 1000;
 
-    private static final double EXPLOITATION_RATE_FROM = 0.1;
+    private static final double EXPLOITATION_RATE_FROM = 0.0;
     private static final double EXPLOITATION_RATE_TO = 1.0;
 
     private CentralizedPlan bestPlan;
@@ -72,9 +72,7 @@ public class Planner {
         return this.bestPlan;
     }
 
-    private CentralizedPlan findBestPlan(CentralizedPlan plan, long timeLimit) {
-        //this.didAStarInit = false; // force doing one astar init
-
+    private CentralizedPlan findBestPlan(CentralizedPlan plan, long timeLimit) { // SLS ALGO WHERE CHOOSE_NEIGHBORS AND LOCAL CHOICE ARE INSIDE "nextPlan(rate)"
         CentralizedPlan bestPlan = plan.copy();
         double bestCost = bestPlan.getCost();
         System.out.println(bestCost);
@@ -86,6 +84,7 @@ public class Planner {
             double bestLocalCost = plan.getCost();
 
             double exploitationRate = EXPLOITATION_RATE_FROM + RandomHandler.get().nextDouble() * (EXPLOITATION_RATE_TO - EXPLOITATION_RATE_FROM);
+            System.out.println("EXPLOITATION_RATE = " + exploitationRate);
             while (iterWithoutImprove < EXPLOITATION_DEEPNESS && System.currentTimeMillis() - startTime < timeLimit) { // loop on improving one local plan
                 plan = plan.nextPlan(exploitationRate); // this does NOT mutate the plan
                 double cost = plan.getCost();
