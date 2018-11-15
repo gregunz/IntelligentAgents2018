@@ -9,6 +9,7 @@ import models.Initialization;
 import random.RandomHandler;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Planner {
 
@@ -18,33 +19,42 @@ public class Planner {
     private static final double EXPLOITATION_RATE_TO = 1.0;
 
     private CentralizedPlan bestPlan;
-    private CentralizedPlan planIfBetIsWon;
+    private Optional<CentralizedPlan> planIfBetIsWon;
 
     private boolean didAStarInit = false;
 
     public Planner(List<Vehicle> vehicles) {
         this.bestPlan = new CentralizedPlan(vehicles);
-        this.planIfBetIsWon = null;
+        this.planIfBetIsWon = Optional.empty();
     }
 
     public long estimateMarginalCost(Task task, long timeLimit) {
-        long startTime = System.currentTimeMillis();
 
         double oldCost = this.bestPlan.getCost();
 
-        CentralizedPlan nextPlan = this.bestPlan.copy();
-        nextPlan.addTask(task, Initialization.ASTAR /*TODO might change this*/);
-        nextPlan = this.findBestPlan(nextPlan, timeLimit - (System.currentTimeMillis() - startTime));
-
-        planIfBetIsWon = nextPlan;
+        CentralizedPlan nextPlan = this.createPlanWithNewTask(task, timeLimit);
+        planIfBetIsWon = Optional.of(nextPlan);
 
         //System.out.println("old cost = " + oldCost + " new cost = " + nextPlan.getCost());
         return (long) (nextPlan.getCost() - oldCost); // marginal actualCost
     }
 
-    public void betIsWon(Task task) {
-        System.out.println("adding the task we had a bet on");
-        bestPlan = planIfBetIsWon;
+    private CentralizedPlan createPlanWithNewTask(Task task, long timeLimit) {
+        long startTime = System.currentTimeMillis();
+        CentralizedPlan nextPlan = this.bestPlan.copy();
+        nextPlan.addTask(task, Initialization.ASTAR /*TODO might change this*/);
+        nextPlan = this.findBestPlan(nextPlan, timeLimit - (System.currentTimeMillis() - startTime));
+        return nextPlan;
+    }
+
+    public void addTask(Task task) {
+        if (planIfBetIsWon.isPresent()) {
+            System.out.println("adding the task we had a bet on");
+            bestPlan = planIfBetIsWon.get();
+            planIfBetIsWon = Optional.empty();
+        } else {
+            bestPlan = createPlanWithNewTask(task, 0);
+        }
     }
 
     public List<Plan> toLogistPlans(TaskSet tasks) {

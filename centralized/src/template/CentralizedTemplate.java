@@ -117,8 +117,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
         Planner planner = new Planner(vehicles);
         for (Task t : tasks) {
-            planner.estimateMarginalCost(t, 0);
-            planner.betIsWon(t);
+            planner.addTask(t);
         }
         System.out.println("starts");
         return planner.findBestPlan(timeout_plan - (long) 1e3).toLogistPlans();
