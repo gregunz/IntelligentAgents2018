@@ -6,10 +6,16 @@ import logist.task.Task;
 import logist.task.TaskSet;
 import models.CentralizedPlan;
 import models.Initialization;
+import random.RandomHandler;
 
 import java.util.List;
 
 public class Planner {
+
+    private static final int EXPLOITATION_DEEPNESS = 100 * 1000;
+
+    private static final double EXPLOITATION_RATE_FROM = 0.1;
+    private static final double EXPLOITATION_RATE_TO = 1.0;
 
     private CentralizedPlan bestPlan;
     private CentralizedPlan planIfBetIsWon;
@@ -27,7 +33,7 @@ public class Planner {
         double oldCost = this.bestPlan.getCost();
 
         CentralizedPlan nextPlan = this.bestPlan.copy();
-        nextPlan.addTask(task, Initialization.RANDOM /*TODO might change this*/);
+        nextPlan.addTask(task, Initialization.ASTAR /*TODO might change this*/);
         nextPlan = this.findBestPlan(nextPlan, timeLimit - (System.currentTimeMillis() - startTime));
 
         planIfBetIsWon = nextPlan;
@@ -37,6 +43,7 @@ public class Planner {
     }
 
     public void betIsWon(Task task) {
+        System.out.println("adding the task we had a bet on");
         bestPlan = planIfBetIsWon;
     }
 
@@ -56,20 +63,40 @@ public class Planner {
     }
 
     private CentralizedPlan findBestPlan(CentralizedPlan plan, long timeLimit) {
-        this.didAStarInit = false; // force doing one astar init
+        //this.didAStarInit = false; // force doing one astar init
 
-        CentralizedPlan bestLocalPlan = plan.copy();
+        CentralizedPlan bestPlan = plan.copy();
+        double bestCost = bestPlan.getCost();
+        System.out.println(bestCost);
 
         long startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < timeLimit) {
-            long timeLimitRemaining = timeLimit - (System.currentTimeMillis() - startTime);
-            plan = plan.nextPlan(timeLimitRemaining, nextInit());
-            if (plan.getCost() < bestLocalPlan.getCost()) {
-                bestLocalPlan = plan.copy();
+        while (System.currentTimeMillis() - startTime < timeLimit) { // loop on every local minima
+
+            int iterWithoutImprove = 0;
+            double bestLocalCost = plan.getCost();
+
+            double exploitationRate = EXPLOITATION_RATE_FROM + RandomHandler.get().nextDouble() * (EXPLOITATION_RATE_TO - EXPLOITATION_RATE_FROM);
+            while (iterWithoutImprove < EXPLOITATION_DEEPNESS && System.currentTimeMillis() - startTime < timeLimit) { // loop on improving one local plan
+                plan = plan.nextPlan(exploitationRate); // this does NOT mutate the plan
+                double cost = plan.getCost();
+                if (cost < bestLocalCost) {
+
+                    iterWithoutImprove = 0;
+                    bestLocalCost = cost;
+
+                    if (cost < bestCost) {
+                        bestPlan = plan.copy();
+                        bestCost = cost;
+                        System.out.println(bestCost);
+                    }
+                } else { // not improving
+                    iterWithoutImprove += 1;
+                }
             }
+            plan.initialize(Initialization.RANDOM);//nextInit()); // this mutates the plan
         }
 
-        return bestLocalPlan;
+        return bestPlan;
     }
 
 

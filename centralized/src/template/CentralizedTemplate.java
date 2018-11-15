@@ -1,8 +1,6 @@
 package template;
 
-//the list of imports
-
-import algo.SLS;
+import algo.Planner;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.CentralizedBehavior;
@@ -14,11 +12,9 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
-import models.ActionSequence;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A very simple auction agent that assigns all tasks to its first vehicle and
@@ -119,44 +115,13 @@ public class CentralizedTemplate implements CentralizedBehavior {
     }
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
-
-        double exploitationRate = 0.99;
-        int exploitationDeepness = (int) 1e5;
-        long maxDuration = timeout_plan - (long) 1e3; // we stop 1 seconds before timeout
-        long seed = System.currentTimeMillis();
-        boolean oneInitWithAStar = true;
-
-        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationDeepness=" + exploitationDeepness + " \tSEED=" + seed);
-        System.out.println("Initializing SLS algorithm");
-        SLS sls = new SLS(exploitationRate, seed);
-        sls.init(vehicles, tasks, oneInitWithAStar);
-        int numOfInit = 1;
-
-        double minCost = Double.MAX_VALUE;
-        List<Plan> bestPlans = null;
-
-        System.out.println("Starting SLS convergence");
-        while (sls.durationStoppingCriterion(startTime, maxDuration)) {
-            while (sls.numIterStoppingCriterion(exploitationDeepness) && sls.durationStoppingCriterion(startTime, maxDuration)) {
-                Set<List<ActionSequence>> neighbors = sls.chooseNeighbours();
-                sls.localChoice(neighbors);
-
-                double cost = sls.getActualCost();
-                if (cost < minCost) {
-                    minCost = cost;
-                    bestPlans = sls.actualLogistPlans();
-                    System.out.println("BEST COST UPDATED = " + minCost);
-                }
-            }
-            sls = new SLS(exploitationRate, seed + numOfInit);
-            sls.init(vehicles, tasks, false);
-            numOfInit += 1;
+        Planner planner = new Planner(vehicles);
+        for (Task t : tasks) {
+            planner.estimateMarginalCost(t, 0);
+            planner.betIsWon(t);
         }
-        System.out.println("#RESTART = " + numOfInit);
-        System.out.println("SLS has converged!");
-        System.out.println("PARAMETERS: \texploitationRate=" + exploitationRate + " \texploitationDeepness=" + exploitationDeepness + " \tSEED=" + seed);
-
-        return bestPlans;
+        System.out.println("starts");
+        return planner.findBestPlan(timeout_plan - (long) 1e3).toLogistPlans();
     }
 
     enum Algorithm {NAIVE, SLS}

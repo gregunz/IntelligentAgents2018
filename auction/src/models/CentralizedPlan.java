@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 public class CentralizedPlan {
 
     private static final boolean DISPLAY_PRINT = false;
-    private static final double EXPLOITATION_RATE = 1;
-    private static final int EXPLOITATION_DEEPNESS = (int) 1e5;
 
     private List<Vehicle> vehicles;
     private List<Task> tasks;
@@ -53,6 +51,10 @@ public class CentralizedPlan {
         return new CentralizedPlan(this.vehicles, newPlans, this.tasks);
     }
 
+    public List<Plan> toLogistPlans() {
+        return this.vehicles.stream().map(v -> this.plans.get(v).getPlan()).collect(Collectors.toList());
+    }
+
     public List<Plan> toLogistPlans(TaskSet tasks) {
         Map<Task, Task> oldToNewTasksMap = new HashMap<>();
         for (Task t1 : tasks) {
@@ -81,26 +83,10 @@ public class CentralizedPlan {
 
     }
 
-    public CentralizedPlan nextPlan(long timeLimit, Initialization init) {
-        long startTime = System.currentTimeMillis();
-        int numIter = 0;
-
-        CentralizedPlan bestLocalPlan = this.copy();
-        double minCost = bestLocalPlan.getCost();
-
-        this.initialize(init);
-
-        while (numIter < EXPLOITATION_DEEPNESS && durationStoppingCriterion(startTime, timeLimit)) {
-            Set<CentralizedPlan> neighbors = chooseNeighbours();
-            CentralizedPlan nextPlan = localChoice(neighbors);
-            if (nextPlan.getCost() < minCost) {
-                bestLocalPlan = nextPlan.copy();
-                minCost = nextPlan.getCost();
-            }
-            setNewPlans(nextPlan); // we always set nextPlan as newPlan because it might lead to local minima
-            numIter += 1;
-        }
-        return bestLocalPlan; // but we only return the best plan
+    public CentralizedPlan nextPlan(double exploitationRate) {
+        Set<CentralizedPlan> neighbors = chooseNeighbours();
+        CentralizedPlan nextPlan = localChoice(neighbors, exploitationRate);
+        return nextPlan;
     }
 
     public double getCost() {
@@ -120,8 +106,8 @@ public class CentralizedPlan {
     }
 
     // Take the vehicle with the largest capacity and plan deliver the task completely at random
-    private void initialize(Initialization init) {
-
+    public void initialize(Initialization init) {
+        System.out.println("initialization with " + init);
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
             if (v.capacity() > largest.capacity()) {
@@ -217,36 +203,38 @@ public class CentralizedPlan {
         return neighbours;
     }
 
-    private CentralizedPlan localChoice(Set<CentralizedPlan> neighbors) {
+    private CentralizedPlan localChoice(Set<CentralizedPlan> neighbors, double exploitationRate) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
             return this;
         }
 
         // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
-        if (RandomHandler.get().nextDouble() < this.EXPLOITATION_RATE) {
-            double minCost = Double.MAX_VALUE;
-            List<CentralizedPlan> choices = new ArrayList<>();
+        double minCost = Double.MAX_VALUE;
+        List<CentralizedPlan> choices = new ArrayList<>();
 
-            for (CentralizedPlan plan : neighbors) {
-                double cost = computeCostOf(plan);
-                if (cost < minCost) {
-                    choices = new ArrayList<>();
-                    choices.add(plan);
-                    minCost = cost;
-                } else if (cost == minCost) {
-                    choices.add(plan);
-                }
+        for (CentralizedPlan plan : neighbors) {
+            double cost = computeCostOf(plan);
+            if (cost < minCost) {
+                choices = new ArrayList<>();
+                choices.add(plan);
+                minCost = cost;
+            } else if (cost == minCost) {
+                choices.add(plan);
             }
+        }
 
-            int idx = 0;
-            if (choices.size() > 1) {
-                idx = RandomHandler.get().nextInt(choices.size());
-            }
-            CentralizedPlan bestNeighborPlan = choices.get(idx);
+        int idx = 0;
+        if (choices.size() > 1) {
+            idx = RandomHandler.get().nextInt(choices.size());
+        }
+        CentralizedPlan bestNeighborPlan = choices.get(idx);
+        if (minCost < this.getCost()) {
             return bestNeighborPlan;
+        } else if (RandomHandler.get().nextDouble() < exploitationRate) {
+            return this;
         } else {
-            return new ArrayList<>(neighbors).get(RandomHandler.get().nextInt(neighbors.size()));
+            return bestNeighborPlan;
         }
     }
 
