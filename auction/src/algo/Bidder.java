@@ -33,7 +33,7 @@ public class Bidder {
     public Long bid(Task task) {
         long marginalCost = this.planner.estimateMarginalCost(task, bidTimout);
         long expectedProfit = 100;
-        //TODO do more here, come up with brilliant ideas
+        //TODO do more here, come up with brilliant ideas using distribution and topology
         return Math.max(0, marginalCost + expectedProfit);
     }
 
