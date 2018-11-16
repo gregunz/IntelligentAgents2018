@@ -34,7 +34,7 @@ public class Bidder {
         long marginalCost = this.planner.estimateMarginalCost(task, bidTimout);
         long expectedProfit = 100;
         //TODO do more here, come up with brilliant ideas
-        return marginalCost + expectedProfit;
+        return Math.max(0, marginalCost + expectedProfit);
     }
 
     /**
@@ -44,7 +44,7 @@ public class Bidder {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
         }
-        //TODO
+        //TODO we might improve bidder here by learning the other agents ?
     }
 
 
