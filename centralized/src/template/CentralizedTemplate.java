@@ -118,7 +118,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     }
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
-        CentralizedPlan plan = PlanGenerator.generate(vehicles, new ArrayList<>(tasks), InitStrategy.RANDOM);
+        CentralizedPlan plan = PlanGenerator.generate(vehicles, new ArrayList<>(tasks), InitStrategy.ASTAR);
         plan = SLS.optimize(plan, timeout_plan - (long) 1e3);
         return plan.toLogistPlans();
     }

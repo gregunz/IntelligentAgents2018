@@ -133,7 +133,6 @@ public class SLS {
     private static List<CentralizedPlan> passTasksAround(CentralizedPlan plan, Vehicle v) {
         List<CentralizedPlan> neighboursPlan = new ArrayList<>();
 
-
         if (plan.getPlans().get(v).getLength() > 0) {
             for (Vehicle other : plan.getVehicles()) {
                 if (v != other) {
