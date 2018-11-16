@@ -4,10 +4,14 @@ import logist.simulation.Vehicle;
 import logist.task.Task;
 import random.RandomHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SLS {
-    private static final int EXPLOITATION_DEEPNESS = 100 * 1000;
+    // these are the hyper parameters, they could be not static and different version of SLS could be tested at the same time
+    private static final int NUM_NEIGHBORS = 10;
+    private static final int EXPLOITATION_DEEPNESS = 100 * 1000 / NUM_NEIGHBORS;
     private static final double EXPLOITATION_RATE_FROM = 0.0;
     private static final double EXPLOITATION_RATE_TO = 1.0;
 
@@ -52,14 +56,14 @@ public class SLS {
     }
 
     private static CentralizedPlan nextPlan(CentralizedPlan plan, double exploitationRate) {
-        Set<CentralizedPlan> neighbors = chooseNeighbours(plan);
+        List<CentralizedPlan> neighbors = chooseNeighbours(plan);
         return localChoice(plan, neighbors, exploitationRate);
     }
 
-    private static Set<CentralizedPlan> chooseNeighbours(CentralizedPlan plan) {
+    private static List<CentralizedPlan> chooseNeighbours(CentralizedPlan plan) {
         Map<Vehicle, VehiclePlan> plans = plan.getPlans();
 
-        Set<CentralizedPlan> neighbours = new HashSet<>();
+        List<CentralizedPlan> neighbours = new ArrayList<>();
         int maxNumTask = 0;
         for (VehiclePlan p : plans.values()) {
             if (p.getLength() > maxNumTask) {
@@ -67,18 +71,20 @@ public class SLS {
             }
         }
 
-        if (maxNumTask >= 1) {
-            neighbours.addAll(passTasksAround(plan, getRandomVehicle(plan, 1)));
-        }
-        if (maxNumTask >= 3) {
-            neighbours.addAll(moveTasksInTime(plan, getRandomVehicle(plan, 3)));
-            neighbours.addAll(swapTasks(plan, getRandomVehicle(plan, 3)));
+        for (int i = 0; i < NUM_NEIGHBORS; i++) {
+            if (maxNumTask >= 1) {
+                neighbours.addAll(passTasksAround(plan, getRandomVehicle(plan, 1)));
+            }
+            if (maxNumTask >= 3) {
+                neighbours.addAll(moveTasksInTime(plan, getRandomVehicle(plan, 3)));
+                neighbours.addAll(swapTasks(plan, getRandomVehicle(plan, 3)));
+            }
         }
 
         return neighbours;
     }
 
-    private static CentralizedPlan localChoice(CentralizedPlan plan, Set<CentralizedPlan> neighbors, double exploitationRate) {
+    private static CentralizedPlan localChoice(CentralizedPlan plan, List<CentralizedPlan> neighbors, double exploitationRate) {
         if (neighbors.isEmpty()) {
             System.out.println("NO NEIGHBORS");
             return plan;
