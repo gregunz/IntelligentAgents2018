@@ -15,6 +15,7 @@ import models.CentralizedPlan;
 import models.InitStrategy;
 import models.PlanGenerator;
 import models.SLS;
+import print.PrintHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,8 @@ public class CentralizedTemplate implements CentralizedBehavior {
         this.topology = topology;
         this.distribution = distribution;
         this.agent = agent;
+
+        PrintHandler.setVerbosityLevel(3);
     }
 
     @Override
