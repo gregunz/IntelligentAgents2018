@@ -2,6 +2,7 @@ package models;
 
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import print.PrintHandler;
 import random.RandomHandler;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class SLS {
     public static CentralizedPlan optimize(CentralizedPlan plan, long timeLimit) { // SLS ALGO WHERE CHOOSE_NEIGHBORS AND LOCAL CHOICE ARE INSIDE "nextPlan(rate)"
         CentralizedPlan bestPlan = plan;
         double bestCost = bestPlan.getCost();
-        System.out.println(bestCost);
+        PrintHandler.println("starting optimization with: " + bestCost, 1);
 
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < timeLimit) { // loop on every local minima
@@ -30,7 +31,7 @@ public class SLS {
             double bestLocalCost = plan.getCost();
             double exploitationRate = EXPLOITATION_RATE_FROM + RandomHandler.get().nextDouble() * (EXPLOITATION_RATE_TO - EXPLOITATION_RATE_FROM);
 
-            System.out.println("EXPLOITATION_RATE = " + exploitationRate);
+            PrintHandler.println("EXPLOITATION_RATE = " + exploitationRate, 2);
 
             while (iterWithoutImprove < EXPLOITATION_DEEPNESS && System.currentTimeMillis() - startTime < timeLimit) { // loop on improving one local plan
                 plan = nextPlan(plan, exploitationRate);
@@ -43,15 +44,17 @@ public class SLS {
                     if (cost < bestCost) {
                         bestPlan = plan;
                         bestCost = cost;
-                        System.out.println(bestCost);
+                        PrintHandler.println("best plan improved: " + bestCost, 3);
                     }
                 } else { // not improving
                     iterWithoutImprove += 1;
                 }
             }
+            PrintHandler.println("best local improvement: " + bestCost, 2);
             plan = PlanGenerator.generate(plan.getVehicles(), plan.getTasks(), InitStrategy.RANDOM);
         }
 
+        PrintHandler.println("ending optimization with: " + bestCost, 1);
         return bestPlan;
     }
 

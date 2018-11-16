@@ -12,6 +12,7 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
+import print.PrintHandler;
 import random.RandomHandler;
 
 import java.util.Arrays;
@@ -46,18 +47,20 @@ public class AuctionAgent implements AuctionBehavior {
         RandomHandler.set(seed);
 
         this.bidder = new Bidder(topology, distribution, agent, bidTimeout);
+
+        PrintHandler.setVerbosityLevel(1);
     }
 
     @Override
     public Long askPrice(Task task) {
         Long bid = this.bidder.bid(task);
-        System.out.println("task = <" + task + ">, bid = <" + bid + ">");
+        PrintHandler.println("task = <" + task + ">, bid = <" + bid + ">", 1);
         return bid;
     }
 
     @Override
     public void auctionResult(Task lastTask, int lastWinner, Long[] lastOffers) {
-        System.out.println("task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">");
+        PrintHandler.println("task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">", 1);
         this.bidder.addInfoOfLastAuction(lastTask, lastWinner, lastOffers);
     }
 

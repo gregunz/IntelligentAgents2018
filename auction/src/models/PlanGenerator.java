@@ -4,6 +4,7 @@ import algo.astar.AStar;
 import algo.astar.Heuristic;
 import logist.simulation.Vehicle;
 import logist.task.Task;
+import print.PrintHandler;
 import random.RandomHandler;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class PlanGenerator {
 
     public static CentralizedPlan generate(List<Vehicle> vehicles, List<Task> tasks, InitStrategy initStrategy) {
 
-        System.out.println("initialization with " + initStrategy);
+        PrintHandler.println("initialization with " + initStrategy, 2);
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
             if (v.capacity() > largest.capacity()) {
@@ -76,7 +77,7 @@ public class PlanGenerator {
     public static CentralizedPlan addTask(CentralizedPlan plan, Task t, AddStrategy addStrategy) {
 
         List<Vehicle> vehicles = plan.getVehicles();
-        List<Task> tasks = plan.getTasks();
+        List<Task> tasks = new ArrayList<>(plan.getTasks());
         tasks.add(t);
 
         switch (addStrategy) {
