@@ -22,6 +22,7 @@ public class CentralizedPlan {
 
         double cost = 0;
         for (VehiclePlan p : plans.values()) {
+            p.setCanMutate(false);
             cost += p.getCost();
         }
         this.cost = cost;
@@ -65,5 +66,11 @@ public class CentralizedPlan {
             newPlans.put(v, this.plans.get(v).copy());
         });
         return new CentralizedPlan(new ArrayList<>(this.vehicles), newPlans, new ArrayList<>(this.tasks));
+    }
+
+    public CentralizedPlan modifyVehiclePlan(Vehicle v, VehiclePlan vPlan) {
+        Map<Vehicle, VehiclePlan> newPlans = new HashMap<>(plans);
+        newPlans.put(v, vPlan);
+        return new CentralizedPlan(vehicles, newPlans, tasks);
     }
 }

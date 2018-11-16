@@ -14,24 +14,40 @@ public class VehiclePlan {
 
     private final Vehicle vehicle;
     private final List<BasicAction> actionSequence;
-    private int currentLoad = 0;
+    private int currentLoad;
+    private boolean canMutate;
 
     public VehiclePlan(Vehicle vehicle) {
         this.vehicle = vehicle;
         this.actionSequence = new ArrayList<>();
+        this.currentLoad = 0;
+        this.canMutate = true;
     }
 
     private VehiclePlan(Vehicle vehicle, List<BasicAction> actionSequence, int currentLoad) {
         this.vehicle = vehicle;
         this.actionSequence = actionSequence;
         this.currentLoad = currentLoad;
+        this.canMutate = true;
     }
 
     public VehiclePlan copy() {
         return new VehiclePlan(this.vehicle, new ArrayList<>(this.actionSequence), this.currentLoad);
     }
 
+    public void setCanMutate(boolean canMutate) {
+        this.canMutate = canMutate;
+    }
+
+
+    private void checkMutation() {
+        if (!canMutate) {
+            throw new IllegalStateException("only copy can be mutated");
+        }
+    }
+
     public boolean addLoadAction(Task task) {
+        checkMutation();
         if (currentLoad + task.weight > vehicle.capacity()) {
             return false;
         } else {
@@ -42,6 +58,7 @@ public class VehiclePlan {
     }
 
     public boolean advanceAction(int i) {
+        checkMutation();
         if (i == 0 || i > actionSequence.size()) {
             return false;
         }
@@ -73,6 +90,7 @@ public class VehiclePlan {
     }
 
     public boolean postponeAction(int i) {
+        checkMutation();
         if (i >= actionSequence.size() - 1) {
             return false;
         }
@@ -104,6 +122,7 @@ public class VehiclePlan {
     }
 
     public boolean addDropAction(Task task) {
+        checkMutation();
         if (actionSequence.contains(new BasicAction(Event.LOAD, task))) {
             currentLoad -= task.weight;
             actionSequence.add(new BasicAction(Event.DROP, task));
@@ -113,6 +132,7 @@ public class VehiclePlan {
     }
 
     public Task takeOutFirstTask() {
+        checkMutation();
         Task task = actionSequence.get(0).task;
         actionSequence.remove(0);
         actionSequence.remove(new BasicAction(Event.DROP, task));
@@ -190,6 +210,7 @@ public class VehiclePlan {
     }
 
     public boolean swapActions(int t1, int t2) {
+        checkMutation();
         BasicAction action1 = actionSequence.get(t1);
         BasicAction action2 = actionSequence.get(t2);
         if (action1.task == action2.task) {

@@ -24,9 +24,10 @@ public class SLS {
 
             int iterWithoutImprove = 0;
             double bestLocalCost = plan.getCost();
-
             double exploitationRate = EXPLOITATION_RATE_FROM + RandomHandler.get().nextDouble() * (EXPLOITATION_RATE_TO - EXPLOITATION_RATE_FROM);
+
             System.out.println("EXPLOITATION_RATE = " + exploitationRate);
+
             while (iterWithoutImprove < EXPLOITATION_DEEPNESS && System.currentTimeMillis() - startTime < timeLimit) { // loop on improving one local plan
                 plan = nextPlan(plan, exploitationRate);
                 double cost = plan.getCost();
@@ -131,17 +132,20 @@ public class SLS {
 
     private static List<CentralizedPlan> passTasksAround(CentralizedPlan plan, Vehicle v) {
         List<CentralizedPlan> neighboursPlan = new ArrayList<>();
-        Map<Vehicle, VehiclePlan> plans = plan.getPlans();
-        List<Vehicle> vehicles = plan.getVehicles();
 
-        if (plans.get(v).getLength() > 0) {
-            for (Vehicle other : vehicles) {
+
+        if (plan.getPlans().get(v).getLength() > 0) {
+            for (Vehicle other : plan.getVehicles()) {
                 if (v != other) {
-                    CentralizedPlan newPlan = plan.copy();
-                    Map<Vehicle, VehiclePlan> newPlans = newPlan.getPlans();
-                    Task task = newPlans.get(v).takeOutFirstTask();
-                    if (newPlans.get(other).addLoadAction(task)) {
-                        newPlans.get(other).addDropAction(task);
+                    VehiclePlan vPlan = plan.getPlans().get(v).copy();
+                    Task task = vPlan.takeOutFirstTask();
+                    VehiclePlan otherPlan = plan.getPlans().get(other).copy();
+
+                    if (otherPlan.addLoadAction(task)) {
+                        otherPlan.addDropAction(task);
+                        CentralizedPlan newPlan = plan
+                                .modifyVehiclePlan(v, vPlan)
+                                .modifyVehiclePlan(other, otherPlan);
                         neighboursPlan.add(newPlan);
                     }
                 }
@@ -160,9 +164,11 @@ public class SLS {
         int t2 = RandomHandler.get().nextInt(numTasks);
         while (t1 == t2)
             t2 = RandomHandler.get().nextInt(numTasks);
-        CentralizedPlan newPlan = plan.copy();
-        Map<Vehicle, VehiclePlan> newPlans = newPlan.getPlans();
-        if (newPlans.get(v).swapActions(t1, t2)) {
+
+        VehiclePlan vPlan = plan.getPlans().get(v).copy();
+
+        if (vPlan.swapActions(t1, t2)) {
+            CentralizedPlan newPlan = plan.modifyVehiclePlan(v, vPlan);
             neighboursPlan.add(newPlan);
         }
         return neighboursPlan;
@@ -178,20 +184,20 @@ public class SLS {
             boolean isValid;
             int i = t;
             do {
-                CentralizedPlan newPlan = plan.copy();
-                Map<Vehicle, VehiclePlan> newPlans = newPlan.getPlans();
-                isValid = newPlans.get(v).advanceAction(i);
+                VehiclePlan vPlan = plan.getPlans().get(v).copy();
+                isValid = vPlan.advanceAction(i);
                 if (isValid) {
+                    CentralizedPlan newPlan = plan.modifyVehiclePlan(v, vPlan);
                     neighboursPlan.add(newPlan);
                 }
                 i--;
             } while (isValid);
             i = t;
             do {
-                CentralizedPlan newPlan = plan.copy();
-                Map<Vehicle, VehiclePlan> newPlans = newPlan.getPlans();
-                isValid = newPlans.get(v).postponeAction(i);
+                VehiclePlan vPlan = plan.getPlans().get(v).copy();
+                isValid = vPlan.postponeAction(i);
                 if (isValid) {
+                    CentralizedPlan newPlan = plan.modifyVehiclePlan(v, vPlan);
                     neighboursPlan.add(newPlan);
                 }
                 i++;
