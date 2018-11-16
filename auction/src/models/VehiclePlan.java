@@ -12,8 +12,8 @@ import java.util.function.Function;
 
 public class VehiclePlan {
 
-    private Vehicle vehicle;
-    private List<BasicAction> actionSequence;
+    private final Vehicle vehicle;
+    private final List<BasicAction> actionSequence;
     private int currentLoad = 0;
 
     public VehiclePlan(Vehicle vehicle) {

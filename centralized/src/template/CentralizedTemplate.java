@@ -1,6 +1,5 @@
 package template;
 
-import algo.Planner;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.CentralizedBehavior;
@@ -12,6 +11,10 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import models.CentralizedPlan;
+import models.InitStrategy;
+import models.PlanGenerator;
+import models.SLS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,12 +118,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
     }
 
     private List<Plan> slsPlans(List<Vehicle> vehicles, TaskSet tasks, long startTime) {
-        Planner planner = new Planner(vehicles);
-        for (Task t : tasks) {
-            planner.addTask(t);
-        }
-        System.out.println("starts");
-        return planner.findBestPlan(timeout_plan - (long) 1e3).toLogistPlans();
+        CentralizedPlan plan = PlanGenerator.generate(vehicles, new ArrayList<>(tasks), InitStrategy.RANDOM);
+        plan = SLS.optimize(plan, timeout_plan - (long) 1e3);
+        return plan.toLogistPlans();
     }
 
     enum Algorithm {NAIVE, SLS}
