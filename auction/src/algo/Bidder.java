@@ -14,7 +14,7 @@ public class Bidder {
     private long bidTimout;
     private double ratioMargin = 0.5;
     private double ratioIncrease = 0.25;
-    private long fixedCost = 1000;
+    private long minBidAdv = -1;
     private boolean lastTookFixedCost = false;
 
     private Planner planner;
@@ -39,9 +39,14 @@ public class Bidder {
         long marginalCost = this.planner.estimateMarginalCost(task, bidTimout);
         long bid = Math.round((1 + ratioMargin) * marginalCost);
         //TODO do more here, come up with brilliant ideas using distribution and topology
-        if (bid < fixedCost) {
+        double usefulness = 0;
+        for (Topology.City city : topology.cities()) {
+            usefulness += distribution.probability(city, task.deliveryCity);
+        }
+        System.out.println(bid +" --- "+minBidAdv);
+        if (bid < minBidAdv) {
             lastTookFixedCost = true;
-            return fixedCost;
+            return minBidAdv - 1;
         }
         lastTookFixedCost = false;
         return bid;
@@ -53,19 +58,18 @@ public class Bidder {
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
-            if (lastTookFixedCost) {
-                fixedCost += fixedCost/2;
-            } else {
+            if (!lastTookFixedCost) {
                 ratioMargin += ratioIncrease;
             }
         } else {
-            if (lastTookFixedCost) {
-                fixedCost /= 2;
-            } else {
+            if (!lastTookFixedCost) {
                 ratioMargin -= 2*ratioIncrease;
             }
         }
-        //TODO we might improve bidder here by learning the other agents ?
+        Long advBid = bids[(agent.id()+1)%2];
+        if (minBidAdv == -1)
+            minBidAdv = advBid;
+        minBidAdv = Math.min(minBidAdv, advBid);
     }
 
 
