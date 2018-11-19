@@ -140,7 +140,7 @@ public class Bidder {
             bidsLostCounter += 1;
         }
 
-        // update minimum bid of adversary
+        // keep trace of adversary bids
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
             Long advBid = bids[advBidIndex];
