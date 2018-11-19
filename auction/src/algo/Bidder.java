@@ -76,9 +76,9 @@ public class Bidder {
         PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
         if (useImportanceStrategy) {
             double importance = taskImpEst.get(task);
-            double newBid = bid * (1 + learningRate * importance);
+            double newBid = bid * (1 + 2 * learningRate * importance);
             PrintHandler.println("bid = bid * (1 + learningRate * importance) = "
-                    + bid + " * ( 1 + " + learningRate + " * " + importance + ") = " + newBid, 1);
+                    + bid + " * ( 1 + " + 2 * learningRate + " * " + importance + ") = " + newBid, 1);
             bid = newBid;
         }
 
