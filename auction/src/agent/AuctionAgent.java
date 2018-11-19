@@ -29,13 +29,14 @@ public class AuctionAgent implements AuctionBehavior {
     @Override
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
 
-        System.out.println("we are agent <" + agent + ">");
+        PrintHandler.setVerbosityLevel(2);
+        PrintHandler.println("we are agent <" + agent + ">", 1);
 
         LogistSettings ls = null;
         try {
             ls = Parsers.parseSettings("config/settings_auction.xml");
         } catch (Exception exc) {
-            System.out.println("There was a problem loading the configuration file.");
+            PrintHandler.println("There was a problem loading the configuration file.");
         }
 
         final long PLAN_TIME_MARGIN = (long) 1e3; // we stop 1 second before just to be sure!
@@ -54,11 +55,14 @@ public class AuctionAgent implements AuctionBehavior {
                 agent.readProperty("weightWeight", Double.class, 1. / 3)
         );
 
-        bidder = new Bidder(agent, bidTimeout, taskImpEst, agent.readProperty("useImportance", Boolean.class, true));
+        bidder = new Bidder(agent, bidTimeout, taskImpEst,
+                agent.readProperty("useImportance", Boolean.class, true),
+                agent.readProperty("useEarlyBid", Boolean.class, true),
+                agent.readProperty("useMinOfAdvBids", Boolean.class, true)
+        );
         bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
         bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
         bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestBids", Integer.class, 5));
-        PrintHandler.setVerbosityLevel(2);
     }
 
     @Override

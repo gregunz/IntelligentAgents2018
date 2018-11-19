@@ -73,12 +73,14 @@ public class TaskImportanceEstimator {
 
     public void setWeights(double posWeight, double probWeight, double weightWeight) {
         double sum = posWeight + probWeight + weightWeight;
-        if (sum > 0.9999 && sum < 1.0001) {
+        if (sum > 0.99 && sum < 1.01) {
             this.posWeight = posWeight;
             this.probWeight = probWeight;
             this.weightWeight = weightWeight;
+            PrintHandler.println("weights of importances updated: position = " + posWeight + ", probability = " +
+                    probWeight + ", weight = " + weightWeight, 1);
         } else {
-            PrintHandler.println("weights ignored, they should sum up to 1!");
+            PrintHandler.println("weights ignored, they should sum up to 1!", 0);
         }
     }
 

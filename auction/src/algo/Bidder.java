@@ -14,8 +14,11 @@ public class Bidder {
     private final long bidTimeout;
 
     private final Planner planner;
-    private final boolean useImportance;
+    private final boolean useImportanceStrategy;
     private final TaskImportanceEstimator taskImpEst;
+
+    private final boolean useEarlyBidStrategy;
+    private final boolean useMinOfAdvBidsStrategy;
 
     private int bidsWonCounter = 0;
     private int bidsLostCounter = 0;
@@ -28,12 +31,18 @@ public class Bidder {
 
     private boolean updateBidRateForNextBid = false;
 
-    public Bidder(Agent agent, long bidTimeout, TaskImportanceEstimator taskImpEst, boolean useImportance) {
+    public Bidder(Agent agent, long bidTimeout, TaskImportanceEstimator taskImpEst,
+                  boolean useImportance, boolean useEarlyBid, boolean useMinOfAdvBids) {
         this.agent = agent;
         this.planner = new Planner(agent.vehicles());
         this.taskImpEst = taskImpEst;
-        this.useImportance = useImportance;
+        this.useImportanceStrategy = useImportance;
         this.bidTimeout = bidTimeout;
+        this.useEarlyBidStrategy = useEarlyBid;
+        this.useMinOfAdvBidsStrategy = useMinOfAdvBids;
+
+        PrintHandler.println("Bidder( useImportance=" + useImportance + ", useEarlyBid=" + useEarlyBid +
+                ", useMinOfAdvBids=" + useMinOfAdvBids + " ) setup", 0);
     }
 
     public Planner getPlanner() {
@@ -59,7 +68,7 @@ public class Bidder {
         double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
         PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
-        if (useImportance) {
+        if (useImportanceStrategy) {
             double importance = taskImpEst.get(task);
             double newBid = bid * (1 + learningRate * importance);
             PrintHandler.println("bid = bid * (1 + learningRate * importance) = "
