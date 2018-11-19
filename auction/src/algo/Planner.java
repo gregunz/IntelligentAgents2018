@@ -8,6 +8,7 @@ import models.AddStrategy;
 import models.CentralizedPlan;
 import models.PlanGenerator;
 import models.SLS;
+import print.PrintHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class Planner {
 
     public void addTask(Task task) {
         if (planIfBetIsWon.isPresent()) {
-            System.out.println("adding the task we had a bet on");
+            PrintHandler.println("adding the task we had a bet on because we won it", 1);
             bestPlan = planIfBetIsWon.get();
             planIfBetIsWon = Optional.empty();
         } else {
