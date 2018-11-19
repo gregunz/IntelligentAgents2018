@@ -24,7 +24,7 @@ public class Planner {
         this.planIfBetIsWon = Optional.empty();
     }
 
-    public long estimateMarginalCost(Task task, long timeLimit) {
+    public double estimateMarginalCost(Task task, long timeLimit) {
         long startTime = System.currentTimeMillis();
 
         double oldCost = this.bestPlan.getCost();
@@ -36,7 +36,7 @@ public class Planner {
         planIfBetIsWon = Optional.of(nextPlan);
 
         //System.out.println("old cost = " + oldCost + " new cost = " + nextPlan.getCost());
-        return (long) (nextPlan.getCost() - oldCost); // marginal actualCost
+        return (nextPlan.getCost() - oldCost); // marginal actualCost
     }
 
     public void addTask(Task task) {

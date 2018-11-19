@@ -13,7 +13,7 @@ public class Bidder {
     private int bidCounter;
     private long bidTimeout;
     private double ratioMargin = 0.5;
-    private double ratioIncrease = 0.25;
+    private double ratioIncrease = 0.1;
     private long minBidAdv = -1;
     private boolean lastTookFixedCost = false;
 
@@ -36,13 +36,17 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        long marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
-        long bid = Math.round((1 + ratioMargin) * marginalCost);
+
         //TODO do more here, come up with brilliant ideas using distribution and topology
+
+        double marginalCost = Math.max(0, this.planner.estimateMarginalCost(task, bidTimeout)); // lower bound marginal cost by 0
+        double bid = (1 + ratioMargin) * marginalCost;
+
         double usefulness = 0;
         for (Topology.City city : topology.cities()) {
             usefulness += distribution.probability(city, task.deliveryCity);
         }
+
         System.out.println(bid +" --- "+minBidAdv);
         if (bid < minBidAdv) {
             lastTookFixedCost = true;
@@ -50,12 +54,12 @@ public class Bidder {
         }
         lastTookFixedCost = false;
 
-        if (bidCounter < 5) {
+        if (bidCounter < 4) { // first 4 will have lower bids
             bid *= (bidCounter + 1.0) / 5.0; // we want first tasks, hence first is 20% of real bid, then 40, 60, 80, and finally 100%
         }
-        bidCounter += 1;
 
-        return bid;
+        bidCounter += 1;
+        return (long) bid;
     }
 
     /**
@@ -64,20 +68,22 @@ public class Bidder {
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
-            if (!lastTookFixedCost) {
-                ratioMargin += ratioIncrease;
+            if (bidCounter >= 4 && !lastTookFixedCost) {
+                ratioMargin *= (1 + ratioIncrease);
             }
         } else {
-            if (!lastTookFixedCost) {
-                ratioMargin -= 2*ratioIncrease;
+            if (bidCounter >= 4 && !lastTookFixedCost) {
+                ratioMargin /= (1 + 2 * ratioIncrease);
             }
         }
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
             Long advBid = bids[advBidIndex];
-            if (minBidAdv == -1)
+            if (minBidAdv == -1) {
                 minBidAdv = advBid;
-            minBidAdv = Math.min(minBidAdv, advBid);
+            } else {
+                minBidAdv = Math.min(minBidAdv, advBid);
+            }
         }
     }
 

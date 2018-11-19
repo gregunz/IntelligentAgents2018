@@ -20,11 +20,12 @@ public class SLS {
     }
 
     public static CentralizedPlan optimize(CentralizedPlan plan, long timeLimit) { // SLS ALGO WHERE CHOOSE_NEIGHBORS AND LOCAL CHOICE ARE INSIDE "nextPlan(rate)"
+        long startTime = System.currentTimeMillis();
+
         CentralizedPlan bestPlan = plan;
         double bestCost = bestPlan.getCost();
         PrintHandler.println("starting optimization with: " + bestCost, 1);
 
-        long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < timeLimit) { // loop on every local minima
 
             int iterWithoutImprove = 0;
