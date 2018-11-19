@@ -50,14 +50,17 @@ public class Bidder {
     }
 
     public void setLearningRate(double learningRate) {
+        PrintHandler.println("SET learningRate = " + learningRate, 1);
         this.learningRate = learningRate;
     }
 
     public void setBidRate(double bidRate) {
+        PrintHandler.println("SET bidRate = " + bidRate, 1);
         this.bidRate = bidRate;
     }
 
     public void setNumOfAdvLatestBids(int numOfAdvLatestBids) {
+        PrintHandler.println("SET numOfAdvLatestBids = " + numOfAdvLatestBids, 1);
         this.numOfAdvLatestBids = numOfAdvLatestBids;
     }
 
@@ -113,17 +116,21 @@ public class Bidder {
 
     private void increaseBidRate() {
         if (updateBidRateForNextBid) {
-            double newBidRate = bidRate * (1 + learningRate);
-            PrintHandler.println("increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
-            bidRate = newBidRate;
+            if (learningRate != 0) {
+                double newBidRate = bidRate * (1 + learningRate);
+                PrintHandler.println("increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+                bidRate = newBidRate;
+            }
         }
     }
 
     private void decreaseBidRate() {
         if (updateBidRateForNextBid) {
-            double newBidRate = bidRate / (1 + 2 * learningRate);
-            PrintHandler.println("decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
-            bidRate = newBidRate;
+            if (learningRate != 0) {
+                double newBidRate = bidRate / (1 + 2 * learningRate);
+                PrintHandler.println("decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+                bidRate = newBidRate;
+            }
         }
     }
 
