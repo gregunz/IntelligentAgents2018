@@ -7,15 +7,15 @@ import logist.topology.Topology;
 
 public class Bidder {
 
-    private Topology topology;
-    private TaskDistribution distribution;
-    private Agent agent;
-    private int bidCounter;
-    private long bidTimeout;
-    private double ratioMargin = 0.5;
-    private double ratioIncrease = 0.1;
+    private final Topology topology;
+    private final TaskDistribution distribution;
+    private final Agent agent;
+    private final long bidTimeout;
+    private final double learningRate = 0.1; // should be in [0, +inf] range
+    private int bidCounter = 0;
+    private double bidRate = 1.0; // will evolve but stays in [0, +inf] range
     private long minBidAdv = -1;
-    private boolean lastTookFixedCost = false;
+    private boolean updateBidRateForNextBid = false;
 
     private Planner planner;
 
@@ -24,7 +24,6 @@ public class Bidder {
         this.distribution = distribution;
         this.agent = agent;
         this.bidTimeout = bidTimeout;
-
         this.planner = new Planner(agent.vehicles());
     }
 
@@ -36,23 +35,20 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-
         //TODO do more here, come up with brilliant ideas using distribution and topology
 
-        double marginalCost = Math.max(0, this.planner.estimateMarginalCost(task, bidTimeout)); // lower bound marginal cost by 0
-        double bid = (1 + ratioMargin) * marginalCost;
-
-        double usefulness = 0;
-        for (Topology.City city : topology.cities()) {
-            usefulness += distribution.probability(city, task.deliveryCity);
-        }
+        double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
+        double bid = bidRate * marginalCost;
 
         System.out.println(bid +" --- "+minBidAdv);
-        if (bid < minBidAdv) {
-            lastTookFixedCost = true;
+
+        // default, we will update (either increase or decrease bidRate)
+        updateBidRateForNextBid = true;
+
+        if (bid < minBidAdv) { // if our marginal cost is negative, we end up here also
+            updateBidRateForNextBid = false;
             return minBidAdv - 1;
         }
-        lastTookFixedCost = false;
 
         if (isEarlyBid()) { // first 5 will have lower bids
             bid *= (bidCounter + 5.0) / 10.0; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
@@ -66,20 +62,30 @@ public class Bidder {
         return bidCounter < 5;
     }
 
+    private void increaseBidRate() {
+        if (updateBidRateForNextBid) {
+            bidRate *= (1 + learningRate);
+        }
+    }
+
+    private void decreaseBidRate() {
+        if (updateBidRateForNextBid) {
+            bidRate /= (1 + 2 * learningRate);
+        }
+    }
+
     /**
      * Improve Bidder by getting information of previous auction results
      */
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
-            if (!isEarlyBid() && !lastTookFixedCost) {
-                ratioMargin *= (1 + ratioIncrease);
-            }
+            increaseBidRate();
         } else {
-            if (!isEarlyBid() && !lastTookFixedCost) {
-                ratioMargin /= (1 + 2 * ratioIncrease);
-            }
+            decreaseBidRate();
         }
+
+        // update minimum bid of adversary
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
             Long advBid = bids[advBidIndex];
