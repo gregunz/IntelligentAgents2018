@@ -9,14 +9,19 @@
         <set class-name="agent.AuctionTemplate"/>
     </agent>
 
-    <agent name="auction-default">
+    <agent name="auction-default"><!-- # WITH ALL DEFAULT VALUES # -->
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
         <set bidRate="1.0"/>
         <set learningRate="0.1"/>
+
+        <set useMinOfAdvBids="true"/><!-- # NOT NECESSARY (because default is true) # -->
+
+        <set useMinOfAdvBids="true"/><!-- # NOT NECESSARY (because default is true) # -->
         <set numLatestBids="5"/>
 
+        <set useImportance="true"/><!-- # NOT NECESSARY (because default is true) # -->
         <set posWeight="0.3333"/>
         <set probWeight="0.3333"/>
         <set weightWeight="0.3333"/>
