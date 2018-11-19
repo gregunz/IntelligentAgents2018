@@ -16,7 +16,7 @@
         <set bidRate="1.0"/>
         <set learningRate="0.1"/>
 
-        <set useMinOfAdvBids="true"/><!-- # NOT NECESSARY (because default is true) # -->
+        <set useEarlyBid="true"/><!-- # NOT NECESSARY (because default is true) # -->
 
         <set useMinOfAdvBids="true"/><!-- # NOT NECESSARY (because default is true) # -->
         <set numLatestBids="5"/>
@@ -27,14 +27,15 @@
         <set weightWeight="0.3333"/>
     </agent>
 
-    <agent name="auction-agent-01">
+    <agent name="auction-simplest">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
         <set bidRate="1.0"/>
-        <set learningRate="0.1"/>
-        <set numLatestBids="5"/>
+        <set learningRate="0.0"/>
 
+        <set useEarlyBid="false"/>
+        <set useMinOfAdvBids="false"/>
         <set useImportance="false"/>
     </agent>
 

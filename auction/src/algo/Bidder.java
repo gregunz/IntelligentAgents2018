@@ -65,6 +65,9 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
+        // default, we will update (either increase or decrease bidRate)
+        updateBidRateForNextBid = true;
+
         double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
         PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
@@ -76,18 +79,17 @@ public class Bidder {
             bid = newBid;
         }
 
-        // default, we will update (either increase or decrease bidRate)
-        updateBidRateForNextBid = true;
-
-        long minBid = minOfAdvLatestBids();
-        if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
-            updateBidRateForNextBid = false;
-            long finalBid = Math.max(1, minBid);
-            PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
-            return finalBid;
+        if (useMinOfAdvBidsStrategy) {
+            long minBid = minOfAdvLatestBids();
+            if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
+                updateBidRateForNextBid = false;
+                long finalBid = Math.max(1, minBid);
+                PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
+                return finalBid;
+            }
         }
 
-        if (isEarlyBid()) { // first 5 bids will have lower bids (until 5 are won)
+        if (useEarlyBidStrategy && isEarlyBid()) { // first 5 bids will have lower bids (until 5 are won)
             double earlyRate = (bidsWonCounter + 5.0) / 10.0;
             PrintHandler.println("early bids have a secondary rate: bid = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
             bid *= earlyRate; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
