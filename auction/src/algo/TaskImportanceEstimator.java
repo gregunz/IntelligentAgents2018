@@ -50,8 +50,11 @@ public class TaskImportanceEstimator {
         // to keep weight normalized (though past weight have wrong values then) // can be improved with an empirical estimation approach
         minWeight = Math.min(task.weight, minWeight);
         maxWeight = Math.max(task.weight, maxWeight);
+        if (maxWeight == minWeight) { // to avoid nan values at start
+            maxWeight += 1;
+        }
         // normalized
-        double weightImportance = (task.weight - minWeight) / (maxWeight - minWeight);
+        double weightImportance = ((maxWeight - task.weight) - minWeight) / (maxWeight - minWeight); // 1 = most important
 
         CityPair cp = new CityPair(task);
 

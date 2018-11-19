@@ -7,10 +7,11 @@ import logist.topology.Topology;
 
 public class Bidder {
 
-    private final Topology topology;
-    private final TaskDistribution distribution;
     private final Agent agent;
     private final long bidTimeout;
+
+    private final Planner planner;
+    private final TaskImportanceEstimator taskImpEst;
 
     private final double learningRate = 0.1; // should be in [0, +inf] range
     private int bidCounter = 0;
@@ -18,14 +19,11 @@ public class Bidder {
     private long minBidAdv = 0;
     private boolean updateBidRateForNextBid = false;
 
-    private Planner planner;
-
     public Bidder(Topology topology, TaskDistribution distribution, Agent agent, long bidTimeout) {
-        this.topology = topology;
-        this.distribution = distribution;
         this.agent = agent;
         this.bidTimeout = bidTimeout;
         this.planner = new Planner(agent.vehicles());
+        this.taskImpEst = new TaskImportanceEstimator(agent, topology, distribution);
     }
 
     public Planner getPlanner() {
