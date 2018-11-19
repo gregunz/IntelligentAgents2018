@@ -54,12 +54,16 @@ public class Bidder {
         }
         lastTookFixedCost = false;
 
-        if (bidCounter < 4) { // first 4 will have lower bids
-            bid *= (bidCounter + 1.0) / 5.0; // we want first tasks, hence first is 20% of real bid, then 40, 60, 80, and finally 100%
+        if (isEarlyBid()) { // first 5 will have lower bids
+            bid *= (bidCounter + 5.0) / 10.0; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
         }
 
         bidCounter += 1;
         return (long) bid;
+    }
+
+    private boolean isEarlyBid() {
+        return bidCounter < 5;
     }
 
     /**
@@ -68,11 +72,11 @@ public class Bidder {
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
-            if (bidCounter >= 4 && !lastTookFixedCost) {
+            if (!isEarlyBid() && !lastTookFixedCost) {
                 ratioMargin *= (1 + ratioIncrease);
             }
         } else {
-            if (bidCounter >= 4 && !lastTookFixedCost) {
+            if (!isEarlyBid() && !lastTookFixedCost) {
                 ratioMargin /= (1 + 2 * ratioIncrease);
             }
         }
