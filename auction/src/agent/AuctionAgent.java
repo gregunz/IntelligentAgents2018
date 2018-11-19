@@ -2,6 +2,7 @@ package agent;
 
 import algo.Bidder;
 import algo.Planner;
+import algo.TaskImportanceEstimator;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
@@ -46,8 +47,17 @@ public class AuctionAgent implements AuctionBehavior {
         long seed = -9019554669489983951L * agent.vehicles().get(0).hashCode() * agent.id();
         RandomHandler.set(seed);
 
-        this.bidder = new Bidder(topology, distribution, agent, bidTimeout);
+        TaskImportanceEstimator taskImpEst = new TaskImportanceEstimator(agent, topology, distribution);
+        taskImpEst.setWeights(
+                agent.readProperty("posWeight", Double.class, 1. / 3),
+                agent.readProperty("probWeight", Double.class, 1. / 3),
+                agent.readProperty("weightWeight", Double.class, 1. / 3)
+        );
 
+        bidder = new Bidder(agent, bidTimeout, taskImpEst, agent.readProperty("useImportance", Boolean.class, true));
+        bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
+        bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
+        bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestBids", Integer.class, 5));
         PrintHandler.setVerbosityLevel(1);
     }
 

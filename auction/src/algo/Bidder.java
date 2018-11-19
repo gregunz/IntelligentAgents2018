@@ -2,8 +2,10 @@ package algo;
 
 import logist.agent.Agent;
 import logist.task.Task;
-import logist.task.TaskDistribution;
-import logist.topology.Topology;
+
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Bidder {
 
@@ -11,42 +13,61 @@ public class Bidder {
     private final long bidTimeout;
 
     private final Planner planner;
+    private final boolean useImportance;
     private final TaskImportanceEstimator taskImpEst;
 
-    private final double learningRate = 0.1; // should be in [0, +inf] range
     private int bidCounter = 0;
+
+    private int numOfAdvLatestBids = 5;
+    private Queue<Long> advLatestBids = new LinkedList<>();
+
+    private double learningRate = 0.1; // should be in [0, +inf] range
     private double bidRate = 1.0; // will evolve but stays in [0, +inf] range
-    private long minBidAdv = 0;
+
     private boolean updateBidRateForNextBid = false;
 
-    public Bidder(Topology topology, TaskDistribution distribution, Agent agent, long bidTimeout) {
+    public Bidder(Agent agent, long bidTimeout, TaskImportanceEstimator taskImpEst, boolean useImportance) {
         this.agent = agent;
-        this.bidTimeout = bidTimeout;
         this.planner = new Planner(agent.vehicles());
-        this.taskImpEst = new TaskImportanceEstimator(agent, topology, distribution);
+        this.taskImpEst = taskImpEst;
+        this.useImportance = useImportance;
+        this.bidTimeout = bidTimeout;
     }
 
     public Planner getPlanner() {
         return planner;
     }
 
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+
+    public void setBidRate(double bidRate) {
+        this.bidRate = bidRate;
+    }
+
+    public void setNumOfAdvLatestBids(int numOfAdvLatestBids) {
+        this.numOfAdvLatestBids = numOfAdvLatestBids;
+    }
+
     /**
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        //TODO do more here, come up with brilliant ideas using distribution and topology
-
         double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
+        if (useImportance) {
+            bid *= taskImpEst.get(task);
+        }
 
-        System.out.println(bid +" --- "+minBidAdv);
+        System.out.println(bid + " --- " + minOfAdvLatestBids());
 
         // default, we will update (either increase or decrease bidRate)
         updateBidRateForNextBid = true;
 
-        if (bid < minBidAdv) { // if our marginal cost is negative, we end up here also
+        if (bid < minOfAdvLatestBids()) { // we never bid too low, if our marginal cost is negative, we end up here also
             updateBidRateForNextBid = false;
-            return minBidAdv - 1;
+            return Math.max(1, minOfAdvLatestBids());
         }
 
         if (isEarlyBid()) { // first 5 will have lower bids
@@ -54,11 +75,18 @@ public class Bidder {
         }
 
         bidCounter += 1;
-        return (long) bid;
+        return (long) Math.max(1, bid);
     }
 
     private boolean isEarlyBid() {
         return bidCounter < 5;
+    }
+
+    private long minOfAdvLatestBids() {
+        if (advLatestBids.isEmpty()) {
+            return 0;
+        }
+        return advLatestBids.stream().min(Comparator.naturalOrder()).get();
     }
 
     private void increaseBidRate() {
@@ -88,11 +116,10 @@ public class Bidder {
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
             Long advBid = bids[advBidIndex];
-            if (minBidAdv == -1) {
-                minBidAdv = advBid;
-            } else {
-                minBidAdv = Math.min(minBidAdv, advBid);
+            if (advLatestBids.size() >= numOfAdvLatestBids) {
+                advLatestBids.poll();
             }
+            advLatestBids.offer(advBid);
         }
     }
 

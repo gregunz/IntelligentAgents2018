@@ -9,9 +9,28 @@
         <set class-name="agent.AuctionTemplate"/>
     </agent>
 
-    <agent name="auction-agent">
+    <agent name="auction-default">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+        <set numLatestBids="5"/>
+
+        <set posWeight="0.3333"/>
+        <set probWeight="0.3333"/>
+        <set weightWeight="0.3333"/>
+    </agent>
+
+    <agent name="auction-agent-01">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+        <set numLatestBids="5"/>
+
+        <set useImportance="false"/>
     </agent>
 
 </agents>
