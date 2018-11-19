@@ -2,6 +2,7 @@ package algo;
 
 import logist.agent.Agent;
 import logist.task.Task;
+import print.PrintHandler;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -16,7 +17,8 @@ public class Bidder {
     private final boolean useImportance;
     private final TaskImportanceEstimator taskImpEst;
 
-    private int bidCounter = 0;
+    private int bidsWonCounter = 0;
+    private int bidsLostCounter = 0;
 
     private int numOfAdvLatestBids = 5;
     private Queue<Long> advLatestBids = new LinkedList<>();
@@ -56,30 +58,39 @@ public class Bidder {
     public Long bid(Task task) {
         double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
+        PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
         if (useImportance) {
-            bid *= taskImpEst.get(task);
+            double importance = taskImpEst.get(task);
+            double newBid = bid * (1 + learningRate * importance);
+            PrintHandler.println("bid = bid * (1 + learningRate * importance) = "
+                    + bid + " * ( 1 + " + learningRate + " * " + importance + ") = " + newBid, 1);
+            bid = newBid;
         }
-
-        System.out.println(bid + " --- " + minOfAdvLatestBids());
 
         // default, we will update (either increase or decrease bidRate)
         updateBidRateForNextBid = true;
 
-        if (bid < minOfAdvLatestBids()) { // we never bid too low, if our marginal cost is negative, we end up here also
+        long minBid = minOfAdvLatestBids();
+        if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
             updateBidRateForNextBid = false;
-            return Math.max(1, minOfAdvLatestBids());
+            long finalBid = Math.max(1, minBid);
+            PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
+            return finalBid;
         }
 
-        if (isEarlyBid()) { // first 5 will have lower bids
-            bid *= (bidCounter + 5.0) / 10.0; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
+        if (isEarlyBid()) { // first 5 bids will have lower bids (until 5 are won)
+            double earlyRate = (bidsWonCounter + 5.0) / 10.0;
+            PrintHandler.println("early bids have a secondary rate: bid = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
+            bid *= earlyRate; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
         }
 
-        bidCounter += 1;
-        return (long) Math.max(1, bid);
+        long finalBid = (long) Math.max(1, bid);
+        PrintHandler.println("returning finalBid = " + finalBid, 0);
+        return finalBid;
     }
 
     private boolean isEarlyBid() {
-        return bidCounter < 5;
+        return bidsWonCounter < 5;
     }
 
     private long minOfAdvLatestBids() {
@@ -91,13 +102,17 @@ public class Bidder {
 
     private void increaseBidRate() {
         if (updateBidRateForNextBid) {
-            bidRate *= (1 + learningRate);
+            double newBidRate = bidRate * (1 + learningRate);
+            PrintHandler.println("increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+            bidRate = newBidRate;
         }
     }
 
     private void decreaseBidRate() {
         if (updateBidRateForNextBid) {
-            bidRate /= (1 + 2 * learningRate);
+            double newBidRate = bidRate / (1 + 2 * learningRate);
+            PrintHandler.println("decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+            bidRate = newBidRate;
         }
     }
 
@@ -108,8 +123,10 @@ public class Bidder {
         if (agent.id() == winner) { // we took the task
             this.planner.addTask(previous);
             increaseBidRate();
+            bidsWonCounter += 1;
         } else {
             decreaseBidRate();
+            bidsLostCounter += 1;
         }
 
         // update minimum bid of adversary

@@ -58,19 +58,19 @@ public class AuctionAgent implements AuctionBehavior {
         bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
         bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
         bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestBids", Integer.class, 5));
-        PrintHandler.setVerbosityLevel(1);
+        PrintHandler.setVerbosityLevel(2);
     }
 
     @Override
     public Long askPrice(Task task) {
         Long bid = this.bidder.bid(task);
-        PrintHandler.println("task = <" + task + ">, bid = <" + bid + ">", 1);
+        PrintHandler.println("task = <" + task + ">, bid = <" + bid + ">", 2);
         return bid;
     }
 
     @Override
     public void auctionResult(Task lastTask, int lastWinner, Long[] lastOffers) {
-        PrintHandler.println("task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">", 1);
+        PrintHandler.println("task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">", 2);
         this.bidder.addInfoOfLastAuction(lastTask, lastWinner, lastOffers);
     }
 

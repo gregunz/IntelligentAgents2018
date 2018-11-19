@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+
 public class Planner {
 
     private CentralizedPlan bestPlan;
@@ -35,7 +36,6 @@ public class Planner {
         nextPlan = SLS.optimize(nextPlan, timeLimit - timeUsedAlready);
         planIfBetIsWon = Optional.of(nextPlan);
 
-        //System.out.println("old cost = " + oldCost + " new cost = " + nextPlan.getCost());
         return (nextPlan.getCost() - oldCost); // marginal actualCost
     }
 

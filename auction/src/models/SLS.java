@@ -24,7 +24,7 @@ public class SLS {
 
         CentralizedPlan bestPlan = plan;
         double bestCost = bestPlan.getCost();
-        PrintHandler.println("starting optimization with: " + bestCost, 1);
+        PrintHandler.println("starting optimization with: " + bestCost, 2);
 
         while (System.currentTimeMillis() - startTime < timeLimit) { // loop on every local minima
 
@@ -32,7 +32,7 @@ public class SLS {
             double bestLocalCost = plan.getCost();
             double exploitationRate = EXPLOITATION_RATE_FROM + RandomHandler.get().nextDouble() * (EXPLOITATION_RATE_TO - EXPLOITATION_RATE_FROM);
 
-            PrintHandler.println("EXPLOITATION_RATE = " + exploitationRate, 2);
+            PrintHandler.println("EXPLOITATION_RATE = " + exploitationRate, 3);
 
             while (iterWithoutImprove < EXPLOITATION_DEEPNESS && System.currentTimeMillis() - startTime < timeLimit) { // loop on improving one local plan
                 plan = nextPlan(plan, exploitationRate);
@@ -45,17 +45,17 @@ public class SLS {
                     if (cost < bestCost) {
                         bestPlan = plan;
                         bestCost = cost;
-                        PrintHandler.println("best plan improved: " + bestCost, 3);
+                        PrintHandler.println("best plan improved: " + bestCost, 4);
                     }
                 } else { // not improving
                     iterWithoutImprove += 1;
                 }
             }
-            PrintHandler.println("best local improvement: " + bestCost, 2);
+            PrintHandler.println("best local improvement: " + bestCost, 3);
             plan = PlanGenerator.generate(plan.getVehicles(), plan.getTasks(), InitStrategy.RANDOM);
         }
 
-        PrintHandler.println("ending optimization with: " + bestCost, 1);
+        PrintHandler.println("ending optimization with: " + bestCost, 2);
         return bestPlan;
     }
 

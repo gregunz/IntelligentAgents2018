@@ -18,7 +18,7 @@ public class PlanGenerator {
 
     public static CentralizedPlan generate(List<Vehicle> vehicles, List<Task> tasks, InitStrategy initStrategy) {
 
-        PrintHandler.println("initialization with " + initStrategy, 2);
+        PrintHandler.println("initialization with " + initStrategy, 3);
         Vehicle largest = vehicles.get(0);
         for (Vehicle v : vehicles) {
             if (v.capacity() > largest.capacity()) {

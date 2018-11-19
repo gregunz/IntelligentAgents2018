@@ -8,6 +8,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 import print.PrintHandler;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,13 +55,16 @@ public class TaskImportanceEstimator {
             maxWeight += 1;
         }
         // normalized
-        double weightImportance = ((maxWeight - task.weight) - minWeight) / (maxWeight - minWeight); // 1 = most important
+        double weightImportance = (maxWeight - task.weight) / (maxWeight - minWeight); // 1 = most important
 
         CityPair cp = new CityPair(task);
 
         if (cp.from.equals(cp.to)) { // could take it and deliver it directly, what's better ?
             return 1 * (posWeight + probWeight) + weightImportance * weightWeight;
         }
+
+        PrintHandler.println("importances: position = " + posImportanceMap.get(cp) + ", probability = " +
+                probImportanceMap.get(cp) + ", weight = " + weightImportance, 2);
 
         return posWeight * posImportanceMap.get(cp) +
                 probWeight * probImportanceMap.get(cp) +
@@ -78,20 +82,38 @@ public class TaskImportanceEstimator {
         }
     }
 
+    private Map<City, Double> initProbOfDeliveryCity() {
+        final Map<City, Double> probOfDeliveryCityMap = new HashMap<>();
+        double probOfPickupCity = 1. / topology.cities().size();
+
+        for (City to : topology.cities()) {
+            double probOfDeliveryCity = 0;
+            for (City from : topology.cities()) {
+                probOfDeliveryCity += probOfPickupCity * this.distribution.probability(from, to);
+            }
+            probOfDeliveryCityMap.put(to, probOfDeliveryCity);
+        }
+        return probOfDeliveryCityMap;
+    }
+
+    private Map<City, Double> initCityToAllCitiesDistance() {
+        Map<City, Double> cityToAllCitiesDistance = new HashMap<>();
+        for (City from : topology.cities()) {
+            double distanceToAllCities = 0;
+            for (City to : topology.cities()) {
+                distanceToAllCities += from.distanceTo(to);
+            }
+            cityToAllCitiesDistance.put(from, distanceToAllCities);
+        }
+        return cityToAllCitiesDistance;
+    }
+
     private void init() {
         List<City> cities = topology.cities();
         if (cities.size() > 0) {
-
-            Map<City, Double> cityToAllCitiesDistance = new HashMap<>();
-            double maxDistance = Double.NEGATIVE_INFINITY;
-            for (City from : cities) {
-                double distanceToAllCities = 0;
-                for (City to : cities) {
-                    distanceToAllCities += from.distanceTo(to);
-                }
-                maxDistance = Math.max(distanceToAllCities, maxDistance);
-                cityToAllCitiesDistance.put(from, distanceToAllCities);
-            }
+            Map<City, Double> cityToAllCitiesDistance = initCityToAllCitiesDistance();
+            Map<City, Double> probOfDeliveryCityMap = initProbOfDeliveryCity();
+            double maxDistance = cityToAllCitiesDistance.values().stream().max(Comparator.naturalOrder()).get();
 
             double minPosImp = Double.POSITIVE_INFINITY;
             double minProbImp = Double.POSITIVE_INFINITY;
@@ -104,7 +126,7 @@ public class TaskImportanceEstimator {
                     CityPair cp = new CityPair(from, to);
                     double bothDistances = cityToAllCitiesDistance.get(from) + cityToAllCitiesDistance.get(to);
                     double positionImportance = maxDistance - bothDistances; // the more centered (less distant to most cities), the more important
-                    double probImportance = 1 - this.distribution.probability(from, to); // the rarer, the more important
+                    double probImportance = probOfDeliveryCityMap.get(to); // the most common delivery city will be given more importance than one we rarely go
 
                     this.posImportanceMap.put(cp, positionImportance);
                     this.probImportanceMap.put(cp, probImportance);
