@@ -147,6 +147,8 @@ public class TaskImportanceEstimator {
                     CityPair cp = new CityPair(from, to);
                     this.posImportanceMap.put(cp, (this.posImportanceMap.get(cp) - minPosImp) / (maxPosImp - minPosImp));
                     this.probImportanceMap.put(cp, (this.probImportanceMap.get(cp) - minProbImp) / (maxProbImp - minProbImp));
+                    this.maxWeight = Math.max(this.maxWeight, this.distribution.weight(from, to));
+                    this.minWeight = Math.min(this.minWeight, this.distribution.weight(from, to));
                 }
             }
         }
