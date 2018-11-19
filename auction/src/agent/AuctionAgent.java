@@ -29,7 +29,7 @@ public class AuctionAgent implements AuctionBehavior {
     @Override
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
 
-        PrintHandler.setVerbosityLevel(2);
+        PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
         PrintHandler.println("we are agent <" + agent + ">", 1);
 
         LogistSettings ls = null;

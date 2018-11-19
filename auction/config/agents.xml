@@ -13,15 +13,17 @@
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
+        <set verbosity="2"/>
+
         <set bidRate="1.0"/>
         <set learningRate="0.1"/>
 
-        <set useEarlyBid="true"/><!-- # NOT NECESSARY (because default is true) # -->
+        <set useEarlyBid="true"/>
 
-        <set useMinOfAdvBids="true"/><!-- # NOT NECESSARY (because default is true) # -->
+        <set useMinOfAdvBids="true"/>
         <set numLatestBids="5"/>
 
-        <set useImportance="true"/><!-- # NOT NECESSARY (because default is true) # -->
+        <set useImportance="true"/>
         <set posWeight="0.3333"/>
         <set probWeight="0.3333"/>
         <set weightWeight="0.3333"/>
