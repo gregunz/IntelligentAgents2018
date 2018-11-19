@@ -1,6 +1,5 @@
 package algo;
 
-import logist.Measures;
 import logist.agent.Agent;
 import logist.task.Task;
 import logist.task.TaskDistribution;
@@ -11,7 +10,8 @@ public class Bidder {
     private Topology topology;
     private TaskDistribution distribution;
     private Agent agent;
-    private long bidTimout;
+    private int bidCounter;
+    private long bidTimeout;
     private double ratioMargin = 0.5;
     private double ratioIncrease = 0.25;
     private long minBidAdv = -1;
@@ -23,7 +23,7 @@ public class Bidder {
         this.topology = topology;
         this.distribution = distribution;
         this.agent = agent;
-        this.bidTimout = bidTimeout;
+        this.bidTimeout = bidTimeout;
 
         this.planner = new Planner(agent.vehicles());
     }
@@ -36,7 +36,7 @@ public class Bidder {
      * Make a bid for the given task
      */
     public Long bid(Task task) {
-        long marginalCost = this.planner.estimateMarginalCost(task, bidTimout);
+        long marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         long bid = Math.round((1 + ratioMargin) * marginalCost);
         //TODO do more here, come up with brilliant ideas using distribution and topology
         double usefulness = 0;
@@ -49,6 +49,12 @@ public class Bidder {
             return minBidAdv - 1;
         }
         lastTookFixedCost = false;
+
+        if (bidCounter < 5) {
+            bid *= (bidCounter + 1.0) / 5.0; // we want first tasks, hence first is 20% of real bid, then 40, 60, 80, and finally 100%
+        }
+        bidCounter += 1;
+
         return bid;
     }
 
@@ -66,10 +72,13 @@ public class Bidder {
                 ratioMargin -= 2*ratioIncrease;
             }
         }
-        Long advBid = bids[(agent.id()+1)%2];
-        if (minBidAdv == -1)
-            minBidAdv = advBid;
-        minBidAdv = Math.min(minBidAdv, advBid);
+        if (bids.length > 1) {
+            int advBidIndex = (agent.id() + 1) % 2;
+            Long advBid = bids[advBidIndex];
+            if (minBidAdv == -1)
+                minBidAdv = advBid;
+            minBidAdv = Math.min(minBidAdv, advBid);
+        }
     }
 
 
