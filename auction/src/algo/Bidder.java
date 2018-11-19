@@ -11,10 +11,11 @@ public class Bidder {
     private final TaskDistribution distribution;
     private final Agent agent;
     private final long bidTimeout;
+
     private final double learningRate = 0.1; // should be in [0, +inf] range
     private int bidCounter = 0;
     private double bidRate = 1.0; // will evolve but stays in [0, +inf] range
-    private long minBidAdv = -1;
+    private long minBidAdv = 0;
     private boolean updateBidRateForNextBid = false;
 
     private Planner planner;
