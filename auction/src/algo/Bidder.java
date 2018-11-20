@@ -178,7 +178,7 @@ public class Bidder {
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
             Long advBid = bids[advBidIndex];
-            if (advLatestBids.size() >= numOfAdvLatestBids) {
+            if (advLatestBids.size() >= 2 * numOfAdvLatestBids) {
                 advLatestBids.poll();
             }
             advLatestBids.offer(advBid);
