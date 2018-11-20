@@ -19,6 +19,7 @@
         <set learningRate="0.1"/>
 
         <set useEarlyBid="true"/>
+        <set useMarginalCostsDif="true"/>
 
         <set useMinOfAdvBids="true"/>
         <set numLatestBids="5"/>
@@ -39,6 +40,7 @@
         <set useEarlyBid="false"/>
         <set useMinOfAdvBids="false"/>
         <set useImportance="false"/>
+        <set useMarginalCostsDif="false"/>
     </agent>
 
 </agents>

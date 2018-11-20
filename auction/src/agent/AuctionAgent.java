@@ -58,7 +58,8 @@ public class AuctionAgent implements AuctionBehavior {
         bidder = new Bidder(agent, bidTimeout, taskImpEst,
                 agent.readProperty("useImportance", Boolean.class, true),
                 agent.readProperty("useEarlyBid", Boolean.class, true),
-                agent.readProperty("useMinOfAdvBids", Boolean.class, true)
+                agent.readProperty("useMinOfAdvBids", Boolean.class, true),
+                agent.readProperty("useMarginalCostsDif", Boolean.class, true)
         );
         bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
         bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
@@ -81,7 +82,7 @@ public class AuctionAgent implements AuctionBehavior {
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         //TODO: question? do we really need vehicles and tasks as we set the vehicles at first AND added the task when we won in the bidder ?
-        Planner planner = this.bidder.getPlanner();
+        Planner planner = this.bidder.getOurPlanner();
         return planner.findBestPlan(planTimeout).toLogistPlans(tasks);
     }
 }

@@ -4,21 +4,23 @@ import logist.agent.Agent;
 import logist.task.Task;
 import print.PrintHandler;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Bidder {
 
     private final Agent agent;
     private final long bidTimeout;
 
-    private final Planner planner;
+    private final Planner ourPlanner;
+    private final Planner advPlanner;
     private final boolean useImportanceStrategy;
     private final TaskImportanceEstimator taskImpEst;
 
     private final boolean useEarlyBidStrategy;
     private final boolean useMinOfAdvBidsStrategy;
+
+    private final List<Double> marginalCostsDif;
+    private final boolean useMarginalCostsDifStrategy;
 
     private int bidsWonCounter = 0;
     private int bidsLostCounter = 0;
@@ -32,21 +34,26 @@ public class Bidder {
     private boolean updateBidRateForNextBid = false;
 
     public Bidder(Agent agent, long bidTimeout, TaskImportanceEstimator taskImpEst,
-                  boolean useImportance, boolean useEarlyBid, boolean useMinOfAdvBids) {
+                  boolean useImportance, boolean useEarlyBid, boolean useMinOfAdvBids, boolean useMarginalCostsDif) {
         this.agent = agent;
-        this.planner = new Planner(agent.vehicles());
+        this.ourPlanner = new Planner(agent.vehicles());
+        this.advPlanner = new Planner(agent.vehicles());
+        this.marginalCostsDif = new ArrayList<>();
+        this.marginalCostsDif.add(100d); // in order to have values for max and min when computing dif
+        this.marginalCostsDif.add(-100d);
         this.taskImpEst = taskImpEst;
         this.useImportanceStrategy = useImportance;
         this.bidTimeout = bidTimeout;
         this.useEarlyBidStrategy = useEarlyBid;
         this.useMinOfAdvBidsStrategy = useMinOfAdvBids;
+        this.useMarginalCostsDifStrategy = useMarginalCostsDif;
 
         PrintHandler.println("Bidder( useImportance=" + useImportance + ", useEarlyBid=" + useEarlyBid +
-                ", useMinOfAdvBids=" + useMinOfAdvBids + " ) setup", 0);
+                ", useMinOfAdvBids=" + useMinOfAdvBids + ", useMarginalCostsDif=" + useMarginalCostsDif + " ) setup", 0);
     }
 
-    public Planner getPlanner() {
-        return planner;
+    public Planner getOurPlanner() {
+        return ourPlanner;
     }
 
     public void setLearningRate(double learningRate) {
@@ -83,6 +90,15 @@ public class Bidder {
             bid = newBid;
         }
 
+        if (useMarginalCostsDifStrategy) {
+            double advMarginalCost = this.advPlanner.estimateMarginalCost(task, 500);
+            double marginalDifNorm = marginCostDifNormalized(marginalCost, advMarginalCost); // this is between -1 and +1
+            double newBid = bid * (1 + 2 * learningRate * marginalDifNorm);
+            PrintHandler.println("bid = bid * (1 + 2 * learningRate * marginalDifNorm) = "
+                    + bid + " * ( 1 + " + 2 * learningRate + " * " + marginalDifNorm + ") = " + newBid, 1);
+            bid = newBid;
+        }
+
         if (useMinOfAdvBidsStrategy) {
             long minBid = minOfAdvLatestBids() - 2; // minus 2 if adv has same strategy
             if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
@@ -95,7 +111,7 @@ public class Bidder {
 
         if (useEarlyBidStrategy && isEarlyBid()) { // first 5 bids will have lower bids (until 5 are won)
             double earlyRate = (bidsWonCounter + 5.0) / 10.0;
-            PrintHandler.println("early bids have a secondary rate: bid = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
+            PrintHandler.println("early bids have a secondary discount rate: bid = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
             bid *= earlyRate; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
         }
 
@@ -135,15 +151,24 @@ public class Bidder {
         }
     }
 
+    private double marginCostDifNormalized(double ourCost, double advCost) {
+        double dif = advCost - ourCost;
+        marginalCostsDif.add(dif);
+        double maxDif = marginalCostsDif.stream().max(Comparator.naturalOrder()).get();
+        double minDif = marginalCostsDif.stream().min(Comparator.naturalOrder()).get();
+        return 2 * ((dif - minDif) / (maxDif - minDif)) - 1;
+    }
+
     /**
      * Improve Bidder by getting information of previous auction results
      */
     public void addInfoOfLastAuction(Task previous, int winner, Long[] bids) {
         if (agent.id() == winner) { // we took the task
-            this.planner.addTask(previous);
+            ourPlanner.addTask(previous);
             increaseBidRate();
             bidsWonCounter += 1;
         } else {
+            advPlanner.addTask(previous);
             decreaseBidRate();
             bidsLostCounter += 1;
         }
