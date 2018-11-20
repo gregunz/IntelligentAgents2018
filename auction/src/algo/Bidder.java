@@ -71,7 +71,7 @@ public class Bidder {
         // default, we will update (either increase or decrease bidRate)
         updateBidRateForNextBid = true;
 
-        double marginalCost = this.ourPlanner.estimateMarginalCost(task, bidTimeout);
+        double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
         PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
 
@@ -87,6 +87,7 @@ public class Bidder {
             long minBid = minOfAdvLatestBids() - 2; // minus 2 if adv has same strategy
             if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
                 updateBidRateForNextBid = false;
+                advLatestBids.offer(minBid);
                 long finalBid = Math.max(1, minBid);
                 PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
                 return finalBid;
