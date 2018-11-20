@@ -22,7 +22,8 @@
         <set useMarginalCostsDif="true"/>
 
         <set useMinOfAdvBids="true"/>
-        <set numLatestBids="5"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
 
         <set useImportance="true"/>
         <set posWeight="0.3333"/>

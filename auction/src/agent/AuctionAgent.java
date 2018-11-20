@@ -63,7 +63,8 @@ public class AuctionAgent implements AuctionBehavior {
         );
         bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
         bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
-        bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestBids", Integer.class, 5));
+        bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestAdvBids", Integer.class, 5));
+        bidder.setNumOfOurLatestBids(agent.readProperty("numLatestOurBids", Integer.class, 5));
     }
 
     @Override

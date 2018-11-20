@@ -4,7 +4,9 @@ import logist.agent.Agent;
 import logist.task.Task;
 import print.PrintHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Bidder {
 
@@ -26,7 +28,10 @@ public class Bidder {
     private int bidsLostCounter = 0;
 
     private int numOfAdvLatestBids = 5;
-    private Queue<Long> advLatestBids = new LinkedList<>();
+    private int numOfOurLatestBids = 5;
+
+    private List<Long> advBids = new ArrayList<>();
+    private List<Long> ourBids = new ArrayList<>();
 
     private double learningRate = 0.1; // should be in [0, +inf] range
     private double bidRate = 1.0; // will evolve but stays in [0, +inf] range
@@ -71,6 +76,11 @@ public class Bidder {
         this.numOfAdvLatestBids = numOfAdvLatestBids;
     }
 
+    public void setNumOfOurLatestBids(int numOfOurLatestBids) {
+        PrintHandler.println("SET numOfOurLatestBids = " + numOfOurLatestBids, 1);
+        this.numOfOurLatestBids = numOfOurLatestBids;
+    }
+
     /**
      * Make a bid for the given task
      */
@@ -100,10 +110,9 @@ public class Bidder {
         }
 
         if (useMinOfAdvBidsStrategy) {
-            long minBid = minOfAdvLatestBids() - 2; // minus 2 if adv has same strategy
+            long minBid = minOfLatestBids() - 2; // minus 2 if adv has same strategy
             if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
                 updateBidRateForNextBid = false;
-                advLatestBids.offer(minBid);
                 long finalBid = Math.max(1, minBid);
                 PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
                 return finalBid;
@@ -125,11 +134,18 @@ public class Bidder {
         return bidsWonCounter < 5;
     }
 
-    private long minOfAdvLatestBids() {
-        if (advLatestBids.isEmpty()) {
+    private long minOfLatestBids() {
+        if (advBids.isEmpty() && ourBids.isEmpty()) {
             return 0;
         }
-        return advLatestBids.stream().min(Comparator.naturalOrder()).get();
+        long min = Long.MAX_VALUE;
+        for (int i = 0; i < Math.min(advBids.size(), numOfAdvLatestBids); i++) {
+            min = Math.min(min, advBids.get(advBids.size() - 1 - i));
+        }
+        for (int i = 0; i < Math.min(ourBids.size(), numOfOurLatestBids); i++) {
+            min = Math.min(min, ourBids.get(ourBids.size() - 1 - i));
+        }
+        return min;
     }
 
     private void increaseBidRate() {
@@ -176,14 +192,11 @@ public class Bidder {
             bidsLostCounter += 1;
         }
 
+        ourBids.add(bids[agent.id()]);
         // keep trace of adversary bids
         if (bids.length > 1) {
             int advBidIndex = (agent.id() + 1) % 2;
-            Long advBid = bids[advBidIndex];
-            if (advLatestBids.size() >= 2 * numOfAdvLatestBids) {
-                advLatestBids.poll();
-            }
-            advLatestBids.offer(advBid);
+            advBids.add(bids[advBidIndex]);
         }
     }
 
