@@ -78,7 +78,7 @@ public class Bidder {
         // default, we will update (either increase or decrease bidRate)
         updateBidRateForNextBid = true;
 
-        double marginalCost = this.planner.estimateMarginalCost(task, bidTimeout);
+        double marginalCost = this.ourPlanner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
         PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
 
