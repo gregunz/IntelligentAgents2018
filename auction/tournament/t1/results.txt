@@ -1,0 +1,21 @@
+### auction.xml ###
+      Agents       | Win - Draw - Lose  |   auctionNoEarly   |    agentToBeat    
+  auctionNoEarly   |     2 - 0 - 0      |         -          | WIN (7303 : -1161)
+   agentToBeat     |     0 - 0 - 2      | LOSE (94 : 10362)  |         -         
+
+First company results
+  # wins   : 1
+  # draws  : 0
+  # losses : 1
+
+
+### auction2.xml ###
+      Agents        |  Win - Draw - Lose  |     agentToBeat     |   auctionNoEarly   
+    agentToBeat     |      2 - 0 - 0      |          -          |  WIN (-258 : -551) 
+  auctionNoEarly    |      0 - 0 - 2      | LOSE (-2011 : -534) |          -         
+
+First company results
+  # wins   : 1
+  # draws  : 0
+  # losses : 1
+
