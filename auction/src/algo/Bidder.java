@@ -169,7 +169,9 @@ public class Bidder {
             increaseBidRate();
             bidsWonCounter += 1;
         } else {
-            advPlanner.addTask(previous);
+            if (useMarginalCostsDifStrategy) {
+                advPlanner.addTask(previous);
+            }
             decreaseBidRate();
             bidsLostCounter += 1;
         }
