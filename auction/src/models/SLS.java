@@ -107,7 +107,7 @@ public class SLS {
 
     private static CentralizedPlan localChoice(CentralizedPlan plan, List<CentralizedPlan> neighbors, double exploitationRate) {
         if (neighbors.isEmpty()) {
-            System.out.println("NO NEIGHBORS");
+            PrintHandler.println("NO NEIGHBORS", 4);
             return plan;
         }
 
