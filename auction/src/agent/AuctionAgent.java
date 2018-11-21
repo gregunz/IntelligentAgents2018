@@ -30,7 +30,7 @@ public class AuctionAgent implements AuctionBehavior {
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
 
         PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
-        PrintHandler.println("[START] we are agent <" + agent + ">", 1);
+        PrintHandler.println("[START] we are agent <" + agent.id() + ">", 1);
 
         BidderParameters parameters = new BidderParameters(agent);
 
@@ -65,6 +65,8 @@ public class AuctionAgent implements AuctionBehavior {
 
         bidder = new Bidder(
                 agent,
+                topology,
+                distribution,
                 bidTimeout,
                 taskImpEst,
                 agent.readProperty("bidRate", Double.class, 1.0),

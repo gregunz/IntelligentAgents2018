@@ -10,6 +10,7 @@ public class BidderParameters {
     public final boolean useEarlyBidStrategy;
     public final double earlyRate;
     public final int numEarlyBids;
+    public final int maxDiscount;
     public final boolean useImportanceStrategy;
     public final double importanceLR;
     public final long timeForAdvPlanner;
@@ -36,6 +37,8 @@ public class BidderParameters {
                 agent.readProperty("earlyRate", Double.class, 0.5);
         numEarlyBids =
                 agent.readProperty("numEarlyBids", Integer.class, 5);
+        maxDiscount =
+                agent.readProperty("maxDiscount", Integer.class, 300);
         useImportanceStrategy =
                 agent.readProperty("useImportanceStrategy", Boolean.class, true);
         importanceLR =

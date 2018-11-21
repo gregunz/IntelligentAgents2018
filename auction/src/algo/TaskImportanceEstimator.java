@@ -60,13 +60,13 @@ public class TaskImportanceEstimator {
             return 0;
         }
 
-        double weightImportance = 2. * (maxWeight - task.weight) / (maxWeight - minWeight) - 1;
         minWeight = Math.min(task.weight, minWeight);
         maxWeight = Math.max(task.weight, maxWeight);
         if (maxWeight == minWeight) { // to avoid nan values at start
-            maxWeight += 1;
-            minWeight -= 1;
+            maxWeight++;
+            minWeight--;
         }
+        double weightImportance = 2. * (maxWeight - task.weight) / (maxWeight - minWeight) - 1;
         double marginalImportance = marginCostDifNormalized(marginalDif);
 
         CityPair cp = new CityPair(task);

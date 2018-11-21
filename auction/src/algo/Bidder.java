@@ -2,7 +2,10 @@ package algo;
 
 import logist.agent.Agent;
 import logist.task.Task;
+import logist.task.TaskDistribution;
+import logist.topology.Topology;
 import print.PrintHandler;
+import random.RandomHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,8 @@ public class Bidder {
 
     private final Planner ourPlanner;
     private final Planner advPlanner;
+    private final Topology topology;
+    private final TaskDistribution distribution;
     private final TaskImportanceEstimator taskImpEst;
 
     private final BidderParameters p;
@@ -25,13 +30,14 @@ public class Bidder {
     private List<Long> advBids = new ArrayList<>();
     private List<Long> ourBids = new ArrayList<>();
 
-
     private boolean updateBidRateForNextBid = false;
 
-    public Bidder(Agent agent, long bidTimeout, TaskImportanceEstimator taskImpEst, double bidRate, BidderParameters p) {
+    public Bidder(Agent agent, Topology topology, TaskDistribution distribution, long bidTimeout, TaskImportanceEstimator taskImpEst, double bidRate, BidderParameters p) {
         this.agent = agent;
         this.ourPlanner = new Planner(agent.vehicles());
         this.advPlanner = new Planner(agent.vehicles());
+        this.topology = topology;
+        this.distribution = distribution;
         this.taskImpEst = taskImpEst;
         this.bidTimeout = bidTimeout;
         this.bidRate = bidRate;
@@ -57,7 +63,8 @@ public class Bidder {
         if (p.useEarlyBidStrategy && isEarlyBid()) {
             double earlyRate = p.earlyRate + ((double) bidsWonCounter / p.numEarlyBids) * (1 - p.earlyRate);
             PrintHandler.println("[BID] = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
-            bid *= earlyRate;
+            double newBid = bid * earlyRate;
+            bid = Math.max(newBid, bid - p.maxDiscount);
         }
 
         if (p.useImportanceStrategy) {
@@ -76,7 +83,7 @@ public class Bidder {
             long minBid = minOfLatestBids() - p.difWithLatestBids;
             if (bid < minBid) {
                 updateBidRateForNextBid = false;
-                long finalBid = Math.max(p.smallestBid, minBid);
+                long finalBid = Math.max(p.smallestBid, minBid) - RandomHandler.get().nextInt(10);
                 PrintHandler.println("[BID] < " + minBid + ", returning finalBid = " + finalBid, 0);
                 return finalBid;
             }
