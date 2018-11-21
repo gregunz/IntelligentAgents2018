@@ -14,13 +14,13 @@ public class TaskImportanceEstimator {
 
     private final Topology topology;
     private final TaskDistribution distribution;
-    private final Map<CityPair, Double> posImportanceMap; // values are between 0 and 1 (one being the more useful)
-    private final Map<CityPair, Double> probImportanceMap; // values are between 0 and 1 (one being the more useful)
+    private final Map<CityPair, Double> posImportanceMap; // values are between -1 and 1
+    private final Map<CityPair, Double> probImportanceMap; // values are between -1 and 1
     private final List<Double> marginalCostsDif;
     private final double maxCap;
 
-    private double minWeight = Double.POSITIVE_INFINITY;
-    private double maxWeight = Double.NEGATIVE_INFINITY;
+    private int minWeight = Integer.MAX_VALUE;
+    private int maxWeight = Integer.MIN_VALUE;
 
     private final double posWeight;
     private final double probWeight;
@@ -60,24 +60,24 @@ public class TaskImportanceEstimator {
             return 0;
         }
 
-        // to keep weight normalized (though past weight have wrong values then) // can be improved with an empirical estimation approach
+        double weightImportance = 2. * (maxWeight - task.weight) / (maxWeight - minWeight) - 1;
         minWeight = Math.min(task.weight, minWeight);
         maxWeight = Math.max(task.weight, maxWeight);
         if (maxWeight == minWeight) { // to avoid nan values at start
             maxWeight += 1;
+            minWeight -= 1;
         }
-        // normalized
-        double weightImportance = (maxWeight - task.weight) / (maxWeight - minWeight); // 1 = most important
+        double marginalImportance = marginCostDifNormalized(marginalDif);
 
         CityPair cp = new CityPair(task);
 
         PrintHandler.println("[GET] importances: position = " + posImportanceMap.get(cp) + ", probability = " +
-                probImportanceMap.get(cp) + ", weight = " + weightImportance, 2);
+                probImportanceMap.get(cp) + ", weight = " + weightImportance + ", marginalImportance = " + marginalImportance, 2);
 
         return posWeight * posImportanceMap.get(cp) +
                 probWeight * probImportanceMap.get(cp) +
                 weightWeight * weightImportance +
-                marginalWeight * marginCostDifNormalized(marginalDif);
+                marginalWeight * marginalImportance;
     }
 
     public boolean mustComputeMarginalDif() {
@@ -86,8 +86,10 @@ public class TaskImportanceEstimator {
 
     private double marginCostDifNormalized(double dif) {
         marginalCostsDif.add(dif);
-        double maxDif = marginalCostsDif.stream().max(Comparator.naturalOrder()).get();
-        double minDif = marginalCostsDif.stream().min(Comparator.naturalOrder()).get();
+        double maxDif = Math.max(0, marginalCostsDif.stream().max(Comparator.naturalOrder()).get());
+        double minDif = Math.min(0, marginalCostsDif.stream().min(Comparator.naturalOrder()).get());
+        maxDif = Math.max(maxDif, -minDif);
+        minDif = Math.min(minDif, -maxDif);
         return 2 * ((dif - minDif) / (maxDif - minDif)) - 1;
     }
 
@@ -152,10 +154,10 @@ public class TaskImportanceEstimator {
             for (City from : cities) {
                 for (City to : cities) {
                     CityPair cp = new CityPair(from, to);
-                    this.posImportanceMap.put(cp, (this.posImportanceMap.get(cp) - minPosImp) / (maxPosImp - minPosImp));
-                    this.probImportanceMap.put(cp, (this.probImportanceMap.get(cp) - minProbImp) / (maxProbImp - minProbImp));
-                    this.maxWeight = Math.max(this.maxWeight, this.distribution.weight(from, to));
-                    this.minWeight = Math.min(this.minWeight, this.distribution.weight(from, to));
+                    this.posImportanceMap.put(cp, 2 * (this.posImportanceMap.get(cp) - minPosImp) / (maxPosImp - minPosImp) - 1);
+                    this.probImportanceMap.put(cp, 2 * (this.probImportanceMap.get(cp) - minProbImp) / (maxProbImp - minProbImp) - 1);
+                    //this.maxWeight = Math.max(this.maxWeight, this.distribution.weight(from, to));
+                    //this.minWeight = Math.min(this.minWeight, this.distribution.weight(from, to));
                 }
             }
         }

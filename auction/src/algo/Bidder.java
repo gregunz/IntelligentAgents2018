@@ -63,12 +63,12 @@ public class Bidder {
         if (p.useImportanceStrategy) {
             double marginalDif = 0;
             if (taskImpEst.mustComputeMarginalDif()) {
-                marginalDif = this.advPlanner.estimateMarginalCost(task, p.timeForAdvPlanner) - marginalCost;
+                marginalDif = marginalCost - this.advPlanner.estimateMarginalCost(task, p.timeForAdvPlanner);
             }
             double importance = taskImpEst.get(task, marginalDif);
-            double newBid = bid / (1 + p.importanceLR * importance);
-            PrintHandler.println("[BID] = bid / (1 + importanceLR * importance) = "
-                    + bid + " / ( 1 + " + p.importanceLR + " * " + importance + ") = " + newBid, 1);
+            double newBid = bid * (1 + p.importanceLR * importance);
+            PrintHandler.println("[BID] = bid * (1 + importanceLR * importance) = "
+                    + bid + " * ( 1 + " + p.importanceLR + " * " + importance + ") = " + newBid, 1);
             bid = newBid;
         }
 

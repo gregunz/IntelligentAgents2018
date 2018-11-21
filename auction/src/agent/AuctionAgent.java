@@ -32,7 +32,6 @@ public class AuctionAgent implements AuctionBehavior {
         PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
         PrintHandler.println("[START] we are agent <" + agent + ">", 1);
 
-
         BidderParameters parameters = new BidderParameters(agent);
 
         LogistSettings ls = null;
