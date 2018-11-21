@@ -33,36 +33,6 @@
         <set difWithLatestBids="2"/>
 
     </agent>
-    <agent name="test">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="4"/>
-
-        <set bidRate="-1"/>
-        <set inLearningRate="-1"/>
-        <set deLearningRate="-1"/>
-
-        <set smallestBid="-1"/>
-
-        <set useEarlyBidStrategy="false"/>
-        <set earlyRate="-1"/>
-        <set numEarlyBids="-1"/>
-
-        <set useImportanceStrategy="false"/>
-        <set importanceLR="-1"/>
-        <set timeForAdvPlanner="-1"/>
-        <set posWeight="-1"/>
-        <set probWeight="-1"/>
-        <set weightWeight="-1"/>
-        <set marginalWeight="-1"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-        <set numOfAdvLatestBids="-1"/>
-        <set numOfOurLatestBids="-1"/>
-        <set difWithLatestBids="-1"/>
-
-    </agent>
 
     <agent name="simplest">
         <set class-path="bin/"/>
