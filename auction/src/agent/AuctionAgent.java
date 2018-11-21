@@ -30,13 +30,13 @@ public class AuctionAgent implements AuctionBehavior {
     public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
 
         PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
-        PrintHandler.println("we are agent <" + agent + ">", 1);
+        PrintHandler.println("[START] we are agent <" + agent + ">", 1);
 
         LogistSettings ls = null;
         try {
             ls = Parsers.parseSettings("config/settings_auction.xml");
         } catch (Exception exc) {
-            PrintHandler.println("There was a problem loading the configuration file.");
+            PrintHandler.println("[FAIL] There was a problem loading the configuration file.");
         }
 
         final long PLAN_TIME_MARGIN = (long) 1e3; // we stop 1 second before just to be sure!
@@ -70,19 +70,18 @@ public class AuctionAgent implements AuctionBehavior {
     @Override
     public Long askPrice(Task task) {
         Long bid = this.bidder.bid(task);
-        PrintHandler.println("task = <" + task + ">, bid = <" + bid + ">", 2);
+        PrintHandler.println("[AGT] bid = <" + bid + ">, task = <" + task + ">", 2);
         return bid;
     }
 
     @Override
     public void auctionResult(Task lastTask, int lastWinner, Long[] lastOffers) {
-        PrintHandler.println("task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">", 2);
+        PrintHandler.println("[AGT] task was = <" + lastTask + ">, winner was = <" + lastWinner + ">, offers were <" + Arrays.toString(lastOffers) + ">", 2);
         this.bidder.addInfoOfLastAuction(lastTask, lastWinner, lastOffers);
     }
 
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        //TODO: question? do we really need vehicles and tasks as we set the vehicles at first AND added the task when we won in the bidder ?
         Planner planner = this.bidder.getOurPlanner();
         return planner.findBestPlan(planTimeout).toLogistPlans(tasks);
     }

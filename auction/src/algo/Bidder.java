@@ -53,7 +53,7 @@ public class Bidder {
         this.useMinOfAdvBidsStrategy = useMinOfAdvBids;
         this.useMarginalCostsDifStrategy = useMarginalCostsDif;
 
-        PrintHandler.println("Bidder( useImportance=" + useImportance + ", useEarlyBid=" + useEarlyBid +
+        PrintHandler.println("[INI] Bidder( useImportance=" + useImportance + ", useEarlyBid=" + useEarlyBid +
                 ", useMinOfAdvBids=" + useMinOfAdvBids + ", useMarginalCostsDif=" + useMarginalCostsDif + " ) setup", 0);
     }
 
@@ -62,22 +62,22 @@ public class Bidder {
     }
 
     public void setLearningRate(double learningRate) {
-        PrintHandler.println("SET learningRate = " + learningRate, 1);
+        PrintHandler.println("[SET] learningRate = " + learningRate, 1);
         this.learningRate = learningRate;
     }
 
     public void setBidRate(double bidRate) {
-        PrintHandler.println("SET bidRate = " + bidRate, 1);
+        PrintHandler.println("[SET] bidRate = " + bidRate, 1);
         this.bidRate = bidRate;
     }
 
     public void setNumOfAdvLatestBids(int numOfAdvLatestBids) {
-        PrintHandler.println("SET numOfAdvLatestBids = " + numOfAdvLatestBids, 1);
+        PrintHandler.println("[SET] numOfAdvLatestBids = " + numOfAdvLatestBids, 1);
         this.numOfAdvLatestBids = numOfAdvLatestBids;
     }
 
     public void setNumOfOurLatestBids(int numOfOurLatestBids) {
-        PrintHandler.println("SET numOfOurLatestBids = " + numOfOurLatestBids, 1);
+        PrintHandler.println("[SET] numOfOurLatestBids = " + numOfOurLatestBids, 1);
         this.numOfOurLatestBids = numOfOurLatestBids;
     }
 
@@ -90,12 +90,12 @@ public class Bidder {
 
         double marginalCost = this.ourPlanner.estimateMarginalCost(task, bidTimeout);
         double bid = bidRate * marginalCost;
-        PrintHandler.println("bid = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
+        PrintHandler.println("[BID] = bidRate * marginalCost = " + bidRate + " * " + marginalCost + " = " + bid, 1);
 
         if (useImportanceStrategy) {
             double importance = taskImpEst.get(task);
             double newBid = bid / (1 + 2 * learningRate * importance);
-            PrintHandler.println("bid = bid / (1 + 2 * learningRate * importance) = "
+            PrintHandler.println("[BID] = bid / (1 + 2 * learningRate * importance) = "
                     + bid + " / ( 1 + " + 2 * learningRate + " * " + importance + ") = " + newBid, 1);
             bid = newBid;
         }
@@ -104,7 +104,7 @@ public class Bidder {
             double advMarginalCost = this.advPlanner.estimateMarginalCost(task, 500);
             double marginalDifNorm = marginCostDifNormalized(marginalCost, advMarginalCost); // this is between -1 and +1
             double newBid = bid * (1 + 2 * learningRate * marginalDifNorm);
-            PrintHandler.println("bid = bid * (1 + 2 * learningRate * marginalDifNorm) = "
+            PrintHandler.println("[BID] = bid * (1 + 2 * learningRate * marginalDifNorm) = "
                     + bid + " * ( 1 + " + 2 * learningRate + " * " + marginalDifNorm + ") = " + newBid, 1);
             bid = newBid;
         }
@@ -114,19 +114,19 @@ public class Bidder {
             if (bid < minBid) { // we never bid too low, if our marginal cost is negative, we end up here also
                 updateBidRateForNextBid = false;
                 long finalBid = Math.max(1, minBid);
-                PrintHandler.println("bid is smaller than " + minBid + ", returning finalBid = " + finalBid, 0);
+                PrintHandler.println("[BID] < " + minBid + ", returning finalBid = " + finalBid, 0);
                 return finalBid;
             }
         }
 
         if (useEarlyBidStrategy && isEarlyBid()) { // first 5 bids will have lower bids (until 5 are won)
             double earlyRate = (bidsWonCounter + 5.0) / 10.0;
-            PrintHandler.println("early bids have a secondary discount rate: bid = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
+            PrintHandler.println("[BID] = earlyRate * bid = " + bid + " * " + earlyRate + " = " + (bid * earlyRate), 1);
             bid *= earlyRate; // we want first tasks, hence first is 50% of real bid, then 60, 70, 80, 90, and finally 100% for the remaining
         }
 
         long finalBid = (long) Math.max(1, bid);
-        PrintHandler.println("returning finalBid = " + finalBid, 0);
+        PrintHandler.println("[BID] returning finalBid = " + finalBid, 0);
         return finalBid;
     }
 
@@ -152,7 +152,7 @@ public class Bidder {
         if (updateBidRateForNextBid) {
             if (learningRate != 0) {
                 double newBidRate = bidRate * (1 + learningRate);
-                PrintHandler.println("increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+                PrintHandler.println("[UPT] increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
                 bidRate = newBidRate;
             }
         }
@@ -162,7 +162,7 @@ public class Bidder {
         if (updateBidRateForNextBid) {
             if (learningRate != 0) {
                 double newBidRate = bidRate / (1 + 2 * learningRate);
-                PrintHandler.println("decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
+                PrintHandler.println("[UPT] decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
                 bidRate = newBidRate;
             }
         }

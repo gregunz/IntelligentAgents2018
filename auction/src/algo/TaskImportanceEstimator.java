@@ -63,7 +63,7 @@ public class TaskImportanceEstimator {
             return 1 * (posWeight + probWeight) + weightImportance * weightWeight;
         }
 
-        PrintHandler.println("importances: position = " + posImportanceMap.get(cp) + ", probability = " +
+        PrintHandler.println("[GET] importances: position = " + posImportanceMap.get(cp) + ", probability = " +
                 probImportanceMap.get(cp) + ", weight = " + weightImportance, 2);
 
         return posWeight * posImportanceMap.get(cp) +
@@ -77,10 +77,10 @@ public class TaskImportanceEstimator {
             this.posWeight = posWeight;
             this.probWeight = probWeight;
             this.weightWeight = weightWeight;
-            PrintHandler.println("weights of importances updated: position = " + posWeight + ", probability = " +
+            PrintHandler.println("[SET] weights of importances updated: position = " + posWeight + ", probability = " +
                     probWeight + ", weight = " + weightWeight, 1);
         } else {
-            PrintHandler.println("weights ignored, they should sum up to 1!", 0);
+            PrintHandler.println("[FAIL] weights ignored, they should sum up to 1!", 0);
         }
     }
 
