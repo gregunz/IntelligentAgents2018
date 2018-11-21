@@ -3,13 +3,7 @@
 <agents>
     <!-- A list of agents and their behavior classes -->
 
-    <!-- #### AUCTION AGENTS ### -->
-    <agent name="auction-random">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionTemplate"/>
-    </agent>
-
-    <agent name="auction-default"><!-- # WITH ALL DEFAULT VALUES # -->
+    <agent name="auctionDefault">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
@@ -18,8 +12,7 @@
         <set bidRate="1.0"/>
         <set learningRate="0.1"/>
 
-        <set useEarlyBid="true"/>
-        <set useMarginalCostsDif="true"/>
+        <set useEarlyBid="false"/>
 
         <set useMinOfAdvBids="true"/>
         <set numLatestAdvBids="5"/>
@@ -29,19 +22,110 @@
         <set posWeight="0.3333"/>
         <set probWeight="0.3333"/>
         <set weightWeight="0.3333"/>
+        <set useMarginalCostsDif="false"/>
     </agent>
-
-    <agent name="auction-simplest">
+    <agent name="importancePosProb">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
+        <set verbosity="2"/>
+
         <set bidRate="1.0"/>
-        <set learningRate="0.0"/>
+        <set learningRate="0.1"/>
 
         <set useEarlyBid="false"/>
+
+        <set useMinOfAdvBids="true"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
+
+        <set useImportance="true"/>
+        <set posWeight="0.5"/>
+        <set probWeight="0.5"/>
+        <set weightWeight="0.0"/>
+        <set useMarginalCostsDif="false"/>
+    </agent>
+    <agent name="noImportance">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="2"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+
+        <set useEarlyBid="false"/>
+
+        <set useMinOfAdvBids="true"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
+
+        <set useImportance="false"/>
+        <set posWeight="0.3333"/>
+        <set probWeight="0.3333"/>
+        <set weightWeight="0.3333"/>
+        <set useMarginalCostsDif="false"/>
+    </agent>
+    <agent name="noImportanceNoMinBid">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="2"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+
+        <set useEarlyBid="false"/>
+
         <set useMinOfAdvBids="false"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
+
         <set useImportance="false"/>
         <set useMarginalCostsDif="false"/>
+    </agent>
+    <agent name="noImportanceMarginalCost">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="2"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+
+        <set useEarlyBid="false"/>
+
+        <set useMinOfAdvBids="true"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
+
+        <set useImportance="false"/>
+        <set useMarginalCostsDif="true"/>
+    </agent>
+    <agent name="earlyBid">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="2"/>
+
+        <set bidRate="1.0"/>
+        <set learningRate="0.1"/>
+
+        <set useEarlyBid="true"/>
+
+        <set useMinOfAdvBids="true"/>
+        <set numLatestAdvBids="5"/>
+        <set numLatestOurBids="5"/>
+
+        <set useImportance="true"/>
+        <set posWeight="0.3333"/>
+        <set probWeight="0.3333"/>
+        <set weightWeight="0.3333"/>
+        <set useMarginalCostsDif="false"/>
+    </agent>
+    <agent name="agentToBeat">
+        <set class-path="agents/auction.jar"/>
+        <set class-name="AuctionAgent.AgentTeamWL"/>
     </agent>
 
 </agents>
