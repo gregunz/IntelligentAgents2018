@@ -26,9 +26,9 @@ public class BidderParameters {
 
     public BidderParameters(Agent agent) {
         inLearningRate =
-                agent.readProperty("inLearningRate", Double.class, 0.05);
+                agent.readProperty("inLearningRate", Double.class, 0.1);
         deLearningRate =
-                agent.readProperty("deLearningRate", Double.class, 0.1);
+                agent.readProperty("deLearningRate", Double.class, 0.15);
         smallestBid =
                 agent.readProperty("smallestBid", Integer.class, 1);
         useEarlyBidStrategy =

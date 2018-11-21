@@ -42,8 +42,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -65,8 +65,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -91,8 +91,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -117,8 +117,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -143,8 +143,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -169,8 +169,8 @@
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
+        <set inLearningRate="0.1"/>
+        <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
 
@@ -236,7 +236,7 @@
 
         <set bidRate="1.0"/>
         <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
+        <set deLearningRate="0.2"/>
 
         <set smallestBid="1"/>
 
