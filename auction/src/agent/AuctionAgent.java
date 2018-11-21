@@ -1,6 +1,7 @@
 package agent;
 
 import algo.Bidder;
+import algo.BidderParameters;
 import algo.Planner;
 import algo.TaskImportanceEstimator;
 import logist.LogistSettings;
@@ -21,7 +22,6 @@ import java.util.List;
 
 public class AuctionAgent implements AuctionBehavior {
 
-    //private long timeout_setup;
     private long planTimeout;
 
     private Bidder bidder;
@@ -32,6 +32,9 @@ public class AuctionAgent implements AuctionBehavior {
         PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
         PrintHandler.println("[START] we are agent <" + agent + ">", 1);
 
+
+        BidderParameters parameters = new BidderParameters(agent);
+
         LogistSettings ls = null;
         try {
             ls = Parsers.parseSettings("config/settings_auction.xml");
@@ -39,32 +42,35 @@ public class AuctionAgent implements AuctionBehavior {
             PrintHandler.println("[FAIL] There was a problem loading the configuration file.");
         }
 
-        final long PLAN_TIME_MARGIN = (long) 1e3; // we stop 1 second before just to be sure!
+        TaskImportanceEstimator taskImpEst = new TaskImportanceEstimator(
+                agent,
+                topology,
+                distribution,
+                parameters.posWeight,
+                parameters.probWeight,
+                parameters.weightWeight,
+                parameters.marginalWeight
+        );
 
-        //timeoutSetup = ls.get(LogistSettings.TimeoutKey.SETUP) - PLAN_TIME_MARGIN;
+        final long PLAN_TIME_MARGIN = (long) 0.5e3; // we stop half a second before just to be sure!
+
+        long timeForAdvPlanner = 0;
+        if (parameters.useImportanceStrategy && taskImpEst.mustComputeMarginalDif()) {
+            timeForAdvPlanner = parameters.timeForAdvPlanner;
+        }
+        long bidTimeout = ls.get(LogistSettings.TimeoutKey.BID) - PLAN_TIME_MARGIN - timeForAdvPlanner;
         planTimeout = ls.get(LogistSettings.TimeoutKey.PLAN) - PLAN_TIME_MARGIN;
-        long bidTimeout = ls.get(LogistSettings.TimeoutKey.BID) - PLAN_TIME_MARGIN;
 
         long seed = -9019554669489983951L * agent.vehicles().get(0).hashCode() * agent.id();
         RandomHandler.set(seed);
 
-        TaskImportanceEstimator taskImpEst = new TaskImportanceEstimator(agent, topology, distribution);
-        taskImpEst.setWeights(
-                agent.readProperty("posWeight", Double.class, 1. / 3),
-                agent.readProperty("probWeight", Double.class, 1. / 3),
-                agent.readProperty("weightWeight", Double.class, 1. / 3)
+        bidder = new Bidder(
+                agent,
+                bidTimeout,
+                taskImpEst,
+                agent.readProperty("bidRate", Double.class, 1.0),
+                parameters
         );
-
-        bidder = new Bidder(agent, bidTimeout, taskImpEst,
-                agent.readProperty("useImportance", Boolean.class, true),
-                agent.readProperty("useEarlyBid", Boolean.class, true),
-                agent.readProperty("useMinOfAdvBids", Boolean.class, true),
-                agent.readProperty("useMarginalCostsDif", Boolean.class, true)
-        );
-        bidder.setBidRate(agent.readProperty("bidRate", Double.class, 1.));
-        bidder.setLearningRate(agent.readProperty("learningRate", Double.class, 0.1));
-        bidder.setNumOfAdvLatestBids(agent.readProperty("numLatestAdvBids", Integer.class, 5));
-        bidder.setNumOfOurLatestBids(agent.readProperty("numLatestOurBids", Integer.class, 5));
     }
 
     @Override

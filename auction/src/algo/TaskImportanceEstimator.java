@@ -8,10 +8,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 import print.PrintHandler;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TaskImportanceEstimator {
 
@@ -19,20 +16,26 @@ public class TaskImportanceEstimator {
     private final TaskDistribution distribution;
     private final Map<CityPair, Double> posImportanceMap; // values are between 0 and 1 (one being the more useful)
     private final Map<CityPair, Double> probImportanceMap; // values are between 0 and 1 (one being the more useful)
+    private final List<Double> marginalCostsDif;
     private final double maxCap;
 
     private double minWeight = Double.POSITIVE_INFINITY;
     private double maxWeight = Double.NEGATIVE_INFINITY;
 
-    private double posWeight = 1. / 3.;
-    private double probWeight = 1. / 3.;
-    private double weightWeight = 1. / 3.;
+    private final double posWeight;
+    private final double probWeight;
+    private final double weightWeight;
+    private final double marginalWeight;
 
-    public TaskImportanceEstimator(Agent agent, Topology topology, TaskDistribution distribution) {
+    public TaskImportanceEstimator(Agent agent, Topology topology, TaskDistribution distribution, double posWeight,
+                                   double probWeight, double weightWeight, double marginalWeight) {
         this.topology = topology;
         this.distribution = distribution;
         this.posImportanceMap = new HashMap<>();
         this.probImportanceMap = new HashMap<>();
+        this.marginalCostsDif = new ArrayList<>();
+        this.marginalCostsDif.add(100d); // in order to have values for max and min when computing dif
+        this.marginalCostsDif.add(-100d);
         double maxCap = 0;
         for (Vehicle v : agent.vehicles()) {
             if (v.capacity() > maxCap) {
@@ -40,10 +43,19 @@ public class TaskImportanceEstimator {
             }
         }
         this.maxCap = maxCap;
+
+        double dif = Math.abs(posWeight + probWeight + weightWeight + marginalWeight - 1);
+        if (dif > 0.01) {
+            throw new IllegalArgumentException("weights must sum to 1");
+        }
+        this.posWeight = posWeight;
+        this.probWeight = probWeight;
+        this.weightWeight = weightWeight;
+        this.marginalWeight = marginalWeight;
         init();
     }
 
-    public double get(Task task) {
+    public double get(Task task, double marginalDif) {
         if (task.weight > maxCap) { // impossible to deliver
             return 0;
         }
@@ -59,29 +71,24 @@ public class TaskImportanceEstimator {
 
         CityPair cp = new CityPair(task);
 
-        if (cp.from.equals(cp.to)) { // could take it and deliver it directly, what's better ?
-            return 1 * (posWeight + probWeight) + weightImportance * weightWeight;
-        }
-
         PrintHandler.println("[GET] importances: position = " + posImportanceMap.get(cp) + ", probability = " +
                 probImportanceMap.get(cp) + ", weight = " + weightImportance, 2);
 
         return posWeight * posImportanceMap.get(cp) +
                 probWeight * probImportanceMap.get(cp) +
-                weightWeight * weightImportance;
+                weightWeight * weightImportance +
+                marginalWeight * marginCostDifNormalized(marginalDif);
     }
 
-    public void setWeights(double posWeight, double probWeight, double weightWeight) {
-        double sum = posWeight + probWeight + weightWeight;
-        if (sum > 0.99 && sum < 1.01) {
-            this.posWeight = posWeight;
-            this.probWeight = probWeight;
-            this.weightWeight = weightWeight;
-            PrintHandler.println("[SET] weights of importances updated: position = " + posWeight + ", probability = " +
-                    probWeight + ", weight = " + weightWeight, 1);
-        } else {
-            PrintHandler.println("[FAIL] weights ignored, they should sum up to 1!", 0);
-        }
+    public boolean mustComputeMarginalDif() {
+        return marginalWeight > 0.01;
+    }
+
+    private double marginCostDifNormalized(double dif) {
+        marginalCostsDif.add(dif);
+        double maxDif = marginalCostsDif.stream().max(Comparator.naturalOrder()).get();
+        double minDif = marginalCostsDif.stream().min(Comparator.naturalOrder()).get();
+        return 2 * ((dif - minDif) / (maxDif - minDif)) - 1;
     }
 
     private Map<City, Double> initProbOfDeliveryCity() {
