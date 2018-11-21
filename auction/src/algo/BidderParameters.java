@@ -44,7 +44,7 @@ public class BidderParameters {
         importanceLR =
                 agent.readProperty("importanceLR", Double.class, 0.2);
         timeForAdvPlanner =
-                agent.readProperty("timeForAdvPlanner", Integer.class, 300);
+                agent.readProperty("timeForAdvPlanner", Integer.class, 500);
         final double numOfWeights = 4;
         posWeight =
                 agent.readProperty("posWeight", Double.class, 1. / numOfWeights);

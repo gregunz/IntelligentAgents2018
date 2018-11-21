@@ -22,7 +22,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.2"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="0.25"/>
         <set probWeight="0.25"/>
         <set weightWeight="0.25"/>
@@ -74,7 +74,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="1.0"/>
         <set probWeight="0.0"/>
         <set weightWeight="0.0"/>
@@ -100,7 +100,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="0.0"/>
         <set probWeight="1.0"/>
         <set weightWeight="0.0"/>
@@ -126,7 +126,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="0.0"/>
         <set probWeight="0.0"/>
         <set weightWeight="1.0"/>
@@ -152,7 +152,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="0.0"/>
         <set probWeight="0.0"/>
         <set weightWeight="0.0"/>
@@ -247,7 +247,7 @@
 
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="300"/>
+        <set timeForAdvPlanner="500"/>
         <set posWeight="0.45"/>
         <set probWeight="0.25"/>
         <set weightWeight="0.1"/>

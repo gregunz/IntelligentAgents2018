@@ -58,7 +58,7 @@ public class AuctionAgent implements AuctionBehavior {
             timeForAdvPlanner = parameters.timeForAdvPlanner;
         }
         long bidTimeout = ls.get(LogistSettings.TimeoutKey.BID) - PLAN_TIME_MARGIN - timeForAdvPlanner;
-        planTimeout = ls.get(LogistSettings.TimeoutKey.PLAN) - PLAN_TIME_MARGIN;
+        planTimeout = ls.get(LogistSettings.TimeoutKey.PLAN) - 2 * PLAN_TIME_MARGIN;
 
         long seed = -9019554669489983951L * agent.vehicles().get(0).hashCode() * agent.id();
         RandomHandler.set(seed);
