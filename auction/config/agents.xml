@@ -7,7 +7,7 @@
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
-        <set verbosity="2"/>
+        <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
         <set inLearningRate="0.05"/>
@@ -26,6 +26,155 @@
         <set probWeight="0.25"/>
         <set weightWeight="0.25"/>
         <set marginalWeight="0.25"/>
+
+        <set useMinOfAdvBidsStrategy="true"/>
+        <set numOfAdvLatestBids="5"/>
+        <set numOfOurLatestBids="5"/>
+        <set difWithLatestBids="2"/>
+
+    </agent>
+
+    <agent name="earlyStrat">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="true"/>
+        <set earlyRate="0.5"/>
+        <set numEarlyBids="5"/>
+
+        <set useImportanceStrategy="false"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+
+    </agent>
+
+    <agent name="posImp">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="false"/>
+
+        <set useImportanceStrategy="true"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="1000"/>
+        <set posWeight="1.0"/>
+        <set probWeight="0.0"/>
+        <set weightWeight="0.0"/>
+        <set marginalWeight="0.0"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+
+    </agent>
+
+    <agent name="probImp">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="false"/>
+
+        <set useImportanceStrategy="true"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="1000"/>
+        <set posWeight="0.0"/>
+        <set probWeight="1.0"/>
+        <set weightWeight="0.0"/>
+        <set marginalWeight="0.0"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+
+    </agent>
+
+    <agent name="weightImp">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="false"/>
+
+        <set useImportanceStrategy="true"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="1000"/>
+        <set posWeight="0.0"/>
+        <set probWeight="0.0"/>
+        <set weightWeight="1.0"/>
+        <set marginalWeight="0.0"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+
+    </agent>
+
+    <agent name="marginalImp">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="false"/>
+
+        <set useImportanceStrategy="true"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="1000"/>
+        <set posWeight="0.0"/>
+        <set probWeight="0.0"/>
+        <set weightWeight="0.0"/>
+        <set marginalWeight="1.0"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+
+    </agent>
+
+    <agent name="minOfAdvStart">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set inLearningRate="0.05"/>
+        <set deLearningRate="0.1"/>
+
+        <set smallestBid="1"/>
+
+        <set useEarlyBidStrategy="false"/>
+
+        <set useImportanceStrategy="false"/>
 
         <set useMinOfAdvBidsStrategy="true"/>
         <set numOfAdvLatestBids="5"/>
