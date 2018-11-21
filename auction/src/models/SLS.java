@@ -56,7 +56,7 @@ public class SLS {
                 }
             }
             PrintHandler.println("best local improvement: " + bestLocalCost, 3);
-            if (Math.abs(bestLocalCost - latestBestLocalCost) < 0.01) { // to avoid to much astar which are sometimes easily stuck
+            if (Math.abs(bestLocalCost - latestBestLocalCost) < 0.01) { // to avoid too much astar which are sometimes easily stuck
                 rateOfAstarInit -= 0.2;
             }
             latestBestLocalCost = bestLocalCost;
@@ -111,7 +111,6 @@ public class SLS {
             return plan;
         }
 
-        // with probability p we take the best neighbor, otherwise TAKE ONE AT RANDOM
         double minCost = Double.MAX_VALUE;
         List<CentralizedPlan> choices = new ArrayList<>();
 
