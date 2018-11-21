@@ -11,10 +11,11 @@ import java.util.Map;
 
 public class SLS {
     // these are the hyper parameters, they could be not static and different version of SLS could be tested at the same time
-    private static final int NUM_NEIGHBORS = 10;
-    private static final int EXPLOITATION_DEEPNESS = 100 * 1000 / NUM_NEIGHBORS;
+    private static final int NUM_NEIGHBORS = 1;
+    private static final int EXPLOITATION_DEEPNESS = 200 * 1000 / NUM_NEIGHBORS;
     private static final double EXPLOITATION_RATE_FROM = 0.0;
     private static final double EXPLOITATION_RATE_TO = 1.0;
+    private static final double RATE_OF_ASTAR_INIT = 1.0;
 
     private SLS() {
     }
@@ -24,6 +25,9 @@ public class SLS {
 
         CentralizedPlan bestPlan = plan;
         double bestCost = bestPlan.getCost();
+        double latestBestLocalCost = 0;
+        double rateOfAstarInit = RATE_OF_ASTAR_INIT;
+
         PrintHandler.println("starting optimization with: " + bestCost, 2);
 
         while (System.currentTimeMillis() - startTime < timeLimit) { // loop on every local minima
@@ -51,8 +55,18 @@ public class SLS {
                     iterWithoutImprove += 1;
                 }
             }
-            PrintHandler.println("best local improvement: " + bestCost, 3);
-            plan = PlanGenerator.generate(plan.getVehicles(), plan.getTasks(), InitStrategy.RANDOM);
+            PrintHandler.println("best local improvement: " + bestLocalCost, 3);
+            if (Math.abs(bestLocalCost - latestBestLocalCost) < 0.01) { // to avoid to much astar which are sometimes easily stuck
+                rateOfAstarInit -= 0.2;
+            }
+            latestBestLocalCost = bestLocalCost;
+            InitStrategy nextInit = RandomHandler.get().nextDouble() < rateOfAstarInit ? InitStrategy.ASTAR : InitStrategy.RANDOM;
+            if (nextInit == InitStrategy.ASTAR) {
+                rateOfAstarInit -= 0.1;
+            } else {
+                rateOfAstarInit += 0.1;
+            }
+            plan = PlanGenerator.generate(plan.getVehicles(), plan.getTasks(), nextInit);
         }
 
         PrintHandler.println("ending optimization with: " + bestCost, 2);
@@ -71,17 +85,20 @@ public class SLS {
         int maxNumTask = 0;
         for (VehiclePlan p : plans.values()) {
             if (p.getLength() > maxNumTask) {
-                maxNumTask = p.getLength();
+                int numActions = p.getLength();
+                if (numActions % 2 != 0) {
+                    PrintHandler.println("[FAIL] Num of actions should be pair (tasks * 2)");
+                }
+                maxNumTask = numActions / 2;
             }
         }
-
         for (int i = 0; i < NUM_NEIGHBORS; i++) {
             if (maxNumTask >= 1) {
                 neighbours.addAll(passTasksAround(plan, getRandomVehicle(plan, 1)));
             }
-            if (maxNumTask >= 3) {
-                neighbours.addAll(moveTasksInTime(plan, getRandomVehicle(plan, 3)));
-                neighbours.addAll(swapTasks(plan, getRandomVehicle(plan, 3)));
+            if (maxNumTask >= 2) {
+                neighbours.addAll(moveTasksInTime(plan, getRandomVehicle(plan, 2)));
+                neighbours.addAll(swapTasks(plan, getRandomVehicle(plan, 2)));
             }
         }
 
@@ -132,10 +149,10 @@ public class SLS {
         List<Vehicle> vehicles = plan.getVehicles();
 
         Vehicle v = vehicles.get(RandomHandler.get().nextInt(vehicles.size()));
-        int length = plans.get(v).getLength();
-        while (length < minNumTasks || length > maxNumTasks) {
+        int numTasks = plans.get(v).getLength() / 2;
+        while (numTasks < minNumTasks || numTasks > maxNumTasks) {
             v = vehicles.get(RandomHandler.get().nextInt(vehicles.size()));
-            length = plans.get(v).getLength();
+            numTasks = plans.get(v).getLength() / 2;
         }
         return v;
     }
@@ -147,16 +164,13 @@ public class SLS {
             for (Vehicle other : plan.getVehicles()) {
                 if (v != other) {
                     VehiclePlan vPlan = plan.getPlans().get(v).copy();
-                    Task task = vPlan.takeOutFirstTask();
+                    Task task = vPlan.takeOutOneTask();
                     VehiclePlan otherPlan = plan.getPlans().get(other).copy();
-
-                    if (otherPlan.addLoadAction(task)) {
-                        otherPlan.addDropAction(task);
-                        CentralizedPlan newPlan = plan
-                                .modifyVehiclePlan(v, vPlan)
-                                .modifyVehiclePlan(other, otherPlan);
-                        neighboursPlan.add(newPlan);
-                    }
+                    otherPlan.addTaskRandomly(task);
+                    CentralizedPlan newPlan = plan
+                            .modifyVehiclePlan(v, vPlan)
+                            .modifyVehiclePlan(other, otherPlan);
+                    neighboursPlan.add(newPlan);
                 }
             }
         }
@@ -167,19 +181,10 @@ public class SLS {
     private static List<CentralizedPlan> swapTasks(CentralizedPlan plan, Vehicle v) {
         List<CentralizedPlan> neighboursPlan = new ArrayList<>();
         Map<Vehicle, VehiclePlan> plans = plan.getPlans();
-
-        int numTasks = plans.get(v).getLength();
-        int t1 = RandomHandler.get().nextInt(numTasks);
-        int t2 = RandomHandler.get().nextInt(numTasks);
-        while (t1 == t2)
-            t2 = RandomHandler.get().nextInt(numTasks);
-
         VehiclePlan vPlan = plan.getPlans().get(v).copy();
-
-        if (vPlan.swapActions(t1, t2)) {
-            CentralizedPlan newPlan = plan.modifyVehiclePlan(v, vPlan);
-            neighboursPlan.add(newPlan);
-        }
+        vPlan.swapTwoTasks();
+        CentralizedPlan newPlan = plan.modifyVehiclePlan(v, vPlan);
+        neighboursPlan.add(newPlan);
         return neighboursPlan;
     }
 

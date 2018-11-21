@@ -16,8 +16,8 @@ public class CentralizedPlan {
     private final double cost;
 
     public CentralizedPlan(List<Vehicle> vehicles, Map<Vehicle, VehiclePlan> plans, List<Task> tasks) {
-        this.vehicles = vehicles;
-        this.tasks = tasks;
+        this.vehicles = new ArrayList<>(vehicles);
+        this.tasks = new ArrayList<>(tasks);
         this.plans = plans;
 
         double cost = 0;
@@ -65,7 +65,7 @@ public class CentralizedPlan {
         vehicles.forEach(v -> {
             newPlans.put(v, this.plans.get(v).copy());
         });
-        return new CentralizedPlan(new ArrayList<>(this.vehicles), newPlans, new ArrayList<>(this.tasks));
+        return new CentralizedPlan(this.vehicles, newPlans, this.tasks);
     }
 
     public CentralizedPlan modifyVehiclePlan(Vehicle v, VehiclePlan vPlan) {

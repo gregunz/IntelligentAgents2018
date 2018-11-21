@@ -58,7 +58,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         this.distribution = distribution;
         this.agent = agent;
 
-        PrintHandler.setVerbosityLevel(3);
+        PrintHandler.setVerbosityLevel(4);
     }
 
     @Override

@@ -25,7 +25,6 @@ public class BasicAction {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(task, event);
     }
 }

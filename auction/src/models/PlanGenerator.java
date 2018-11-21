@@ -58,10 +58,6 @@ public class PlanGenerator {
             default:
                 throw new UnsupportedOperationException();
         }
-
-        if (!initialPlan.isValid()) {
-            System.out.println("The initial plan is NOT valid");
-        }
         // create plan for each vehicles
         Map<Vehicle, VehiclePlan> plans = new HashMap<>();
         for (Vehicle v : vehicles) {
