@@ -13,7 +13,7 @@
     <agents import="config/agents.xml"/>
 
     <!-- define task distribution -->
-    <tasks number="20" rngSeed="123456">
+    <tasks number="30" rngSeed="-5897376051029796530">
         <!--
             the probabilities, rewards and weight of tasks
         -->
@@ -30,18 +30,18 @@
             <!-- the first vehicle (blue) -->
             <vehicle name="Vehicle 1">
                 <set color="#0000ff"/>
-                <set home="Newcastle"/>
-                <set speed="90"/>
-                <set capacity="30"/>
+                <set home="Amsterdam"/>
+                <set speed="60"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
 
             <!-- the second vehicle (red) -->
             <vehicle name="Vehicle 2">
                 <set color="#ff0000"/>
-                <set home="London"/>
+                <set home="Eindhoven"/>
                 <set speed="90"/>
-                <set capacity="30"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
         </company>
@@ -50,18 +50,18 @@
             <!-- the third vehicle (green) -->
             <vehicle name="Vehicle 3">
                 <set color="#00ff00"/>
-                <set home="Plymouth"/>
+                <set home="Den Haag"/>
                 <set speed="90"/>
-                <set capacity="30"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
 
             <!-- the fourth vehicle (yellow) -->
             <vehicle name="Vehicle 4">
                 <set color="#ffff00"/>
-                <set home="Norwich"/>
+                <set home="Apeldoorn"/>
                 <set speed="90"/>
-                <set capacity="30"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
         </company>
@@ -70,18 +70,18 @@
             <!-- the fifth vehicle (magenta) -->
             <vehicle name="Vehicle 5">
                 <set color="#ff00ff"/>
-                <set home="Manchester"/>
+                <set home="Utrecht"/>
                 <set speed="90"/>
-                <set capacity="30"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
 
             <!-- the sixth vehicle (cyan) -->
             <vehicle name="Vehicle 6">
                 <set color="#00ffff"/>
-                <set home="Liverpool"/>
+                <set home="Groningen"/>
                 <set speed="90"/>
-                <set capacity="30"/>
+                <set capacity="80"/>
                 <set cost-per-km="5"/>
             </vehicle>
         </company>
