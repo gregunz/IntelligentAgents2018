@@ -85,13 +85,26 @@ public class Bidder {
                 updateBidRateForNextBid = false;
                 long finalBid = Math.max(p.smallestBid, minBid - RandomHandler.get().nextInt(10));
                 PrintHandler.println("[BID] bid < " + minBid + ", returning finalBid = " + finalBid, 0);
-                return finalBid;
+                return applyCostUpperBound(task, finalBid, 1);
             }
         }
 
         long finalBid = (long) Math.max(p.smallestBid, bid);
         PrintHandler.println("[BID] returning finalBid = " + finalBid, 0);
-        return finalBid;
+        return applyCostUpperBound(task, finalBid, 2);
+    }
+
+    private long costOfTask(Task task) {
+        return (long) (task.pickupCity.distanceTo(task.deliveryCity) * agent.vehicles().get(0).costPerKm());
+    }
+
+    private long applyCostUpperBound(Task task, long bid, int useIf) {
+        if (p.useCostUpperBound >= useIf) {
+            bid = Math.min(bid, costOfTask(task));
+            updateBidRateForNextBid = false;
+            PrintHandler.println("[BID] applying cost upper-bound = " + bid, 0);
+        }
+        return bid;
     }
 
     private boolean isEarlyBid() {
@@ -125,7 +138,7 @@ public class Bidder {
     private void decreaseBidRate() {
         if (updateBidRateForNextBid) {
             if (p.deLearningRate != 0) {
-                double newBidRate = bidRate * (1 - p.deLearningRate);
+                double newBidRate = Math.max(bidRate * (1 - p.deLearningRate), p.minBidRate);
                 PrintHandler.println("[UPT] decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
                 bidRate = newBidRate;
             }

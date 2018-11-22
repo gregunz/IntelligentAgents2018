@@ -4,9 +4,11 @@ import logist.agent.Agent;
 import print.PrintHandler;
 
 public class BidderParameters {
+    public final double minBidRate;
     public final double inLearningRate; // should be in [0, +inf] range
     public final double deLearningRate; // should be in [0, +inf] range
     public final long smallestBid;
+    public final int useCostUpperBound;
     public final boolean useEarlyBidStrategy;
     public final double earlyRate;
     public final int numEarlyBids;
@@ -25,12 +27,16 @@ public class BidderParameters {
 
 
     public BidderParameters(Agent agent) {
+        minBidRate =
+                agent.readProperty("inLearningRate", Double.class, 0.0);
         inLearningRate =
                 agent.readProperty("inLearningRate", Double.class, 0.1);
         deLearningRate =
                 agent.readProperty("deLearningRate", Double.class, 0.15);
         smallestBid =
                 agent.readProperty("smallestBid", Integer.class, 1);
+        useCostUpperBound =
+                agent.readProperty("smallestBid", Integer.class, 0);
         useEarlyBidStrategy =
                 agent.readProperty("useEarlyBidStrategy", Boolean.class, true);
         earlyRate =

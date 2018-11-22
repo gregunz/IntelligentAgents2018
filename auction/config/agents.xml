@@ -7,13 +7,15 @@
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
-        <set verbosity="-1"/>
+        <set verbosity="2"/>
 
         <set bidRate="1.0"/>
+        <set minBidRate="0.0"/>
         <set inLearningRate="0.1"/>
         <set deLearningRate="0.15"/>
 
         <set smallestBid="1"/>
+        <set useCostUpperBound="0"/>
 
         <set useEarlyBidStrategy="true"/>
         <set earlyRate="0.5"/>
