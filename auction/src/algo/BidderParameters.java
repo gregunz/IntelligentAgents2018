@@ -70,6 +70,7 @@ public class BidderParameters {
                         useEarlyBidStrategy + ", " +
                         earlyRate + ", " +
                         numEarlyBids + ", " +
+                        maxDiscount + ", " +
                         useImportanceStrategy + ", " +
                         importanceLR + ", " +
                         timeForAdvPlanner + ", " +

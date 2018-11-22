@@ -1,7 +1,6 @@
 package algo;
 
 import logist.agent.Agent;
-import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
@@ -17,7 +16,6 @@ public class TaskImportanceEstimator {
     private final Map<CityPair, Double> posImportanceMap; // values are between -1 and 1
     private final Map<CityPair, Double> probImportanceMap; // values are between -1 and 1
     private final List<Double> marginalCostsDif;
-    private final double maxCap;
 
     private int minWeight = Integer.MAX_VALUE;
     private int maxWeight = Integer.MIN_VALUE;
@@ -36,13 +34,6 @@ public class TaskImportanceEstimator {
         this.marginalCostsDif = new ArrayList<>();
         this.marginalCostsDif.add(100d); // in order to have values for max and min when computing dif
         this.marginalCostsDif.add(-100d);
-        double maxCap = 0;
-        for (Vehicle v : agent.vehicles()) {
-            if (v.capacity() > maxCap) {
-                maxCap = v.capacity();
-            }
-        }
-        this.maxCap = maxCap;
 
         double dif = Math.abs(posWeight + probWeight + weightWeight + marginalWeight - 1);
         if (dif > 0.01) {
@@ -56,9 +47,6 @@ public class TaskImportanceEstimator {
     }
 
     public double get(Task task, double marginalDif) {
-        if (task.weight > maxCap) { // impossible to deliver
-            return 0;
-        }
 
         minWeight = Math.min(task.weight, minWeight);
         maxWeight = Math.max(task.weight, maxWeight);
@@ -137,7 +125,7 @@ public class TaskImportanceEstimator {
                     CityPair cp = new CityPair(from, to);
                     double bothDistances = cityToAllCitiesDistance.get(from) + cityToAllCitiesDistance.get(to);
                     double positionImportance = maxDistance - bothDistances; // the more centered (less distant to most cities), the more important
-                    double probImportance = probOfDeliveryCityMap.get(to); // the most common delivery city will be given more importance than one we rarely go
+                    double probImportance = probOfDeliveryCityMap.get(from); // if the city of pickup is likely to be a deliver city, the more important
 
                     this.posImportanceMap.put(cp, positionImportance);
                     this.probImportanceMap.put(cp, probImportance);
@@ -156,8 +144,6 @@ public class TaskImportanceEstimator {
                     CityPair cp = new CityPair(from, to);
                     this.posImportanceMap.put(cp, 2 * (this.posImportanceMap.get(cp) - minPosImp) / (maxPosImp - minPosImp) - 1);
                     this.probImportanceMap.put(cp, 2 * (this.probImportanceMap.get(cp) - minProbImp) / (maxProbImp - minProbImp) - 1);
-                    //this.maxWeight = Math.max(this.maxWeight, this.distribution.weight(from, to));
-                    //this.minWeight = Math.min(this.minWeight, this.distribution.weight(from, to));
                 }
             }
         }

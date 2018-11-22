@@ -73,9 +73,9 @@ public class Bidder {
                 marginalDif = marginalCost - this.advPlanner.estimateMarginalCost(task, p.timeForAdvPlanner);
             }
             double importance = taskImpEst.get(task, marginalDif);
-            double newBid = bid * (1 + p.importanceLR * importance);
-            PrintHandler.println("[BID] = bid * (1 + importanceLR * importance) = "
-                    + bid + " * ( 1 + " + p.importanceLR + " * " + importance + ") = " + newBid, 1);
+            double newBid = bid * (1 - p.importanceLR * importance);
+            PrintHandler.println("[BID] = bid * (1 - importanceLR * importance) = "
+                    + bid + " * ( 1 - " + p.importanceLR + " * " + importance + ") = " + newBid, 1);
             bid = newBid;
         }
 
@@ -83,8 +83,8 @@ public class Bidder {
             long minBid = minOfLatestBids() - p.difWithLatestBids;
             if (bid < minBid) {
                 updateBidRateForNextBid = false;
-                long finalBid = Math.max(p.smallestBid, minBid) - RandomHandler.get().nextInt(10);
-                PrintHandler.println("[BID] < " + minBid + ", returning finalBid = " + finalBid, 0);
+                long finalBid = Math.max(p.smallestBid, minBid - RandomHandler.get().nextInt(10));
+                PrintHandler.println("[BID] bid < " + minBid + ", returning finalBid = " + finalBid, 0);
                 return finalBid;
             }
         }
@@ -115,7 +115,7 @@ public class Bidder {
     private void increaseBidRate() {
         if (updateBidRateForNextBid) {
             if (p.inLearningRate != 0) {
-                double newBidRate = bidRate * (1 + p.deLearningRate);
+                double newBidRate = bidRate * (1 + p.inLearningRate);
                 PrintHandler.println("[UPT] increasing bidRate: " + bidRate + " -> " + newBidRate, 2);
                 bidRate = newBidRate;
             }
@@ -125,7 +125,7 @@ public class Bidder {
     private void decreaseBidRate() {
         if (updateBidRateForNextBid) {
             if (p.deLearningRate != 0) {
-                double newBidRate = bidRate / (1 + p.inLearningRate);
+                double newBidRate = bidRate * (1 - p.deLearningRate);
                 PrintHandler.println("[UPT] decreasing bidRate: " + bidRate + " -> " + newBidRate, 2);
                 bidRate = newBidRate;
             }
