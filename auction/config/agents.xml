@@ -228,25 +228,25 @@
 
     </agent>
 
-    <agent name="gregunz">
+    <agent name="gregunz1">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
         <set verbosity="-1"/>
 
-        <set bidRate="1.0"/>
+        <set bidRate="1.5"/>
         <set inLearningRate="0.1"/>
         <set deLearningRate="0.2"/>
 
-        <set smallestBid="1"/>
+        <set smallestBid="50"/>
 
         <set useEarlyBidStrategy="true"/>
         <set earlyRate="0.4"/>
-        <set numEarlyBids="3"/>
+        <set numEarlyBids="6"/>
         <set maxDiscount="500"/>
 
         <set useImportanceStrategy="true"/>
-        <set importanceLR="0.1"/>
+        <set importanceLR="0.15"/>
         <set timeForAdvPlanner="500"/>
         <set posWeight="0.35"/>
         <set probWeight="0.35"/>
@@ -254,15 +254,31 @@
         <set marginalWeight="0.2"/>
 
         <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="5"/>
-        <set numOfOurLatestBids="5"/>
+        <set numOfAdvLatestBids="3"/>
+        <set numOfOurLatestBids="3"/>
         <set difWithLatestBids="2"/>
 
     </agent>
 
-    <agent name="OVSS">
+    <agent name="ovss1">
         <set class-path="agents/ovss.jar"/>
         <set class-name="AuctionAgent.AgentTeamWL"/>
+    </agent>
+    <agent name="ovss2">
+        <set class-path="agents/ovss.jar"/>
+        <set class-name="TestAgent.AuctionRiskSeeking"/>
+    </agent>
+    <agent name="ovss3">
+        <set class-path="agents/ovss.jar"/>
+        <set class-name="TestAgent.AuctionHonest"/>
+    </agent>
+    <agent name="ovss4">
+        <set class-path="agents/ovss.jar"/>
+        <set class-name="TestAgent.AuctionBestResponse"/>
+    </agent>
+    <agent name="ovss5">
+        <set class-path="agents/ovss.jar"/>
+        <set class-name="TestAgent.AuctionNaive"/>
     </agent>
 
 </agents>
