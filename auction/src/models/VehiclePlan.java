@@ -256,7 +256,9 @@ public class VehiclePlan {
     }
 
     public Plan getPlan(Function<Task, Task> oldToNewTasks) {
-
+        if (actionSequence.isEmpty()) {
+            return Plan.EMPTY;
+        }
         Topology.City currentCity = this.vehicle.getCurrentCity();
         Plan plan = new Plan(currentCity);
 

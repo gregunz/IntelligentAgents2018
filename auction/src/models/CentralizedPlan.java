@@ -49,6 +49,13 @@ public class CentralizedPlan {
     }
 
     public List<Plan> toLogistPlans(TaskSet trueTasks) {
+        List<Plan> plans = new ArrayList<>();
+        if (trueTasks.isEmpty()) {
+            for (Vehicle v : vehicles) {
+                plans.add(Plan.EMPTY);
+            }
+            return plans;
+        }
         Map<Task, Task> oldToNewTasksMap = new HashMap<>();
         for (Task t1 : trueTasks) {
             for (Task t2 : this.tasks) {
@@ -57,7 +64,10 @@ public class CentralizedPlan {
                 }
             }
         }
-        return this.vehicles.stream().map(v -> this.plans.get(v).getPlan(oldToNewTasksMap::get)).collect(Collectors.toList());
+        for (Vehicle v : vehicles) {
+            plans.add(this.plans.get(v).getPlan(oldToNewTasksMap::get));
+        }
+        return plans;
     }
 
     public CentralizedPlan copy() {
