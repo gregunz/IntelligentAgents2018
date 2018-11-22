@@ -248,8 +248,8 @@
         <set useImportanceStrategy="true"/>
         <set importanceLR="0.1"/>
         <set timeForAdvPlanner="500"/>
-        <set posWeight="0.45"/>
-        <set probWeight="0.25"/>
+        <set posWeight="0.35"/>
+        <set probWeight="0.35"/>
         <set weightWeight="0.1"/>
         <set marginalWeight="0.2"/>
 
