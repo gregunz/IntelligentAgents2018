@@ -1,9 +1,6 @@
 package agent;
 
-import algo.Bidder;
-import algo.BidderParameters;
-import algo.Planner;
-import algo.TaskImportanceEstimator;
+import algo.*;
 import logist.LogistSettings;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
@@ -17,6 +14,7 @@ import logist.topology.Topology;
 import print.PrintHandler;
 import random.RandomHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,10 +58,11 @@ public class AuctionAgent implements AuctionBehavior {
         long bidTimeout = ls.get(LogistSettings.TimeoutKey.BID) - PLAN_TIME_MARGIN - timeForAdvPlanner;
         planTimeout = ls.get(LogistSettings.TimeoutKey.PLAN) - 2 * PLAN_TIME_MARGIN;
 
-        long seed = -9019554669489983951L * agent.vehicles().get(0).hashCode() * agent.id();
+        long seed = -901955466948998391L * agent.vehicles().get(0).hashCode() * agent.id();
         RandomHandler.set(seed);
 
-        bidder = new Bidder(
+        if (false) {
+        bidder = new SmartBidder(
                 agent,
                 topology,
                 distribution,
@@ -71,7 +70,39 @@ public class AuctionAgent implements AuctionBehavior {
                 taskImpEst,
                 agent.readProperty("bidRate", Double.class, 1.0),
                 parameters
-        );
+        );} else {
+            Long setupTimeout = ls.get(LogistSettings.TimeoutKey.SETUP);
+            int trials = 5;
+            Double[] costs = new Double[trials];
+            for (int i = 0; i < trials; i++) {
+                Planner planner = new Planner(agent.vehicles());
+                for (int j = 0; j < 10; j++){
+                    Topology.City c1 = topology.randomCity(RandomHandler.get());
+                    Topology.City c2 = topology.randomCity(RandomHandler.get());
+                    if (c1 == c2) {
+                        j--;
+                    } else {
+                        Task task = new Task(0, c1, c2, distribution.reward(c1, c2), distribution.weight(c1, c2));
+                        planner.addTask(task);
+                    }
+                }
+                System.out.println((long) (setupTimeout * (1./trials)));
+                costs[i] = planner.findBestPlan((long) (setupTimeout * (1./trials))).getCost();
+
+            }
+
+            Double value = 0.;
+            for (int i = 0; i < trials; i++){
+                if (costs[i] > value) {
+                    value = costs[i];
+                }
+            }
+            bidder = new DumbBidder(agent,
+                    topology,
+                    distribution,
+                    value / 10.
+            );
+        }
     }
 
     @Override
