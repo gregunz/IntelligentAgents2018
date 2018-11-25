@@ -36,157 +36,13 @@
         <set difWithLatestBids="2"/>
 
     </agent>
-
-    <agent name="earlyStrat">
+    <agent name="auction-main-33">
         <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
+        <set class-name="agent.FinalAuctionAgent"/>
 
         <set verbosity="-1"/>
 
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="true"/>
-        <set earlyRate="0.5"/>
-        <set numEarlyBids="5"/>
-        <set maxDiscount="300"/>
-
-        <set useImportanceStrategy="false"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-
     </agent>
-
-    <agent name="posImp">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="false"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="1.0"/>
-        <set probWeight="0.0"/>
-        <set weightWeight="0.0"/>
-        <set marginalWeight="0.0"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-
-    </agent>
-
-    <agent name="probImp">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="false"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.0"/>
-        <set probWeight="1.0"/>
-        <set weightWeight="0.0"/>
-        <set marginalWeight="0.0"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-
-    </agent>
-
-    <agent name="weightImp">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="false"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.0"/>
-        <set probWeight="0.0"/>
-        <set weightWeight="1.0"/>
-        <set marginalWeight="0.0"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-
-    </agent>
-
-    <agent name="marginalImp">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="false"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.1"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.0"/>
-        <set probWeight="0.0"/>
-        <set weightWeight="0.0"/>
-        <set marginalWeight="1.0"/>
-
-        <set useMinOfAdvBidsStrategy="false"/>
-
-    </agent>
-
-    <agent name="minOfAdvStrat">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
-
-        <set smallestBid="1"/>
-
-        <set useEarlyBidStrategy="false"/>
-
-        <set useImportanceStrategy="false"/>
-
-        <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="5"/>
-        <set numOfOurLatestBids="5"/>
-        <set difWithLatestBids="2"/>
-
-    </agent>
-
     <agent name="simplest">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
@@ -203,25 +59,102 @@
         <set useImportanceStrategy="false"/>
         <set useMinOfAdvBidsStrategy="false"/>
     </agent>
-
-    <agent name="earlyMinBid">
+    <agent name="naive">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionTemplate"/>
+    </agent>
+    <agent name="earlyBid">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
         <set verbosity="-1"/>
 
         <set bidRate="1.0"/>
-        <set inLearningRate="0.1"/>
-        <set deLearningRate="0.15"/>
+        <set minBidRate="0.0"/>
+        <set inLearningRate="0.0"/>
+        <set deLearningRate="0.0"/>
 
         <set smallestBid="1"/>
+        <set useCostUpperBound="0"/>
 
         <set useEarlyBidStrategy="true"/>
         <set earlyRate="0.5"/>
-        <set numEarlyBids="4"/>
+        <set numEarlyBids="5"/>
         <set maxDiscount="300"/>
 
         <set useImportanceStrategy="false"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="500"/>
+        <set posWeight="0.25"/>
+        <set probWeight="0.25"/>
+        <set weightWeight="0.25"/>
+        <set marginalWeight="0.25"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+        <set numOfAdvLatestBids="5"/>
+        <set numOfOurLatestBids="5"/>
+        <set difWithLatestBids="2"/>
+
+    </agent>
+    <agent name="importance">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set minBidRate="0.0"/>
+        <set inLearningRate="0.0"/>
+        <set deLearningRate="0.0"/>
+
+        <set smallestBid="1"/>
+        <set useCostUpperBound="0"/>
+
+        <set useEarlyBidStrategy="false"/>
+        <set earlyRate="0.5"/>
+        <set numEarlyBids="5"/>
+        <set maxDiscount="300"/>
+
+        <set useImportanceStrategy="true"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="500"/>
+        <set posWeight="0.25"/>
+        <set probWeight="0.25"/>
+        <set weightWeight="0.25"/>
+        <set marginalWeight="0.25"/>
+
+        <set useMinOfAdvBidsStrategy="false"/>
+        <set numOfAdvLatestBids="5"/>
+        <set numOfOurLatestBids="5"/>
+        <set difWithLatestBids="2"/>
+
+    </agent>
+    <agent name="minAdv">
+        <set class-path="bin/"/>
+        <set class-name="agent.AuctionAgent"/>
+
+        <set verbosity="-1"/>
+
+        <set bidRate="1.0"/>
+        <set minBidRate="0.0"/>
+        <set inLearningRate="0.0"/>
+        <set deLearningRate="0.0"/>
+
+        <set smallestBid="1"/>
+        <set useCostUpperBound="0"/>
+
+        <set useEarlyBidStrategy="false"/>
+        <set earlyRate="0.5"/>
+        <set numEarlyBids="5"/>
+        <set maxDiscount="300"/>
+
+        <set useImportanceStrategy="false"/>
+        <set importanceLR="0.2"/>
+        <set timeForAdvPlanner="500"/>
+        <set posWeight="0.25"/>
+        <set probWeight="0.25"/>
+        <set weightWeight="0.25"/>
+        <set marginalWeight="0.25"/>
 
         <set useMinOfAdvBidsStrategy="true"/>
         <set numOfAdvLatestBids="5"/>
@@ -229,160 +162,37 @@
         <set difWithLatestBids="2"/>
 
     </agent>
-
-    <agent name="gregunz1">
+    <agent name="evolvingRatio">
         <set class-path="bin/"/>
         <set class-name="agent.AuctionAgent"/>
 
         <set verbosity="-1"/>
 
-        <set bidRate="1.5"/>
+        <set bidRate="1.0"/>
+        <set minBidRate="0.0"/>
         <set inLearningRate="0.1"/>
-        <set deLearningRate="0.2"/>
+        <set deLearningRate="0.15"/>
 
-        <set smallestBid="50"/>
-
-        <set useEarlyBidStrategy="true"/>
-        <set earlyRate="0.4"/>
-        <set numEarlyBids="6"/>
-        <set maxDiscount="500"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.15"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.35"/>
-        <set probWeight="0.35"/>
-        <set weightWeight="0.1"/>
-        <set marginalWeight="0.2"/>
-
-        <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="3"/>
-        <set numOfOurLatestBids="3"/>
-        <set difWithLatestBids="2"/>
-
-    </agent>
-
-    <agent name="gregunz2">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.5"/>
-        <set minBidRate="1.0"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
-
-        <set smallestBid="100"/>
-        <set useCostUpperBound="2"/>
-
-        <set useEarlyBidStrategy="true"/>
-        <set earlyRate="0.4"/>
-        <set numEarlyBids="8"/>
-        <set maxDiscount="1000"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.2"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.35"/>
-        <set probWeight="0.35"/>
-        <set weightWeight="0.0"/>
-        <set marginalWeight="0.3"/>
-
-        <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="5"/>
-        <set numOfOurLatestBids="1"/>
-        <set difWithLatestBids="2"/>
-
-    </agent>
-
-    <agent name="gregunz3">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.2"/>
-        <set minBidRate="1.1"/>
-        <set inLearningRate="0.05"/>
-        <set deLearningRate="0.1"/>
-
-        <set smallestBid="100"/>
-        <set useCostUpperBound="2"/>
-
-        <set useEarlyBidStrategy="true"/>
-        <set earlyRate="0.5"/>
-        <set numEarlyBids="5"/>
-        <set maxDiscount="500"/>
-
-        <set useImportanceStrategy="true"/>
-        <set importanceLR="0.2"/>
-        <set timeForAdvPlanner="500"/>
-        <set posWeight="0.25"/>
-        <set probWeight="0.5"/>
-        <set weightWeight="0.0"/>
-        <set marginalWeight="0.25"/>
-
-        <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="3"/>
-        <set numOfOurLatestBids="0"/>
-        <set difWithLatestBids="2"/>
-
-    </agent>
-
-    <agent name="gregunz4">
-        <set class-path="bin/"/>
-        <set class-name="agent.AuctionAgent"/>
-
-        <set verbosity="-1"/>
-
-        <set bidRate="1.2"/>
-        <set minBidRate="1.1"/>
-        <set inLearningRate="0.15"/>
-        <set deLearningRate="0.2"/>
-
-        <set smallestBid="50"/>
+        <set smallestBid="1"/>
         <set useCostUpperBound="0"/>
 
-        <set useEarlyBidStrategy="true"/>
+        <set useEarlyBidStrategy="false"/>
         <set earlyRate="0.5"/>
         <set numEarlyBids="5"/>
-        <set maxDiscount="500"/>
+        <set maxDiscount="300"/>
 
-        <set useImportanceStrategy="true"/>
+        <set useImportanceStrategy="false"/>
         <set importanceLR="0.2"/>
         <set timeForAdvPlanner="500"/>
         <set posWeight="0.25"/>
-        <set probWeight="0.5"/>
-        <set weightWeight="0.0"/>
+        <set probWeight="0.25"/>
+        <set weightWeight="0.25"/>
         <set marginalWeight="0.25"/>
 
-        <set useMinOfAdvBidsStrategy="true"/>
-        <set numOfAdvLatestBids="3"/>
-        <set numOfOurLatestBids="0"/>
+        <set useMinOfAdvBidsStrategy="false"/>
+        <set numOfAdvLatestBids="5"/>
+        <set numOfOurLatestBids="5"/>
         <set difWithLatestBids="2"/>
-
-    </agent>
-
-    <agent name="ovss1">
-        <set class-path="agents/ovss.jar"/>
-        <set class-name="AuctionAgent.AgentTeamWL"/>
-    </agent>
-    <agent name="ovss2">
-        <set class-path="agents/ovss.jar"/>
-        <set class-name="TestAgent.AuctionRiskSeeking"/>
-    </agent>
-    <agent name="ovss3">
-        <set class-path="agents/ovss.jar"/>
-        <set class-name="TestAgent.AuctionHonest"/>
-    </agent>
-    <agent name="ovss4">
-        <set class-path="agents/ovss.jar"/>
-        <set class-name="TestAgent.AuctionBestResponse"/>
-    </agent>
-    <agent name="ovss5">
-        <set class-path="agents/ovss.jar"/>
-        <set class-name="TestAgent.AuctionNaive"/>
     </agent>
 
 </agents>
