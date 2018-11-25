@@ -14,11 +14,10 @@ import logist.topology.Topology;
 import print.PrintHandler;
 import random.RandomHandler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AuctionAgent implements AuctionBehavior {
+public class FinalAuctionAgent implements AuctionBehavior {
 
     private long planTimeout;
 
@@ -30,7 +29,7 @@ public class AuctionAgent implements AuctionBehavior {
         PrintHandler.setVerbosityLevel(agent.readProperty("verbosity", Integer.class, 2));
         PrintHandler.println("[START] we are agent <" + agent.id() + ">", 1);
 
-        BidderParameters parameters = new BidderParameters(agent);
+        BidderParameters parameters = new BidderParameters();
 
         LogistSettings ls = null;
         try {
@@ -67,7 +66,7 @@ public class AuctionAgent implements AuctionBehavior {
                 distribution,
                 bidTimeout,
                 taskImpEst,
-                agent.readProperty("bidRate", Double.class, 1.0),
+                1.0,
                 parameters
         );
     }

@@ -89,4 +89,48 @@ public class BidderParameters {
                         numOfOurLatestBids + ", " +
                         difWithLatestBids + ")");
     }
+
+    public BidderParameters() {
+        minBidRate = 1.0;
+        inLearningRate = 0.05;
+        deLearningRate = 0.1;
+        smallestBid = 100;
+        useCostUpperBound = 2;
+        useEarlyBidStrategy = true;
+        earlyRate = 0.4;
+        numEarlyBids = 8;
+        maxDiscount = 1000;
+        useImportanceStrategy = true;
+        importanceLR = 0.2;
+        timeForAdvPlanner = 500;
+        final double numOfWeights = 4;
+        posWeight = 0.35;
+        probWeight = 0.35;
+        weightWeight = 0.35;
+        marginalWeight = 0.3;
+        useMinOfAdvBidsStrategy = true;
+        numOfAdvLatestBids = 5;
+        numOfOurLatestBids = 1;
+        difWithLatestBids = 2;
+
+        PrintHandler.println(
+                "(" + inLearningRate + ", " +
+                        deLearningRate + ", " +
+                        smallestBid + ", " +
+                        useEarlyBidStrategy + ", " +
+                        earlyRate + ", " +
+                        numEarlyBids + ", " +
+                        maxDiscount + ", " +
+                        useImportanceStrategy + ", " +
+                        importanceLR + ", " +
+                        timeForAdvPlanner + ", " +
+                        posWeight + ", " +
+                        probWeight + ", " +
+                        weightWeight + ", " +
+                        marginalWeight + ", " +
+                        useMinOfAdvBidsStrategy + ", " +
+                        numOfAdvLatestBids + ", " +
+                        numOfOurLatestBids + ", " +
+                        difWithLatestBids + ")");
+    }
 }
