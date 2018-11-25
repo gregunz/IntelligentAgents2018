@@ -106,7 +106,7 @@ public class BidderParameters {
         final double numOfWeights = 4;
         posWeight = 0.35;
         probWeight = 0.35;
-        weightWeight = 0.35;
+        weightWeight = 0.0;
         marginalWeight = 0.3;
         useMinOfAdvBidsStrategy = true;
         numOfAdvLatestBids = 5;
